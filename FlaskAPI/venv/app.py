@@ -12,24 +12,28 @@ openai.api_key = api_key
 
 @app.route('/')
 def hello_world():
-    return 'Hello, World!'
+    return 'chatgpt nice brother wojack!'
+
 
 @app.route('/generate', methods=['POST'])
-def generate_text():
+def didGPTWrite():
     data = request.json
-    prompt = data.get('prompt', '')
+    user_prompt = data.get('prompt', '')
+
+    messages = [
+        {"role": "system", "content": "You are trying to determine whether or not ChatGPT wrote the prompt being given to you."},
+        {"role": "user", "content": user_prompt}
+    ]
 
     try:
-        response = openai.Completion.create(
-          engine="text-davinci-003",
-          prompt=prompt,
-          temperature=0.6,
-          max_tokens=150
+        response = openai.ChatCompletion.create(
+            model="gpt-4",
+            messages=messages
         )
 
         return jsonify({
             'success': True,
-            'response': response.choices[0].text.strip()
+            'response': response['choices'][0]['message']['content'].strip()
         })
 
     except Exception as e:
@@ -37,6 +41,7 @@ def generate_text():
             'success': False,
             'error': str(e)
         })
+
 
 if __name__ == '__main__':
     app.run(debug=True)
