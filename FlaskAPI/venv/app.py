@@ -1,8 +1,10 @@
 from flask import Flask, request, jsonify
 import json
 import openai
+from flask_cors import CORS
 
 app = Flask(__name__)
+CORS(app)
 
 with open('config.json') as f:
     config = json.load(f)

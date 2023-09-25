@@ -5,6 +5,21 @@
   text-align: center;
 }
 
+.inputContainer {
+  display: flex;
+  flex-direction: column;
+  align-items: center; /* Horizontal center alignment */
+  width: 100%;
+}
+
+button {
+  margin-top: 10px; /* or whatever value you prefer */
+}
+
+h1 {
+  font-family: 'Dela Gothic One', cursive;
+}
+
 .logo {
   height: 6em;
   padding: 1.5em;
