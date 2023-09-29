@@ -1,0 +1,6 @@
+{
+    "watch": ["FlaskAPI"],
+    "ext": "py",
+    "exec": "python FlaskAPI/venv/app.py"
+  }
+  
