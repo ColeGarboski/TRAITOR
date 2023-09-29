@@ -12,7 +12,7 @@
   "scripts": {
     "check-os": "node -e \"process.platform === 'win32' ? process.exit(1) : process.exit(0)\"",
     "start:vite": "vite",
-    "start:api": "npm run check-os && source FlaskAPI/venv/bin/activate && nodemon --exec python FlaskAPI/venv/app.py || FlaskAPI\\venv\\Scripts\\activate && nodemon --exec python FlaskAPI\\venv\\app.py",    "dev": "concurrently \"npm run start:vite\" \"npm run start:api\"",
+    "start:api": "npm run check-os && source venv/bin/activate && nodemon --exec python FlaskAPI/venv/app.py || FlaskAPI\\venv\\Scripts\\activate && nodemon --exec python FlaskAPI\\venv\\app.py",    "dev": "concurrently \"npm run start:vite\" \"npm run start:api\"",
     "build": "vite build",
     "lint": "eslint . --ext js,jsx --report-unused-disable-directives --max-warnings 0",
     "preview": "vite preview"
