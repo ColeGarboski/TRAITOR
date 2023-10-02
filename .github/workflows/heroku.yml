@@ -1,18 +1,22 @@
-name: Deploy to heroku
+name: Deploy to Heroku
 
 on:
   push:
     branches:
-      - master
+      - main  # Adjust the branch name as needed
 
 jobs:
   build:
     runs-on: ubuntu-latest
+
     steps:
-      - uses: actions/checkout@v2
-      - uses: akhileshns/heroku-deploy@v3.12.14 # This is the action
+      - name: Checkout code
+        uses: actions/checkout@v2
+
+      - name: Deploy to Heroku
+        uses: akhileshns/heroku-deploy@v3.12.14
         with:
           heroku_api_key: ${{secrets.HEROKU_API_KEY}}
-          heroku_app_name: "tr-ai-torapi" #Must be unique in Heroku
-          heroku_email: "cole.garboski@snhu.edu"
-          appdir: "FlaskAPI" # <- This will point to the api folder in your project
+          heroku_app_name: "tr-ai-torapi" # Replace with your Heroku app name
+          heroku_email: "cole.garboski@snhu.edu" # Replace with your Heroku account email
+          appdir: "FlaskAPI" # Replace with the directory containing your Flask API code
