@@ -1,23 +1,18 @@
-name: Deploy to Heroku
+name: Deploy to heroku
 
 on:
   push:
     branches:
-      - main
+      - master
 
 jobs:
-  deploy:
+  build:
     runs-on: ubuntu-latest
-
     steps:
-      - name: Checkout code
-        uses: actions/checkout@v2
-
-      - name: Set up Heroku CLI
-        uses: heroku/actions/setup-heroku@v3
+      - uses: actions/checkout@v2
+      - uses: akhileshns/heroku-deploy@v3.12.14 # This is the action
         with:
-          heroku_api_key: ${{ secrets.HEROKU_API_KEY }}
-
-      - name: Deploy to Heroku
-        run: |
-          git subtree push --prefix=FlaskAPI heroku master
+          heroku_api_key: ${{secrets.HEROKU_API_KEY}}
+          heroku_app_name: "tr-ai-torapi" #Must be unique in Heroku
+          heroku_email: "cole.garboski@snhu.edu"
+          appdir: "FlaskAPI" # <- This will point to the api folder in your project
