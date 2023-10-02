@@ -10,7 +10,7 @@ function App() {
     const handleSubmit = async () => {
         setLoading(true); // Set loading to true when request starts
         try {
-            const result = await axios.post('http://127.0.0.1:5000/generate', { prompt: text });
+            const result = await axios.post('https://tr-ai-torapi-d1938a8a0bce.herokuapp.com/generate', { prompt: text });
             setResponse(result.data.response);
         } catch (error) {
             console.error('There was an error sending the request', error);
