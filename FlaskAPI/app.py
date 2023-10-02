@@ -12,7 +12,7 @@ openai.api_key = api_key
 
 @app.route('/')
 def hello_world():
-    return 'chatgpt nice brother wojack!'
+    return 'chatgpt nice brother wojak!'
 
 
 @app.route('/generate', methods=['POST'])
