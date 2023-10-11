@@ -1,42 +1,29 @@
-import { useState } from 'react';
-import axios from 'axios'; 
+import { BrowserRouter as Router, Routes, Route, Link } from 'react-router-dom';
+import HomePage from '/src/components/HomePage';
+import ResultsPage from '/src/components/ResultsPage';
 import './App.css';
 
 function App() {
-    const [text, setText] = useState(''); 
-    const [response, setResponse] = useState(''); 
-    const [loading, setLoading] = useState(false);
-
-    const handleSubmit = async () => {
-        setLoading(true); // Set loading to true when request starts
-        try {
-            //let apiLink = 'https://tr-ai-torapi-d1938a8a0bce.herokuapp.com/generate'; //UNCOMMENT FOR PROD MODE
-            let apiLink = 'http://127.0.0.1:5000/generate'; //UNCOMMENT FOR DEV MODE
-            const result = await axios.post(apiLink, { prompt: text });
-            setResponse(result.data.response);
-        } catch (error) {
-            console.error('There was an error sending the request', error);
-            setResponse('There was an error sending the request');
-        } finally {
-            setLoading(false); // Set loading back to false once request completes
-        }
-    };
-
     return (
-        <div className="App">
-            <h1>trAItor</h1>
-            <div className="inputContainer">
-                <textarea
-                    value={text}
-                    onChange={(e) => setText(e.target.value)}
-                    placeholder="Enter your text here"
-                    rows={5}
-                    cols={50}
-                />
-                {!loading && <button onClick={handleSubmit}>Submit</button>}
+        <Router>
+            <div className="App">
+                <nav>
+                    <ul>
+                        <li>
+                            <Link to="/">Home</Link>
+                        </li>
+                        <li>
+                            <Link to="/results">Results Page</Link>
+                        </li>
+                    </ul>
+                </nav>
+
+                <Routes>
+                    <Route path="/" element={<HomePage />}></Route>
+                    <Route path="/results" element={<ResultsPage />}></Route>
+                </Routes>
             </div>
-            {response && <div><h2>Response:</h2><p>{response}</p></div>}
-        </div>
+        </Router>
     );
 }
 
