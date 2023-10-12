@@ -1,0 +1,12 @@
+/* This is where Tailwind's base styles will be injected */
+@tailwind base;
+
+/* This is where Tailwind's component styles will be injected */
+@tailwind components;
+
+/* And here you can add any custom components or overrides */
+
+/* Finally, this is where Tailwind's utility styles will be injected */
+@tailwind utilities;
+
+/* You can also add custom utilities after this directive */
