@@ -14,8 +14,8 @@ function HomePage() {
   const handleSubmit = async () => {
     setLoading(true);
     try {
-      let apiLink = 'https://tr-ai-torapi-d1938a8a0bce.herokuapp.com/generate'; //UNCOMMENT FOR PROD MODE
-      //let apiLink = 'http://127.0.0.1:5000/generate'; //UNCOMMENT FOR DEV MODE
+      let apiLink = 'https://tr-ai-torapi-d1938a8a0bce.herokuapp.com/askgpt'; //UNCOMMENT FOR PROD MODE
+      //let apiLink = 'http://127.0.0.1:5000/askgpt'; //UNCOMMENT FOR DEV MODE
       const result = await axios.post(apiLink, { prompt: text });
       setResponse(result.data.response);
       dispatch(setData(result.data.response))
