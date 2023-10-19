@@ -35,6 +35,7 @@ __pycache__/
 
 # Distribution / packaging
 .Python
+FlaskAPI/venv
 env/
 build/
 develop-eggs/
