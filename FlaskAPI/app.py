@@ -32,6 +32,7 @@ def askGPT():
         )
 
         return jsonify({
+            'testName': 'AskGPT',
             'success': True,
             'response': response['choices'][0]['message']['content'].strip()
         })
@@ -69,6 +70,7 @@ def reversePrompt():
         reversed_prompt = reverse_response['choices'][0]['message']['content'].strip()
 
         return jsonify({
+            'testName': 'ReversePrompt',
             'success': True,
             'original_prompt': user_prompt,
             'reversed_prompt': reversed_prompt,
