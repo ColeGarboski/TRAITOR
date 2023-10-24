@@ -3,25 +3,65 @@ import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
 import { useDispatch } from 'react-redux';
 import { setData } from '/src/dataSlice';
+import { storage } from '/src/firebase';
+import { ref, uploadBytes } from 'firebase/storage';
 
 function HomePage() {
   const dispatch = useDispatch(); //Used for Redux
   const [text, setText] = useState('');
   const [response, setResponse] = useState('');
   const [loading, setLoading] = useState(false);
+  const [file, setFile] = useState(null);
   const navigate = useNavigate();
+
+  const handleDrop = async (e) => {
+    e.preventDefault();
+    const file = e.dataTransfer.files[0];
+    if (file && file.name.endsWith('.docx')) {
+      setFile(file);
+      const fileRef = ref(storage, `files/${file.name}`);
+      await uploadBytes(fileRef, file);
+      console.log('File uploaded successfully');
+    } else {
+      alert('Please upload a .docx file');
+    }
+  };
+
+  const handleDragOver = (e) => {
+    e.preventDefault();
+  };
 
   const handleSubmit = async () => {
     setLoading(true);
     try {
-      let apiLink = 'https://tr-ai-torapi-d1938a8a0bce.herokuapp.com/askgpt'; //UNCOMMENT FOR PROD MODE
-      //let apiLink = 'http://127.0.0.1:5000/askgpt'; //UNCOMMENT FOR DEV MODE
-      const result = await axios.post(apiLink, { prompt: text });
-      setResponse(result.data.response);
-      dispatch(setData(result.data.response))
+      
+      const apiLinks = [ //UNCOMMENT FOR PROD MODE
+          'https://tr-ai-torapi-d1938a8a0bce.herokuapp.com/askgpt', 
+          'https://tr-ai-torapi-d1938a8a0bce.herokuapp.com/reverseprompt', 
+      ];
+
+      // const apiLinks = [ //UNCOMMENT FOR DEV MODE
+      //   'http://127.0.0.1:5000/askgpt',
+      //   'http://127.0.0.1:5000/reverseprompt',
+      // ]; 
+
+      const results = await Promise.all(
+        apiLinks.map(link => axios.post(link, { prompt: text }))
+      );
+
+      let combinedResponse = {};
+      results.forEach((res, index) => {
+        const routeKey = apiLinks[index].split('/').pop(); // Extract the last part of the URL as the key
+        combinedResponse[routeKey] = res.data;
+      });
+      
+      setResponse(combinedResponse);
+      console.log(combinedResponse);
+      dispatch(setData(combinedResponse));
+
     } catch (error) {
-      console.error('There was an error sending the request', error);
-      setResponse('There was an error sending the request');
+      console.error('There was an error sending the requests', error);
+      setResponse('There was an error sending the requests');
     } finally {
       navigate('/results');
       setLoading(false);
@@ -44,6 +84,13 @@ function HomePage() {
             Submit
           </button>
         )}
+        <div
+          onDrop={handleDrop}
+          onDragOver={handleDragOver}
+          className="w-96 h-32 border-2 border-dashed border-slate-500 flex items-center justify-center rounded"
+        >
+          <p>Drag and drop a .docx file here</p>
+        </div>
       </div>
       {response && (
         <div className="flex flex-col items-center space-y-4">
