@@ -1,4 +1,4 @@
-# TR*AI*TOR 🤖
+# TR*AI*TOR
 
 TR*AI*TOR is an AI Generated text and cheating detection web app designed to help educators and content creators ensure the originality of written content. Built with React, Flask, and Firebase, TR*AI*TOR combines the power of artificial intelligence with a user-friendly web interface to provide a comprehensive solution for detecting and preventing plagiarism.
 
