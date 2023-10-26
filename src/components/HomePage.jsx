@@ -12,15 +12,21 @@ function HomePage() {
   const [response, setResponse] = useState('');
   const [loading, setLoading] = useState(false);
   const [file, setFile] = useState(null);
+  const [fileUploaded, setFileUploaded] = useState(false);
   const navigate = useNavigate();
 
   const handleDrop = async (e) => {
     e.preventDefault();
+    if (fileUploaded) {
+      alert('File has already been uploaded');
+      return;
+    }
     const file = e.dataTransfer.files[0];
     if (file && file.name.endsWith('.docx')) {
       setFile(file);
       const fileRef = ref(storage, `files/${file.name}`);
       await uploadBytes(fileRef, file);
+      setFileUploaded(true);
       console.log('File uploaded successfully');
     } else {
       alert('Please upload a .docx file');
@@ -54,11 +60,10 @@ function HomePage() {
         const routeKey = apiLinks[index].split('/').pop(); // Extract the last part of the URL as the key
         combinedResponse[routeKey] = res.data;
       });
-      
+
       setResponse(combinedResponse);
       console.log(combinedResponse);
       dispatch(setData(combinedResponse));
-
     } catch (error) {
       console.error('There was an error sending the requests', error);
       setResponse('There was an error sending the requests');
@@ -80,7 +85,10 @@ function HomePage() {
           className="w-96 h-32 p-2 bg-slate-700 text-slate-100 rounded"
         />
         {!loading && (
-          <button onClick={handleSubmit} className="px-4 py-2 text-base font-medium bg-slate-900 rounded-lg transition-colors duration-200 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-opacity-50">
+          <button
+            onClick={handleSubmit}
+            className="px-4 py-2 text-base font-medium bg-slate-900 rounded-lg transition-colors duration-200 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-opacity-50"
+          >
             Submit
           </button>
         )}
@@ -89,7 +97,11 @@ function HomePage() {
           onDragOver={handleDragOver}
           className="w-96 h-32 border-2 border-dashed border-slate-500 flex items-center justify-center rounded"
         >
-          <p>Drag and drop a .docx file here</p>
+          {fileUploaded ? (
+            <p>File has been uploaded</p>
+          ) : (
+            <p>Drag and drop a .docx file here</p>
+          )}
         </div>
       </div>
       {response && (
