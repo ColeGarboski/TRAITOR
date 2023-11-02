@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import {useEffect, useState} from 'react';
 import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
 import { useDispatch } from 'react-redux';
@@ -19,7 +19,9 @@ function HomePage() {
     const file = e.dataTransfer.files[0];
     if (file && file.name.endsWith('.docx')) {
       setFile(file);
-      const fileRef = ref(storage, `files/${file.name}`);
+
+      const fileRef = ref(storage, `files/${sessionID}/${file.name}`);
+
       await uploadBytes(fileRef, file);
       console.log('File uploaded successfully');
     } else {
@@ -30,6 +32,19 @@ function HomePage() {
   const handleDragOver = (e) => {
     e.preventDefault();
   };
+
+  const [sessionID, setSessionID] = useState('');
+
+  useEffect(() => {
+    (async () => {
+      try {
+        const response = await axios.get('http://127.0.0.1:8080/get-token'); // Change URL accordingly
+        setSessionID(response.data);
+      } catch (error) {
+        console.error("Couldn't fetch session ID", error);
+      }
+    })();
+  }, []);
 
   const handleSubmit = async () => {
     setLoading(true);
