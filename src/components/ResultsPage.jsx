@@ -10,8 +10,8 @@ function ResultsPage() {
   const reversePromptResponse = GPTResponse.reverseprompt ? GPTResponse.reverseprompt.reversed_prompt : ''; // Assuming you have a "description" field in reverseprompt
 
   return (
-    <div className="font-inter text-white bg-slate-950 min-w-full min-h-screen flex flex-col items-center justify-center space-y-4">
-      <Result
+    <div className="flex flex-col items-center justify-center min-h-screen bg-gradient-to-br from-purple-900 to-indigo-800 font-inter text-white">
+    <Result
         status="pass"
         testName="Does it think it wrote it?"
         evaluation={askGPTResponse}
