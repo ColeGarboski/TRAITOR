@@ -52,7 +52,9 @@ function HomePage() {
   useEffect(() => {
     (async () => {
       try {
-        const response = await axios.get('http://127.0.0.1:8080/get-token'); // Change URL accordingly
+        //const response = await axios.get('http://127.0.0.1:5000/get-token'); // Change URL accordingly
+        const response = await axios.get('https://tr-ai-torapi-d1938a8a0bce.herokuapp.com/get-token'); // Change URL accordingly
+        //const response = await axios.get('http://127.0.0.1:8080/get-token'); // Change URL accordingly
         setSessionID(response.data);
       } catch (error) {
         console.error("Couldn't fetch session ID", error);
@@ -64,15 +66,15 @@ function HomePage() {
     setLoading(true);
     try {
       
-      /* const apiLinks = [ //UNCOMMENT FOR PROD MODE
+      const apiLinks = [ //UNCOMMENT FOR PROD MODE
           'https://tr-ai-torapi-d1938a8a0bce.herokuapp.com/askgpt', 
           'https://tr-ai-torapi-d1938a8a0bce.herokuapp.com/reverseprompt', 
-      ];*/
+      ];
 
-       const apiLinks = [ //UNCOMMENT FOR DEV MODE
-         'http://127.0.0.1:5000/askgpt',
-         'http://127.0.0.1:5000/reverseprompt',
-       ];
+      //  const apiLinks = [ //UNCOMMENT FOR DEV MODE
+      //    'http://127.0.0.1:5000/askgpt',
+      //    'http://127.0.0.1:5000/reverseprompt',
+      //  ];
 
       const results = await Promise.all(
         apiLinks.map(link => axios.post(link, { prompt: text }))

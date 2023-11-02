@@ -14,9 +14,8 @@ app.config['SESSION_COOKIE_NAME'] = 'session'
 app.config['SESSION_TYPE'] = 'filesystem'
 app.secret_key = secrets.token_hex(16)
 # CORS(app, supports_credentials=True, origins=["DOMAIN"]) PROD MODE | Replace domain with versel or real domain
-CORS(app, supports_credentials=True, origins=["http://localhost:5174", "http://127.0.0.1:8080"])
-
-api_key = 'token-here'
+CORS(app, supports_credentials=True, origins=["http://localhost:5173", "https://tr-ai-tor.vercel.app/"])
+api_key = os.environ.get('OPENAI_API_KEY', '')
 openai.api_key = api_key
 
 
@@ -119,4 +118,4 @@ def reversePrompt():
 
 
 if __name__ == '__main__':
-    app.run(debug=True, port=8080)
+    app.run(debug=True)
