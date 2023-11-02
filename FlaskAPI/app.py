@@ -14,7 +14,7 @@ app.config['SESSION_COOKIE_NAME'] = 'session'
 app.config['SESSION_TYPE'] = 'filesystem'
 app.secret_key = secrets.token_hex(16)
 # CORS(app, supports_credentials=True, origins=["DOMAIN"]) PROD MODE | Replace domain with versel or real domain
-CORS(app, supports_credentials=True, origins=["http://localhost:5173", "https://tr-ai-tor.vercel.app/"])
+CORS(app, supports_credentials=True, origins=["http://localhost:5173", "https://tr-ai-tor.vercel.app/", "https://tr-ai-torapi-d1938a8a0bce.herokuapp.com/"])
 api_key = os.environ.get('OPENAI_API_KEY', '')
 openai.api_key = api_key
 
