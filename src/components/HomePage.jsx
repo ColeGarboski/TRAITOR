@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import {useEffect, useState} from 'react';
 import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
 import { useDispatch } from 'react-redux';
@@ -32,7 +32,9 @@ function HomePage() {
     const file = e.dataTransfer.files[0];
     if (file && file.name.endsWith('.docx')) {
       setFile(file);
-      const fileRef = ref(storage, `files/${file.name}`);
+
+      const fileRef = ref(storage, `files/${sessionID}/${file.name}`);
+
       await uploadBytes(fileRef, file);
       setFileUploaded(true);
       console.log('File uploaded successfully');
@@ -45,23 +47,37 @@ function HomePage() {
     e.preventDefault();
   };
 
+  const [sessionID, setSessionID] = useState('');
+
+  useEffect(() => {
+    (async () => {
+      try {
+        const response = await axios.get('http://127.0.0.1:8080/get-token'); // Change URL accordingly
+        setSessionID(response.data);
+      } catch (error) {
+        console.error("Couldn't fetch session ID", error);
+      }
+    })();
+  }, []);
+
   const handleSubmit = async () => {
     setLoading(true);
     try {
       
-      const apiLinks = [ //UNCOMMENT FOR PROD MODE
+      /* const apiLinks = [ //UNCOMMENT FOR PROD MODE
           'https://tr-ai-torapi-d1938a8a0bce.herokuapp.com/askgpt', 
           'https://tr-ai-torapi-d1938a8a0bce.herokuapp.com/reverseprompt', 
-      ];
+      ];*/
 
-      // const apiLinks = [ //UNCOMMENT FOR DEV MODE
-      //   'http://127.0.0.1:5000/askgpt',
-      //   'http://127.0.0.1:5000/reverseprompt',
-      // ]; 
+       const apiLinks = [ //UNCOMMENT FOR DEV MODE
+         'http://127.0.0.1:5000/askgpt',
+         'http://127.0.0.1:5000/reverseprompt',
+       ];
 
       const results = await Promise.all(
         apiLinks.map(link => axios.post(link, { prompt: text }))
       );
+
 
       let combinedResponse = {};
       results.forEach((res, index) => {
