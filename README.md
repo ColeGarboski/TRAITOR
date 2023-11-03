@@ -30,6 +30,7 @@ npm install
 
 #### 3. Set up a virtual environment for Flask and install the required Python packages.
 
+cd FlaskAPI
 python3 -m venv venv
 source venv/bin/activate
 pip install -r requirements.txt
