@@ -45,6 +45,14 @@ def set_token():
 def get_token():
     return f"{session.get('sessionToken', 'No token found.')}"
 
+@app.route('/file-uploaded', methods=['POST'])
+def file_uploaded():
+    data = request.json
+    file_name = data['fileName']
+    session_id = data['sessionID']
+    # PROCESS WORD DOC HERE
+    return jsonify({'success': True})
+
 @app.route('/askgpt', methods=['POST'])
 def askGPT():
     data = request.json

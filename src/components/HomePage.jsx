@@ -6,6 +6,16 @@ import { setData } from '/src/dataSlice';
 import { storage } from '/src/firebase';
 import { ref, uploadBytes } from 'firebase/storage';
 
+// Define API base URLs
+const DEV_API_BASE_URL = 'http://127.0.0.1:5000';
+const OTHER_DEV_API_BASE_URL = 'http://127.0.0.1:8080';
+const PROD_API_BASE_URL = 'https://tr-ai-torapi-d1938a8a0bce.herokuapp.com';
+
+// Toggle this line for switching environments
+//const API_BASE_URL = DEV_API_BASE_URL; // For development
+//const API_BASE_URL = OTHER_DEV_API_BASE_URL; // For development
+const API_BASE_URL = PROD_API_BASE_URL; // For production
+
 function LoadingSpinner() {
   return (
     <div className="flex justify-center items-center">
@@ -38,9 +48,14 @@ function HomePage() {
       await uploadBytes(fileRef, file);
       setFileUploaded(true);
       console.log('File uploaded successfully');
+      notifyBackend(file.name);
     } else {
       alert('Please upload a .docx file');
     }
+  };
+
+  const notifyBackend = async (fileName) => {
+    await axios.post(`${API_BASE_URL}/file-uploaded`, { fileName, sessionID });
   };
 
   const handleDragOver = (e) => {
@@ -52,10 +67,13 @@ function HomePage() {
   useEffect(() => {
     (async () => {
       try {
-        //const response = await axios.get('http://127.0.0.1:5000/get-token'); // Change URL accordingly
-        const response = await axios.get('https://tr-ai-torapi-d1938a8a0bce.herokuapp.com/get-token'); // Change URL accordingly
-        //const response = await axios.get('http://127.0.0.1:8080/get-token'); // Change URL accordingly
-        setSessionID(response.data);
+        let token = localStorage.getItem('sessionToken');
+        if (!token) {
+          const response = await axios.get(`${API_BASE_URL}/get-token`);
+          token = response.data;
+          localStorage.setItem('sessionToken', token);
+        }
+        setSessionID(token);
       } catch (error) {
         console.error("Couldn't fetch session ID", error);
       }
@@ -65,16 +83,10 @@ function HomePage() {
   const handleSubmit = async () => {
     setLoading(true);
     try {
-      
-      const apiLinks = [ //UNCOMMENT FOR PROD MODE
-          'https://tr-ai-torapi-d1938a8a0bce.herokuapp.com/askgpt', 
-          'https://tr-ai-torapi-d1938a8a0bce.herokuapp.com/reverseprompt', 
+      const apiLinks = [
+        `${API_BASE_URL}/askgpt`,
+        `${API_BASE_URL}/reverseprompt`,
       ];
-
-      //  const apiLinks = [ //UNCOMMENT FOR DEV MODE
-      //    'http://127.0.0.1:5000/askgpt',
-      //    'http://127.0.0.1:5000/reverseprompt',
-      //  ];
 
       const results = await Promise.all(
         apiLinks.map(link => axios.post(link, { prompt: text }))
