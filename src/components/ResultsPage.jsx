@@ -19,6 +19,16 @@ function ResultsPage() {
       status: "fail",
       response: GPTResponse.reverseprompt ? GPTResponse.reverseprompt.reversed_prompt : ''
     },
+    {
+      name: "File Metadata",
+      status: GPTResponse.fileMetadata ? "pass" : "fail",
+      response: GPTResponse.fileMetadata ? JSON.stringify(GPTResponse.fileMetadata, null, 2) : 'No metadata available'
+    },
+    {
+      name: "File Text",
+      status: GPTResponse.fileText ? "pass" : "fail",
+      response: GPTResponse.fileText || 'No text available'
+    },
   ];
 
   const [selectedTest, setSelectedTest] = useState(tests[0]);

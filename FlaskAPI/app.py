@@ -1,3 +1,15 @@
+# TO CREATE AND REBUILD VENV ON WINDOWS
+# cd FlaskAPI
+# virtualenv venv
+# .\venv\Scripts\activate
+# pip install -r requirements.txt
+
+# TO ADD REQUIREMENTS
+# .\venv\Scripts\activate
+# pip install package_name
+# pip freeze > requirements.txt
+
+
 import uuid
 
 from flask import Flask, request, jsonify, session
@@ -7,9 +19,22 @@ import secrets
 import openai
 from flask_cors import CORS
 import uuid
+from docx import Document
+import firebase_admin
+from firebase_admin import credentials, storage
+import io
 
 
 app = Flask(__name__)
+
+# Initialize Firebase Admin using environment variable or file
+firebase_credentials_env = os.environ.get('FIREBASE_CREDENTIALS_JSON')
+if firebase_credentials_env:
+    cred = credentials.Certificate(json.loads(firebase_credentials_env))
+else:
+    cred = credentials.Certificate('FlaskAPI/firebasecred.json')
+
+firebase_admin.initialize_app(cred, {'storageBucket': 'traitor-14f52.appspot.com'})
 app.config['SESSION_COOKIE_NAME'] = 'session'
 app.config['SESSION_TYPE'] = 'filesystem'
 app.secret_key = secrets.token_hex(16)
@@ -46,6 +71,7 @@ def get_token():
     return f"{session.get('sessionToken', 'No token found.')}"
 
 @app.route('/file-uploaded', methods=['POST'])
+# USE /documentscan INSTEAD
 def file_uploaded():
     data = request.json
     file_name = data['fileName']
@@ -66,7 +92,7 @@ def askGPT():
 
     try:
         response = openai.ChatCompletion.create(
-            model="gpt-4",
+            model="gpt-4-1106-preview",
             messages=messages
         )
 
@@ -95,7 +121,7 @@ def reversePrompt():
 
     try:
         description_response = openai.ChatCompletion.create(
-            model="gpt-4",
+            model="gpt-4-1106-preview",
             messages=description_messages
         )
         description = description_response['choices'][0]['message']['content'].strip()
@@ -123,6 +149,53 @@ def reversePrompt():
             'success': False,
             'error': str(e)
         })
+
+@app.route('/documentscan', methods=['POST'])
+def document_scan():
+    # Get session token and file name from the request
+    data = request.json
+    session_token = data.get('session_token')
+    file_name = data.get('file_name')
+
+    # Construct the file path in Firebase storage
+    firebase_file_path = f"files/{session_token}/{file_name}"
+
+    # Fetch the file from Firebase
+    bucket = storage.bucket()
+    blob = bucket.blob(firebase_file_path)
+    file_blob = blob.download_as_bytes()
+
+    # Process the file
+    file_stream = io.BytesIO(file_blob)
+    metadata, full_text = extract_metadata_and_text(file_stream)
+
+    # Return the response
+    return jsonify({"metadata": metadata, "text": full_text})
+
+def extract_metadata_and_text(file_stream):
+    # Load the docx file from the file stream
+    doc = Document(file_stream)
+
+    # Extract core properties
+    core_properties = doc.core_properties
+    attributes = [
+        'title', 'author', 'created', 'modified', 'last_modified_by',
+        'description', 'category', 'comments', 'subject', 'keywords',
+        'version', 'revision', 'identifier', 'language', 'content_status'
+    ]
+
+    metadata = {}
+    for attr in attributes:
+        if hasattr(core_properties, attr):
+            value = getattr(core_properties, attr)
+            if value:  # Check if value is non-null
+                metadata[attr] = value
+
+    # Extract the full text from the document
+    full_text = '\n'.join(paragraph.text for paragraph in doc.paragraphs)
+    return metadata, full_text
+
+
 
 
 if __name__ == '__main__':
