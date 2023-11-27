@@ -4,8 +4,18 @@ import nltk
 from nltk.corpus import stopwords
 from textblob import TextBlob
 
+#look at trends across paragraphs. Patterns in the statistics. Less complicated -> complicated -> less complicated. This is a pattern for writing style
+#distinct words attached to people. "favorite words". often uncommonly used words, or used in strange/irregular positions
+#punctuation: comma breaks, semi colons, colon lists, oxford comma, hyphens, exclamations.
+# Starting sentence with same words?
+#graphing trends across paragraphs, and across writings! showing trends and using them to compare
+#first few writings for a class done in class under supervision
 
-fullTextInput = """Title: The Enduring Legacy of William Shakespeare
+#Title: The Enduring Legacy of William Shakespeare        I hate william shakespeare I hate him I hate him I hate him and I hope he dies. Kill shakespeare kill him kill him bad. murder him. he sucks and is bad.
+
+fullTextInput = """I hate william shakespeare I hate him I hate him I hate him and I hope he dies. Kill shakespeare kill him kill him bad. murder him. he sucks and is bad.
+
+The Enduring Legacy of William Shakespeare
 
 William Shakespeare, often referred to as the "Bard of Avon," is one of the most celebrated playwrights and poets in the history of literature. His enduring legacy continues to captivate audiences worldwide, transcending time and culture. In this essay, we will explore the life and works of William Shakespeare, his contributions to literature, his influence on the English language, and his lasting impact on the world of theater.
 
@@ -19,10 +29,14 @@ In addition to his literary and linguistic contributions, Shakespeare's impact o
 
 In conclusion, William Shakespeare's legacy is a testament to the enduring power of literature, language, and the performing arts. His works continue to enthrall and inspire, transcending time and cultural boundaries. His profound understanding of the human experience, his contributions to the English language, and his lasting impact on the theater make him an icon in the world of literature and an enduring source of fascination and admiration for generations to come. William Shakespeare's name will forever be synonymous with the pinnacle of literary achievement and the timeless exploration of the human soul."""
 
+#**** remember that the main use of this is to compare a " maybe human written" essay to a chat gpt essay off a similar prompt. THIS MEANS THAT MANY OF THE FACTORS THAT CAN CAUSE ISSUES WILL BE THE SAME. If one analysis is off by 10, then the other will be off by roughly 10 as well. This is veeery good...
 
+#the only reason to have paragraphs and sentences separate, is to find insights between them. So like, a writer's changes between sentence attributes might e semi consistent over an essay or between paragraphs
+#try that later...but only for attributes whos repetition is meaningful or consistent as opposed to coincidental
 class FullText:
 
-    def __init__(self,text):
+    def __init__(self,text): #punctuation: comma breaks, semi colons, colon lists, oxford comma, hyphens, exclamations.
+
         self.fullTextString = "uninitializedFull"
         self.wordCount = -1
         self.paragraphList = []
@@ -30,6 +44,15 @@ class FullText:
         self.formalityScore = -1 #idk if i want an overall at all.... might be helpful here...
         self.verbosityScore = -1 #idk if i want an overall at all....might be helpful here...
         self.toneScore = -1 #idk if i want an overall at all....individual paragraph tone is more important i think....
+
+        self.oxfordComma = False #uses oxford comma always
+        self.oxfordCommaContradiction = False #uses oxford comma, but also doesn't sometimes
+        self.commaFreak = -1   #comma to sentence ratio  (how many commas per sentence on average) - 0.5 is a comma every other sentence
+        self.semiColon = False #uses semi-colons
+        self.hyphen = False #uses hyphens
+        self.exclamationMark = False #uses exclamation marks
+        self.questionMark = False #uses question marks
+        self.spellingErrors = 0  #number of spelling errors
 
         self.fullTextString = text
         self.wordCount = len(self.fullTextString.split()) #full word count
@@ -41,7 +64,67 @@ class FullText:
             paraObj_i = Paragraph(paraText) #starts init for paragraph
             self.paragraphList.append(paraObj_i) #adds new paragraph obj to paragraphList
 
+        self.oxfordCommaCheck()
+        self.commaFreakCheck()
+        self.hyphenCheck()
+        self.exclamationMarkCheck()
+        self.questionMarkCheck()
+        self.spellingCheck()
 
+    def oxfordCommaCheck(self):
+        pattern = r',\s+and\s+|,\s+or\s+'  # regex pattern for oxford comma
+        noxfordcomma = False  # oxford comma could have been used but wasn't
+
+        for paragraph in self.paragraphList:
+            if re.search(pattern, paragraph.paragraphText):
+                self.oxfordComma = True
+
+        pattern = r'[^,]\s+and\s+|[^,]\s+or\s+'
+        for paragraph in self.paragraphList:
+            if re.search(pattern, paragraph.paragraphText):
+                noxfordcomma = True
+
+        if noxfordcomma == True and noxfordcomma == True:
+            self.oxfordCommaContradiction = True
+
+    def commaFreakCheck(self):
+        sentenceCount = 0
+        commaCount = 0
+
+        for paragraph in self.paragraphList:
+            for sentence in paragraph.sentenceList:
+                sentenceCount = sentenceCount + 1
+
+        for char in self.fullTextString:
+            if char == ',':
+                commaCount += 1
+
+        self.commaFreak = commaCount / sentenceCount
+
+    def hyphenCheck(self):
+        for char in self.fullTextString:
+            if char == '-':
+                self.hyphen = True
+
+    def exclamationMarkCheck(self):
+        for char in self.fullTextString:
+            if char == '!':
+                self.exclamationMark = True
+
+    def questionMarkCheck(self):
+        for char in self.fullTextString:
+            if char == '?':
+                self.questionMark = True
+        
+    def spellingCheck(self):
+        textBlob = TextBlob(self.fullTextString)
+
+        correctedText= str( textBlob.correct() )
+        original_words = self.fullTextString.split()
+        corrected_words = correctedText.split()
+        error_count = sum(1 for original, corrected in zip(original_words, corrected_words) if original != corrected)
+
+        self.spellingErrors = error_count
 
 
 class Paragraph:
@@ -61,17 +144,25 @@ class Paragraph:
 
 
 
-    def calculateTone(self):  # use both nltk VADER and textblob and average (or at least consider both)
-        print("loloo")
+    def calculateTone(self):  # use both nltk VADER and textblob and average (or at least consider both) leaning towards textblob
+        textblob = TextBlob(self.paragraphText)
+        textblob.sentiment
+        self.subjectivityScore = textblob.sentiment.subjectivity
+        self.toneScore = textblob.sentiment.polarity
+
+
+
+
 
     def __init__(self, text):
         self.paragraphText = "uninitializedPara"
         self.paraWordCount = -1
         self.sentenceList = []
+        self.subjectivityScore = 9999999 # 0.0 (objective, truth statements) - 1.0 (subjective, opinion statements)
 
         self.formalityScore = -1 #average word length stuff (or percent of long words present)
         self.verbosityScore = -1 #average sentence length stuff
-        self.toneScore = 9999999 #tone negative - positive
+        self.toneScore = 9999999 #tone negative - positive -1.0 - 1.0
 
         self.paragraphText = text
         self.paraWordCount = len(self.paragraphText.split()) # para word count
@@ -131,4 +222,4 @@ testFullText = FullText(fullTextInput)
 
 print(testFullText.wordCount ) #word count of fulltext
 print(testFullText.paragraphList[2].paraWordCount) #word count of 3rd paragraph
-print(testFullText.paragraphList[1].sentenceList[1].sentenceText) #paragraph 2's second sentence
+print(testFullText.paragraphList[0].sentenceList[1].sentenceText) #paragraph 2's second sentence
