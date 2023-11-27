@@ -7,6 +7,7 @@ import secrets
 import openai
 from flask_cors import CORS
 import uuid
+from docx import Document
 
 
 app = Flask(__name__)
@@ -59,7 +60,7 @@ def askGPT():
 
     try:
         response = openai.ChatCompletion.create(
-            model="gpt-4",
+            model="gpt-4-1106-preview",
             messages=messages
         )
 
@@ -88,7 +89,7 @@ def reversePrompt():
 
     try:
         description_response = openai.ChatCompletion.create(
-            model="gpt-4",
+            model="gpt-4-1106-preview",
             messages=description_messages
         )
         description = description_response['choices'][0]['message']['content'].strip()
@@ -116,6 +117,37 @@ def reversePrompt():
             'success': False,
             'error': str(e)
         })
+
+@app.route('/documentscan', methods=['POST'])
+def extract_metadata_and_text(docx_path):
+    # Load the docx file
+    doc = Document(docx_path)
+
+    # Extract core properties
+    core_properties = doc.core_properties
+    attributes = [
+        'title', 'author', 'created', 'modified', 'last_modified_by',
+        'description', 'category', 'comments', 'subject', 'keywords',
+        'version', 'revision', 'identifier', 'language', 'content_status'
+    ]
+
+    metadata = {}
+    for attr in attributes:
+        if hasattr(core_properties, attr):
+            value = getattr(core_properties, attr)
+            if value:  # Check if value is non-null
+                metadata[attr] = value
+
+    # Extract the full text from the document
+    full_text = '\n'.join(paragraph.text for paragraph in doc.paragraphs)
+    return metadata, full_text
+
+# Test
+path_to_docx = "/Users/awhile/Downloads/HW-10.docx"
+metadata, full_text = extract_metadata_and_text(path_to_docx)
+print(metadata)
+print(full_text)
+
 
 
 if __name__ == '__main__':
