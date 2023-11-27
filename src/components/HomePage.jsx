@@ -83,9 +83,9 @@ function HomePage() {
   const handleSubmit = async () => {
     setLoading(true);
     try {
-      const apiLinks = [
+      const apiLinks = [ //Add all API routes for tests here
         `${API_BASE_URL}/askgpt`,
-        `${API_BASE_URL}/reverseprompt`,
+        `${API_BASE_URL}/reverseprompt`,  
       ];
 
       const results = await Promise.all(
