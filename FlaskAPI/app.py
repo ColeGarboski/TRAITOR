@@ -8,10 +8,14 @@ import openai
 from flask_cors import CORS
 import uuid
 from docx import Document
+import firebase_admin
+from firebase_admin import credentials, storage
+import io
 
 
 app = Flask(__name__)
-firebase_admin.initialize_app(cred, {'storageBucket': 'files'})
+cred = credentials.Certificate('FlaskAPI/firebasecred.json')
+firebase_admin.initialize_app(cred, {'storageBucket': 'traitor-14f52.appspot.com'})
 app.config['SESSION_COOKIE_NAME'] = 'session'
 app.config['SESSION_TYPE'] = 'filesystem'
 app.secret_key = secrets.token_hex(16)
