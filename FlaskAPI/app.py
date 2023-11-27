@@ -11,6 +11,7 @@ from docx import Document
 
 
 app = Flask(__name__)
+firebase_admin.initialize_app(cred, {'storageBucket': 'files'})
 app.config['SESSION_COOKIE_NAME'] = 'session'
 app.config['SESSION_TYPE'] = 'filesystem'
 app.secret_key = secrets.token_hex(16)
@@ -126,9 +127,30 @@ def reversePrompt():
         })
 
 @app.route('/documentscan', methods=['POST'])
-def extract_metadata_and_text(docx_path):
-    # Load the docx file
-    doc = Document(docx_path)
+def document_scan():
+    # Get session token and file name from the request
+    data = request.json
+    session_token = data.get('session_token')
+    file_name = data.get('file_name')
+
+    # Construct the file path in Firebase storage
+    firebase_file_path = f"files/{session_token}/{file_name}"
+
+    # Fetch the file from Firebase
+    bucket = storage.bucket()
+    blob = bucket.blob(firebase_file_path)
+    file_blob = blob.download_as_bytes()
+
+    # Process the file
+    file_stream = io.BytesIO(file_blob)
+    metadata, full_text = extract_metadata_and_text(file_stream)
+
+    # Return the response
+    return jsonify({"metadata": metadata, "text": full_text})
+
+def extract_metadata_and_text(file_stream):
+    # Load the docx file from the file stream
+    doc = Document(file_stream)
 
     # Extract core properties
     core_properties = doc.core_properties
@@ -149,11 +171,6 @@ def extract_metadata_and_text(docx_path):
     full_text = '\n'.join(paragraph.text for paragraph in doc.paragraphs)
     return metadata, full_text
 
-# Test
-path_to_docx = "/Users/awhile/Downloads/HW-10.docx"
-metadata, full_text = extract_metadata_and_text(path_to_docx)
-print(metadata)
-print(full_text)
 
 
 
