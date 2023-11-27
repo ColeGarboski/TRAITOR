@@ -4,8 +4,9 @@ function Result({ status, testName, evaluation }) {
   const isPass = status === 'pass';
 
   return (
-    <div className={`p-4 shadow-md rounded-md max-w-md mx-auto mt-4 ${isPass ? 'bg-green-50' : 'bg-red-50'}`}>
+    <div className={`p-4 max-h-max shadow-md rounded-md mx-4 my-4 ${isPass ? 'bg-green-50' : 'bg-red-50'}`}>
       <div className={`flex items-center ${isPass ? 'text-green-500' : 'text-red-500'}`}>
+        {/* SVG icons */}
         {isPass ? (
           <svg
             className="w-6 h-6 mr-2"
