@@ -33,6 +33,13 @@ In conclusion, William Shakespeare's legacy is a testament to the enduring power
 
 #the only reason to have paragraphs and sentences separate, is to find insights between them. So like, a writer's changes between sentence attributes might e semi consistent over an essay or between paragraphs
 #try that later...but only for attributes whos repetition is meaningful or consistent as opposed to coincidental
+
+
+
+
+
+
+
 class FullText:
 
     def __init__(self,text): #punctuation: comma breaks, semi colons, colon lists, oxford comma, hyphens, exclamations.
@@ -54,6 +61,9 @@ class FullText:
         self.questionMark = False #uses question marks
         self.spellingErrors = 0  #number of spelling errors
 
+        self.highToneFlag = False
+        self.lowToneFlag = False
+
         self.fullTextString = text
         self.wordCount = len(self.fullTextString.split()) #full word count
 
@@ -70,6 +80,7 @@ class FullText:
         self.exclamationMarkCheck()
         self.questionMarkCheck()
         self.spellingCheck()
+        self.VFT()
 
     def oxfordCommaCheck(self):
         pattern = r',\s+and\s+|,\s+or\s+'  # regex pattern for oxford comma
@@ -122,9 +133,33 @@ class FullText:
         correctedText= str( textBlob.correct() )
         original_words = self.fullTextString.split()
         corrected_words = correctedText.split()
+        #print(correctedText)
+       # print(corrected_words)
+
         error_count = sum(1 for original, corrected in zip(original_words, corrected_words) if original != corrected)
 
         self.spellingErrors = error_count
+
+    def VFT(self):  #Verbosity, Formality, Tone
+        Vsum = 0
+        Fsum = 0
+        Tsum = 0
+        for paragraph in self.paragraphList:
+            Vsum = Vsum + paragraph.verbosityScore
+            Fsum = Fsum + paragraph.formalityScore
+            Tsum = Tsum + paragraph.toneScore
+            if paragraph.toneScore > 0.3:
+                self.highToneFlag = True
+            if paragraph.toneScore < -0.3:
+                self.lowToneFlag = True
+
+
+        ParagraphSum = len(self.paragraphList)
+
+        self.toneScore = Tsum / ParagraphSum
+        self.verbosityScore = Vsum / ParagraphSum
+        self.formalityScore = Fsum / ParagraphSum
+
 
 
 class Paragraph:
@@ -147,7 +182,7 @@ class Paragraph:
     def calculateTone(self):  # use both nltk VADER and textblob and average (or at least consider both) leaning towards textblob
         textblob = TextBlob(self.paragraphText)
         textblob.sentiment
-        self.subjectivityScore = textblob.sentiment.subjectivity
+        #self.subjectivityScore = textblob.sentiment.subjectivity
         self.toneScore = textblob.sentiment.polarity
 
 
@@ -158,7 +193,7 @@ class Paragraph:
         self.paragraphText = "uninitializedPara"
         self.paraWordCount = -1
         self.sentenceList = []
-        self.subjectivityScore = 9999999 # 0.0 (objective, truth statements) - 1.0 (subjective, opinion statements)
+        #self.subjectivityScore = 9999999 # 0.0 (objective, truth statements) - 1.0 (subjective, opinion statements)
 
         self.formalityScore = -1 #average word length stuff (or percent of long words present)
         self.verbosityScore = -1 #average sentence length stuff
@@ -213,6 +248,21 @@ class Sentence:
         self.formalityScore = sum(letter_counts) / len(filteredSentence)
 
 
+def displayResults(FullText):
+
+    print(FullText.toneScore)
+    print(FullText.highToneFlag)
+    print(FullText.lowToneFlag)
+    print(FullText.formalityScore)
+    print(FullText.verbosityScore)
+    print(FullText.oxfordComma)
+    print(FullText.oxfordCommaContradiction)
+    print(FullText.questionMark)
+    print(FullText.exclamationMark)
+    print(FullText.hyphen)
+    print(FullText.spellingErrors)
+    print(FullText.commaFreak)
+
 
 
 
@@ -220,6 +270,8 @@ class Sentence:
 
 testFullText = FullText(fullTextInput)
 
-print(testFullText.wordCount ) #word count of fulltext
-print(testFullText.paragraphList[2].paraWordCount) #word count of 3rd paragraph
-print(testFullText.paragraphList[0].sentenceList[1].sentenceText) #paragraph 2's second sentence
+displayResults(testFullText)
+#print(testFullText.wordCount ) #word count of fulltext
+#print(testFullText.paragraphList[2].paraWordCount) #word count of 3rd paragraph
+#print(testFullText.paragraphList[0].sentenceList[1].sentenceText) #paragraph 2's second sentence
+
