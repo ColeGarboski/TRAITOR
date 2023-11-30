@@ -25,13 +25,16 @@ function LoadingSpinner() {
 }
 
 function HomePage() {
-  const dispatch = useDispatch(); //Used for Redux
+  const dispatch = useDispatch();
   const [text, setText] = useState('');
   const [response, setResponse] = useState('');
   const [loading, setLoading] = useState(false);
   const [file, setFile] = useState(null);
   const [fileUploaded, setFileUploaded] = useState(false);
+  const [fileMetadata, setFileMetadata] = useState(null);
+  const [fileText, setFileText] = useState(null);
   const navigate = useNavigate();
+  const [sessionID, setSessionID] = useState('');
 
   const handleDrop = async (e) => {
     e.preventDefault();
@@ -42,9 +45,7 @@ function HomePage() {
     const file = e.dataTransfer.files[0];
     if (file && file.name.endsWith('.docx')) {
       setFile(file);
-
       const fileRef = ref(storage, `files/${sessionID}/${file.name}`);
-
       await uploadBytes(fileRef, file);
       setFileUploaded(true);
       console.log('File uploaded successfully');
@@ -55,14 +56,19 @@ function HomePage() {
   };
 
   const notifyBackend = async (fileName) => {
-    await axios.post(`${API_BASE_URL}/file-uploaded`, { fileName, sessionID });
+    try {
+      await axios.post(`${API_BASE_URL}/file-uploaded`, { fileName, sessionID });
+      const response = await axios.post(`${API_BASE_URL}/documentscan`, { file_name: fileName, session_token: sessionID });
+      setFileMetadata(response.data.metadata);
+      setFileText(response.data.text);
+    } catch (error) {
+      console.error('Error in processing file:', error);
+    }
   };
 
   const handleDragOver = (e) => {
     e.preventDefault();
   };
-
-  const [sessionID, setSessionID] = useState('');
 
   useEffect(() => {
     (async () => {
@@ -86,18 +92,23 @@ function HomePage() {
       const apiLinks = [
         `${API_BASE_URL}/askgpt`,
         `${API_BASE_URL}/reverseprompt`,
+        // other API routes...
       ];
 
       const results = await Promise.all(
         apiLinks.map(link => axios.post(link, { prompt: text }))
       );
 
-
       let combinedResponse = {};
       results.forEach((res, index) => {
-        const routeKey = apiLinks[index].split('/').pop(); // Extract the last part of the URL as the key
+        const routeKey = apiLinks[index].split('/').pop();
         combinedResponse[routeKey] = res.data;
       });
+
+      if (fileMetadata && fileText) {
+        combinedResponse['fileMetadata'] = fileMetadata;
+        combinedResponse['fileText'] = fileText;
+      }
 
       setResponse(combinedResponse);
       console.log(combinedResponse);

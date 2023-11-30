@@ -1,3 +1,15 @@
+# TO CREATE AND REBUILD VENV ON WINDOWS
+# cd FlaskAPI
+# virtualenv venv
+# .\venv\Scripts\activate
+# pip install -r requirements.txt
+
+# TO ADD REQUIREMENTS
+# .\venv\Scripts\activate
+# pip install package_name
+# pip freeze > requirements.txt
+
+
 import uuid
 
 from flask import Flask, request, jsonify, session
@@ -14,13 +26,20 @@ import io
 
 
 app = Flask(__name__)
-cred = credentials.Certificate('FlaskAPI/firebasecred.json')
+
+# Initialize Firebase Admin using environment variable or file
+firebase_credentials_env = os.environ.get('FIREBASE_CREDENTIALS_JSON')
+if firebase_credentials_env:
+    cred = credentials.Certificate(json.loads(firebase_credentials_env))
+else:
+    cred = credentials.Certificate('FlaskAPI/firebasecred.json')
+
 firebase_admin.initialize_app(cred, {'storageBucket': 'traitor-14f52.appspot.com'})
 app.config['SESSION_COOKIE_NAME'] = 'session'
 app.config['SESSION_TYPE'] = 'filesystem'
 app.secret_key = secrets.token_hex(16)
 # CORS(app, supports_credentials=True, origins=["DOMAIN"]) PROD MODE | Replace domain with versel or real domain
-CORS(app, supports_credentials=True, origins=["http://localhost:5173", "https://tr-ai-tor.vercel.app", "https://tr-ai-torapi-d1938a8a0bce.herokuapp.com"])
+CORS(app, supports_credentials=True, origins="*")
 api_key = os.environ.get('OPENAI_API_KEY', '')
 openai.api_key = api_key
 
@@ -52,6 +71,7 @@ def get_token():
     return f"{session.get('sessionToken', 'No token found.')}"
 
 @app.route('/file-uploaded', methods=['POST'])
+# USE /documentscan INSTEAD
 def file_uploaded():
     data = request.json
     file_name = data['fileName']
