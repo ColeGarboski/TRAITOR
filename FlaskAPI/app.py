@@ -23,6 +23,7 @@ from docx import Document
 import firebase_admin
 from firebase_admin import credentials, storage
 import io
+from datetime import datetime
 
 
 app = Flask(__name__)
@@ -152,31 +153,24 @@ def reversePrompt():
 
 @app.route('/documentscan', methods=['POST'])
 def document_scan():
-    # Get session token and file name from the request
     data = request.json
     session_token = data.get('session_token')
     file_name = data.get('file_name')
 
-    # Construct the file path in Firebase storage
     firebase_file_path = f"files/{session_token}/{file_name}"
 
-    # Fetch the file from Firebase
     bucket = storage.bucket()
     blob = bucket.blob(firebase_file_path)
     file_blob = blob.download_as_bytes()
 
-    # Process the file
     file_stream = io.BytesIO(file_blob)
-    metadata, full_text = extract_metadata_and_text(file_stream)
+    metadata, full_text, analysis_result = extract_metadata_and_text(file_stream)
 
-    # Return the response
-    return jsonify({"metadata": metadata, "text": full_text})
+    return jsonify({"metadata": metadata, "text": full_text, "analysis": analysis_result})
 
 def extract_metadata_and_text(file_stream):
-    # Load the docx file from the file stream
     doc = Document(file_stream)
 
-    # Extract core properties
     core_properties = doc.core_properties
     attributes = [
         'title', 'author', 'created', 'modified', 'last_modified_by',
@@ -188,13 +182,47 @@ def extract_metadata_and_text(file_stream):
     for attr in attributes:
         if hasattr(core_properties, attr):
             value = getattr(core_properties, attr)
-            if value:  # Check if value is non-null
-                metadata[attr] = value
+            if value:
+                metadata[attr] = str(value)
 
-    # Extract the full text from the document
     full_text = '\n'.join(paragraph.text for paragraph in doc.paragraphs)
-    return metadata, full_text
 
+    analysis_result = analyze_metadata_with_chatgpt(metadata)
+
+    return metadata, full_text, analysis_result
+
+def analyze_metadata_with_chatgpt(metadata):
+    prompt = f"Analyze the following Word document metadata for any odd or suspicious characteristics that may indicate cheating:\n{json.dumps(metadata, indent=2)}"
+
+    try:
+        response = openai.ChatCompletion.create(
+            model="gpt-4-1106-preview",
+            messages=[{"role": "system", "content": prompt}]
+        )
+        analysis_result = response['choices'][0]['message']['content'].strip()
+        return analysis_result
+
+    except Exception as e:
+        return f"Error in analyzing metadata: {str(e)}"
+
+@app.route('/extract-text', methods=['POST'])
+def extract_text():
+    data = request.json
+    session_token = data.get('session_token')
+    file_name = data.get('file_name')
+
+    firebase_file_path = f"files/{session_token}/{file_name}"
+
+    bucket = storage.bucket()
+    blob = bucket.blob(firebase_file_path)
+    file_blob = blob.download_as_bytes()
+
+    file_stream = io.BytesIO(file_blob)
+    doc = Document(file_stream)
+
+    full_text = '\n'.join(paragraph.text for paragraph in doc.paragraphs)
+
+    return jsonify({"text": full_text})
 
 
 
