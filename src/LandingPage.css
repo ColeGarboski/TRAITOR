@@ -1,0 +1,31 @@
+.gradient-text {
+    background: linear-gradient(to right, #60a5fa, #a855f7); /* Adjust gradient colors to match your theme */
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent; /* Hide the original text color */
+}
+
+ol li {
+    counter-increment: gradient-counter; /* Increment counter for each list item */
+    position: relative; /* Needed for absolute positioning of pseudo-elements */
+    /* Other styling as needed */
+}
+
+ol li::before {
+    content: counter(gradient-counter) ". "; /* Display counter as content */
+    position: absolute; /* Position pseudo-element */
+    left: -30px; /* Adjust as needed */
+    /* Apply gradient and other styling */
+    background: black;
+    font-weight: bold;
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+}
+
+#about {
+    scroll-margin-top: 25vh; /* Adjust this value to ensure proper centering */
+    /* Other styles */
+}
+
+

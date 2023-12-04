@@ -43,7 +43,7 @@ app.config['SESSION_TYPE'] = 'filesystem'
 app.secret_key = secrets.token_hex(16)
 # CORS(app, supports_credentials=True, origins=["DOMAIN"]) PROD MODE | Replace domain with versel or real domain
 CORS(app, supports_credentials=True, origins="*")
-api_key =
+api_key ='1'
 openai.api_key = api_key
 
 
