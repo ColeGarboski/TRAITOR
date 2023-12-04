@@ -176,7 +176,7 @@ function HomePage() {
         </div>
       )}
       <footer className="absolute bottom-0 flex flex-col items-center justify-center w-full p-4 bg-black bg-opacity-40">
-        <p className="text-xs text-white">
+        <p className="text-xs text-white z-10">
           © 2023 TRAITOR. All rights reserved.
         </p>
       </footer>
