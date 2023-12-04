@@ -21,8 +21,8 @@ function ResultsPage() {
     },
     {
       name: "File Metadata",
-      status: GPTResponse.fileMetadata ? "pass" : "fail",
-      response: GPTResponse.fileMetadata ? JSON.stringify(GPTResponse.fileMetadata, null, 2) : 'No metadata available'
+      status: GPTResponse.fileMetadataAnalysis ? "pass" : "fail",
+      response: GPTResponse.fileMetadataAnalysis ? JSON.stringify(GPTResponse.fileMetadataAnalysis, null, 2) : 'No metadata available'
     },
     {
       name: "File Text",

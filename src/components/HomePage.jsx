@@ -1,4 +1,4 @@
-import {useEffect, useState} from 'react';
+import { useEffect, useState } from 'react';
 import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
 import { useDispatch } from 'react-redux';
@@ -12,9 +12,9 @@ const OTHER_DEV_API_BASE_URL = 'http://127.0.0.1:8080';
 const PROD_API_BASE_URL = 'https://tr-ai-torapi-d1938a8a0bce.herokuapp.com';
 
 // Toggle this line for switching environments
-//const API_BASE_URL = DEV_API_BASE_URL; // For development
+const API_BASE_URL = DEV_API_BASE_URL; // For development
 //const API_BASE_URL = OTHER_DEV_API_BASE_URL; // For development
-const API_BASE_URL = PROD_API_BASE_URL; // For production
+//const API_BASE_URL = PROD_API_BASE_URL; // For production
 
 function LoadingSpinner() {
   return (
@@ -32,9 +32,11 @@ function HomePage() {
   const [file, setFile] = useState(null);
   const [fileUploaded, setFileUploaded] = useState(false);
   const [fileMetadata, setFileMetadata] = useState(null);
+  const [fileMetadataAnalysis, setFileMetadataAnalysis] = useState(null);
   const [fileText, setFileText] = useState(null);
   const navigate = useNavigate();
   const [sessionID, setSessionID] = useState('');
+  const [isTextAreaDisabled, setIsTextAreaDisabled] = useState(false);
 
   const handleDrop = async (e) => {
     e.preventDefault();
@@ -57,10 +59,11 @@ function HomePage() {
 
   const notifyBackend = async (fileName) => {
     try {
-      await axios.post(`${API_BASE_URL}/file-uploaded`, { fileName, sessionID });
-      const response = await axios.post(`${API_BASE_URL}/documentscan`, { file_name: fileName, session_token: sessionID });
-      setFileMetadata(response.data.metadata);
-      setFileText(response.data.text);
+      await axios.post(`${API_BASE_URL}/file-uploaded`, { fileName, sessionID }); // Potentially irrelevant line
+      const documentFullText = await axios.post(`${API_BASE_URL}/extract-text`, { file_name: fileName, session_token: sessionID });
+      setFileText(documentFullText.data.text);
+      setText(documentFullText.data.text);
+      setIsTextAreaDisabled(true);
     } catch (error) {
       console.error('Error in processing file:', error);
     }
@@ -105,9 +108,11 @@ function HomePage() {
         combinedResponse[routeKey] = res.data;
       });
 
-      if (fileMetadata && fileText) {
-        combinedResponse['fileMetadata'] = fileMetadata;
+      if (fileUploaded) {
+        const response = await axios.post(`${API_BASE_URL}/documentscan`, { file_name: file.name, session_token: sessionID });
+        combinedResponse['fileMetadata'] = response.data.metadata;
         combinedResponse['fileText'] = fileText;
+        combinedResponse['fileMetadataAnalysis'] = response.data.analysis;
       }
 
       setResponse(combinedResponse);
@@ -133,12 +138,14 @@ function HomePage() {
         <div className="flex flex-col items-center space-y-4">
           <div className="relative w-96 rounded-md">
             <textarea
-              value={text}
+              value={fileText ? fileText : text}
               onChange={(e) => setText(e.target.value)}
+              disabled={isTextAreaDisabled}
               placeholder="Enter your text here"
               rows={5}
               className="w-full p-4 bg-slate-700 text-slate-100 rounded-md resize-none focus:outline-none focus:ring-2 focus:ring-purple-400 transition-all duration-200"
             />
+
             <span className="absolute bottom-4 right-4 text-xs text-slate-500">
               {text.length}
             </span>
