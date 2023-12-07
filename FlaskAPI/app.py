@@ -44,7 +44,7 @@ app.config['SESSION_TYPE'] = 'filesystem'
 app.secret_key = secrets.token_hex(16)
 # CORS(app, supports_credentials=True, origins=["DOMAIN"]) PROD MODE | Replace domain with versel or real domain
 CORS(app, supports_credentials=True, origins="*")
-api_key ='1'
+api_key = os.environ.get('OPENAI_API_KEY', '')
 openai.api_key = api_key
 
 
@@ -226,18 +226,19 @@ def extract_text():
     full_text = '\n'.join(paragraph.text for paragraph in doc.paragraphs)
 
     return jsonify({"text": full_text})
+
 @app.route('/analyze-compare-texts', methods=['POST'])
 def analyze_compare_texts():
     data = request.json
-    text1 = data.get('text1')
-    text2 = data.get('text2')
+    userText = data.get('text1')
+    generatedText = data.get('text2')
 
-    if not text1 or not text2:
+    if not userText or not generatedText:
         return jsonify({"error": "Both text1 and text2 are required"}), 400
 
     try:
-        analysis1 = FullText(text1)
-        analysis2 = FullText(text2)
+        analysis1 = FullText(userText)
+        analysis2 = FullText(generatedText)
         comparison_results = compare_texts(analysis1, analysis2)
 
         return jsonify(comparison_results)

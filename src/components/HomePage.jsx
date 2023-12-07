@@ -69,6 +69,15 @@ function HomePage() {
     }
   };
 
+  const analyzeTexts = async (text1, text2) => {
+    try {
+      const response = await axios.post(`${API_BASE_URL}/analyze-compare-texts`, { text1, text2 });
+      return response.data;
+    } catch (error) {
+      console.error('Error in analyzing and comparing texts:', error);
+    }
+  };
+
   const handleDragOver = (e) => {
     e.preventDefault();
   };
@@ -114,6 +123,10 @@ function HomePage() {
         combinedResponse['fileText'] = fileText;
         combinedResponse['fileMetadataAnalysis'] = response.data.analysis;
       }
+
+      const reversedPrompt = combinedResponse.reverseprompt.reversed_prompt;
+      const comparisonResults = await analyzeTexts(text, reversedPrompt);
+      combinedResponse.comparisonResults = comparisonResults;
 
       setResponse(combinedResponse);
       console.log(combinedResponse);
