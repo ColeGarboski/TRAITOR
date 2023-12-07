@@ -7,6 +7,20 @@ import ProgressWheel from '/src/components/ProgressWheel';
 function ResultsPage() {
   const GPTResponse = useSelector(selectData);
 
+  const formatComparisonResults = (comparisonResults) => {
+    let formattedOutput = '';
+    if (comparisonResults) {
+        Object.keys(comparisonResults).forEach(testName => {
+            const testResults = comparisonResults[testName];
+            formattedOutput += `Test Name: ${testName}\n`;
+            formattedOutput += `    Your Text Score: ${testResults['Your text']}\n`;
+            formattedOutput += `    GPT Generated Text Score: ${testResults['GPT Recreation']}\n`;
+            formattedOutput += `    Similarity: ${testResults['Similarity (%)']}%\n\n`;
+        });
+    }
+    return formattedOutput;
+  };
+
   const tests = [
     // Add all test data here
     {
@@ -17,7 +31,7 @@ function ResultsPage() {
     {
       name: "Does reverse engineered prompt give similar response?",
       status: "fail",
-      response: GPTResponse.reverseprompt ? GPTResponse.reverseprompt.reversed_prompt : ''
+      response: formatComparisonResults(GPTResponse.comparisonResults)
     },
     {
       name: "File Metadata",
@@ -60,7 +74,7 @@ function ResultsPage() {
         <Result
           status={selectedTest.status}
           testName={selectedTest.name}
-          evaluation={selectedTest.response}
+          evaluation={<pre className="result-pre">{selectedTest.response}</pre>}
         />
       </div>
     </div>
