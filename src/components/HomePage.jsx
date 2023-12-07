@@ -1,10 +1,11 @@
 import {useEffect, useState} from 'react';
 import axios from 'axios';
-import { useNavigate } from 'react-router-dom';
+import {Link, useNavigate} from 'react-router-dom';
 import { useDispatch } from 'react-redux';
 import { setData } from '/src/dataSlice';
 import { storage } from '/src/firebase';
 import { ref, uploadBytes } from 'firebase/storage';
+import logo from "../assets/logo.png";
 
 // Define API base URLs
 const DEV_API_BASE_URL = 'http://127.0.0.1:5000';
@@ -57,8 +58,11 @@ function HomePage() {
 
   const notifyBackend = async (fileName) => {
     try {
-      await axios.post(`${API_BASE_URL}/file-uploaded`, { fileName, sessionID });
-      const response = await axios.post(`${API_BASE_URL}/documentscan`, { file_name: fileName, session_token: sessionID });
+      await axios.post(`${API_BASE_URL}/file-uploaded`, {fileName, sessionID});
+      const response = await axios.post(`${API_BASE_URL}/documentscan`, {
+        file_name: fileName,
+        session_token: sessionID
+      });
       setFileMetadata(response.data.metadata);
       setFileText(response.data.text);
     } catch (error) {
@@ -96,7 +100,7 @@ function HomePage() {
       ];
 
       const results = await Promise.all(
-        apiLinks.map(link => axios.post(link, { prompt: text }))
+          apiLinks.map(link => axios.post(link, {prompt: text}))
       );
 
       let combinedResponse = {};
@@ -123,59 +127,77 @@ function HomePage() {
   };
 
   return (
-    <div className="flex flex-col items-center justify-center min-h-screen bg-gradient-to-br from-purple-900 to-indigo-800 font-inter text-white">
-      <h1 className="mb-4 text-8xl font-logo leading-tight bg-gradient-to-r from-slate-900 to-slate-950 text-transparent bg-clip-text drop-shadow-2xl">
-        TRAITOR
-      </h1>
-      {loading ? (
-        <LoadingSpinner />
-      ) : (
-        <div className="flex flex-col items-center space-y-4">
-          <div className="relative w-96 rounded-md">
-            <textarea
-              value={text}
-              onChange={(e) => setText(e.target.value)}
-              placeholder="Enter your text here"
-              rows={5}
-              className="w-full p-4 bg-slate-700 text-slate-100 rounded-md resize-none focus:outline-none focus:ring-2 focus:ring-purple-400 transition-all duration-200"
-            />
-            <span className="absolute bottom-4 right-4 text-xs text-slate-500">
-              {text.length}
-            </span>
+      <div className="relative min-h-screen bg-gradient-to-br from-blue-500 to-purple-600 font-inter text-white">
+        <header className="fixed top-0 left-0 right-0 p-4 bg-white rounded-b-md shadow-md z-10">
+          <div className="max-w-7xl mx-auto flex justify-between items-center">
+            <Link to="/" className="text-xl font-bold ml-2" style={{ letterSpacing: '1.5px' }}>
+              <span style={{ color: 'black' }}>TR</span>
+              <span className="italic bg-clip-text text-transparent bg-gradient-to-r from-blue-400 to-purple-500">AI</span>
+              <span style={{ color: 'black' }}>TOR</span>
+            </Link>
           </div>
-          <button
-            onClick={handleSubmit}
-            className="w-60 px-4 py-3 text-lg font-medium bg-gradient-to-r from-slate-700 via-slate-800 to-slate-900 rounded-full shadow-lg transition-all duration-200 transform hover:scale-105 focus:outline-none focus:ring-2 focus:ring-purple-400 focus:ring-opacity-50"
-          >
-            Submit
-          </button>
-          <div
-            onDrop={handleDrop}
-            onDragOver={handleDragOver}
-            className="w-96 h-32 border-2 border-dashed border-slate-500 flex items-center justify-center rounded"
-          >
-            {fileUploaded ? (
-              <p>File has been uploaded</p>
+        </header>
+
+        {/* Centered content */}
+        <div className="flex flex-col items-center justify-center h-screen"> {/* Adjusted for full height and vertical centering */}
+          <div className="container max-w-md mx-auto px-6 py-10 bg-white opacity-90 shadow-lg rounded-xl"> {/* Adjusted container */}
+            {/* Conditional rendering if loading */}
+            {loading ? (
+                <LoadingSpinner />
             ) : (
-              <p>Drag and drop a .docx file here</p>
+                <div className="flex flex-col items-center space-y-6"> {/* Adjusted spacing */}
+                  {/* Textarea for input */}
+                  <div className="relative w-full text-black text-center">
+                    <h1 className="mb-8 font-bold">Paste or drag your content below to start:</h1>
+                    <textarea
+                        value={text}
+                        onChange={(e) => setText(e.target.value)}
+                        placeholder="Enter your text here"
+                        rows={5}
+                        className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent resize-none" />
+                    <span className="absolute bottom-4 right-4 text-xs text-gray-500">
+                  {text.length}
+                </span>
+                  </div>
+                  {/* Submit button */}
+                  <button
+                      onClick={handleSubmit}
+                      className="w-full py-3 px-4 bg-gradient-to-r from-blue-400 to-purple-500 text-white rounded-lg hover:bg-blue-700 transition duration-300 hover:text-black"
+                  >
+                    Submit
+                  </button>
+                  {/* Drag and drop area */}
+                  <div
+                      onDrop={handleDrop}
+                      onDragOver={handleDragOver}
+                      className="w-full h-32 border-2 text-black border-dashed border-gray-300 flex items-center justify-center rounded-lg">
+                    {fileUploaded ? (
+                        <p>File has been uploaded!</p>
+                    ) : (
+                        <p>Drag and drop a .docx file here</p>
+                    )}
+                  </div>
+                </div>
+            )}
+            {/* Display response if available */}
+            {response && (
+                <div className="flex flex-col items-center space-y-4">
+                  <h2 className="text-2xl leading-normal mb-2">Response:</h2>
+                  <p className="mb-4">{response}</p>
+                </div>
             )}
           </div>
         </div>
-      )}
-      {response && (
-        <div className="flex flex-col items-center space-y-4">
-          <h2 className="text-2xl leading-normal mb-2">Response:</h2>
-          <p className="mb-4">{response}</p>
-        </div>
-      )}
-      <footer className="absolute bottom-0 flex flex-col items-center justify-center w-full p-4 bg-black bg-opacity-40">
-        <p className="text-xs text-white z-10">
-          © 2023 TRAITOR. All rights reserved.
-        </p>
-      </footer>
-    </div>
-  );
 
+        {/* Footer */}
+        <footer className="absolute bottom-0 w-full p-4 bg-white bg-opacity-90">
+          <p className="text-xs text-center text-black">
+            © 2023 TRAITOR. All rights reserved.
+          </p>
+        </footer>
+      </div>
+  );
 }
 
-export default HomePage;
+
+  export default HomePage;
