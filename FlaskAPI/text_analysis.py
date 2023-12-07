@@ -103,8 +103,8 @@ def compare_texts(analysis1, analysis2):
         value2 = getattr(analysis2, metric)
         similarity = calculate_similarity(value1, value2, is_boolean)
         results[metric] = {
-            "Text 1": value1,
-            "Text 2": value2,
+            "Your text": value1,
+            "GPT Recreation": value2,
             "Similarity (%)": similarity
         }
 
