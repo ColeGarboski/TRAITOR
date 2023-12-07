@@ -17,7 +17,7 @@ import os
 import json
 import secrets
 import openai
-from flask_cors import CORS
+from flask_cors import CORS, cross_origin
 import uuid
 from docx import Document
 import firebase_admin
@@ -43,12 +43,13 @@ app.config['SESSION_COOKIE_NAME'] = 'session'
 app.config['SESSION_TYPE'] = 'filesystem'
 app.secret_key = secrets.token_hex(16)
 # CORS(app, supports_credentials=True, origins=["DOMAIN"]) PROD MODE | Replace domain with versel or real domain
-CORS(app)
+CORS(app, supports_credentials=True, origins="*")
 api_key = os.environ.get('OPENAI_API_KEY', '')
 openai.api_key = api_key
 
 
 @app.before_request
+@cross_origin(supports_credentials=True)
 def ensure_session_token():
     print("Before request triggered.")
     if 'sessionToken' not in session:
@@ -62,19 +63,23 @@ def ensure_session_token():
 
 
 @app.route('/')
+@cross_origin(supports_credentials=True)
 def hello_world():
     return 'chatgpt nice brother wojak!'
 
 @app.route('/set-token')
+@cross_origin(supports_credentials=True)
 def set_token():
     session['sessionToken'] = str(uuid.uuid4())
     return f"Token set: {session['sessionToken']}"
 
 @app.route('/get-token')
+@cross_origin(supports_credentials=True)
 def get_token():
     return f"{session.get('sessionToken', 'No token found.')}"
 
 @app.route('/file-uploaded', methods=['POST'])
+@cross_origin(supports_credentials=True)
 # USE /documentscan INSTEAD
 def file_uploaded():
     data = request.json
@@ -84,6 +89,7 @@ def file_uploaded():
     return jsonify({'success': True})
 
 @app.route('/askgpt', methods=['POST'])
+@cross_origin(supports_credentials=True)
 def askGPT():
     data = request.json
     user_prompt = data.get('prompt', '')
@@ -114,6 +120,7 @@ def askGPT():
 
 
 @app.route('/reverseprompt', methods=['POST'])
+@cross_origin(supports_credentials=True)
 def reversePrompt():
     data = request.json
     user_prompt = data.get('prompt', '')
@@ -155,6 +162,7 @@ def reversePrompt():
         })
 
 @app.route('/documentscan', methods=['POST'])
+@cross_origin(supports_credentials=True)
 def document_scan():
     data = request.json
     session_token = data.get('session_token')
@@ -209,6 +217,7 @@ def analyze_metadata_with_chatgpt(metadata):
         return f"Error in analyzing metadata: {str(e)}"
 
 @app.route('/extract-text', methods=['POST'])
+@cross_origin(supports_credentials=True)
 def extract_text():
     data = request.json
     session_token = data.get('session_token')
@@ -228,6 +237,7 @@ def extract_text():
     return jsonify({"text": full_text})
 
 @app.route('/analyze-compare-texts', methods=['POST'])
+@cross_origin(supports_credentials=True)
 def analyze_compare_texts():
     data = request.json
     userText = data.get('text1')
