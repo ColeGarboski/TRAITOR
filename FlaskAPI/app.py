@@ -43,7 +43,7 @@ app.config['SESSION_COOKIE_NAME'] = 'session'
 app.config['SESSION_TYPE'] = 'filesystem'
 app.secret_key = secrets.token_hex(16)
 # CORS(app, supports_credentials=True, origins=["DOMAIN"]) PROD MODE | Replace domain with versel or real domain
-CORS(app, supports_credentials=True,allow_headers="*", origins="https://tr-ai-tor.vercel.app")
+CORS(app, supports_credentials=True, origins="*")
 api_key = os.environ.get('OPENAI_API_KEY', '')
 openai.api_key = api_key
 
@@ -59,7 +59,12 @@ def ensure_session_token():
         print("Token found in session.")
         print(f"Existing sessionToken found: {session['sessionToken']}")
 
-
+@app.after_request
+def after_request(response):
+    response.headers.add('Access-Control-Allow-Origin', '*')
+    response.headers.add('Access-Control-Allow-Headers', 'Content-Type,Authorization')
+    response.headers.add('Access-Control-Allow-Methods', 'GET,PUT,POST,DELETE,OPTIONS')
+    return response
 
 @app.route('/')
 def hello_world():
