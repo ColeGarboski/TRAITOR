@@ -49,7 +49,6 @@ openai.api_key = api_key
 
 
 @app.before_request
-@cross_origin(supports_credentials=True)
 def ensure_session_token():
     print("Before request triggered.")
     if 'sessionToken' not in session:
@@ -63,40 +62,43 @@ def ensure_session_token():
 
 
 @app.route('/')
-@cross_origin(supports_credentials=True)
 def hello_world():
     return 'chatgpt nice brother wojak!'
 
 @app.route('/set-token')
-@cross_origin(supports_credentials=True)
 def set_token():
     session['sessionToken'] = str(uuid.uuid4())
     return f"Token set: {session['sessionToken']}"
 
 @app.route('/get-token')
-@cross_origin(supports_credentials=True)
 def get_token():
     return f"{session.get('sessionToken', 'No token found.')}"
 
 @app.route('/file-uploaded', methods=['POST'])
-@cross_origin(supports_credentials=True)
 # USE /documentscan INSTEAD
 def file_uploaded():
-    data = request.json
-    file_name = data['fileName']
-    session_id = data['sessionID']
-    # PROCESS WORD DOC HERE
-    return jsonify({'success': True})
+    try:
+        data = request.json
+        file_name = data.get('fileName')
+        session_id = data.get('sessionID')
+        
+        if not file_name or not session_id:
+            return jsonify({'success': False, 'error': 'Missing file name or session ID'}), 400
+
+        # PROCESS WORD DOC HERE
+
+        return jsonify({'success': True})
+    except Exception as e:
+        return jsonify({'success': False, 'error': str(e)}), 500
 
 @app.route('/askgpt', methods=['POST'])
-@cross_origin(supports_credentials=True)
 def askGPT():
     data = request.json
     user_prompt = data.get('prompt', '')
 
     messages = [
         {"role": "system",
-         "content": "Please analyze the following text, initially assuming it was written or assisted by a generative AI model like ChatGPT, unless evidence strongly suggests otherwise. Examine the text's structure, style, and content to assess whether it aligns with typical patterns and characteristics of AI-generated text. Consider factors such as language use, complexity, coherence, repetition, and any other relevant aspects that generative AI models tend to exhibit in their writing. After your analysis, provide a concise evaluation, listing the key reasons that support your conclusion on whether the text is likely AI-written or not. Conclude with a definitive answer based on your assessment. Here is the text for analysis:"},
+         "content": "Please analyze the following text, initially assuming it was written or assisted by a generative AI model like ChatGPT, unless evidence strongly suggests otherwise. Examine the text's structure, style, and content to assess whether it aligns with typical patterns and characteristics of AI-generated text. Consider factors such as language use, complexity, coherence, repetition, and any other relevant aspects that generative AI models tend to exhibit in their writing. After your analysis, provide a concise evaluation, listing the key reasons that support your conclusion on whether the text is likely AI-written or not. Conclude with a definitive answer based on your assessment. After your analysis, please leave a score from 0 to 100 on a new line (with nothing else before or after it indicating its meaning), with a 0 being \"There is no chance that this is AI generated\" and a 100 being \"It is extremely unlikely that this has been written by a human.\". Here is the text for analysis:"},
         {"role": "user", "content": user_prompt}
     ]
 
@@ -120,7 +122,6 @@ def askGPT():
 
 
 @app.route('/reverseprompt', methods=['POST'])
-@cross_origin(supports_credentials=True)
 def reversePrompt():
     data = request.json
     user_prompt = data.get('prompt', '')
@@ -162,7 +163,6 @@ def reversePrompt():
         })
 
 @app.route('/documentscan', methods=['POST'])
-@cross_origin(supports_credentials=True)
 def document_scan():
     data = request.json
     session_token = data.get('session_token')
@@ -203,41 +203,68 @@ def extract_metadata_and_text(file_stream):
     return metadata, full_text, analysis_result
 
 def analyze_metadata_with_chatgpt(metadata):
-    prompt = f"Analyze the following Word document metadata for any odd or suspicious characteristics that may indicate cheating:\n{json.dumps(metadata, indent=2)}"
+    metadata_prompt = json.dumps(metadata, indent=2)
+    
+    messages = [
+        {"role": "system", 
+         "content": "Please analyze the following Word document metadata for any odd or suspicious characteristics that may indicate cheating. Examine the metadata's structure, content, and any other relevant aspects. After your analysis, provide a concise evaluation, listing the key reasons that support your conclusion. After your analysis, please leave a score from 0 to 100 on a new line (with nothing else before or after it indicating its meaning), with a 0 being \"There is no chance that this is AI generated\" and a 100 being \"It is extremely unlikely that this has been written by a human.\". Include a formatted copy of the metadata at the top of your response."},
+        {"role": "user", "content": metadata_prompt}
+    ]
 
     try:
         response = openai.ChatCompletion.create(
             model="gpt-4-1106-preview",
-            messages=[{"role": "system", "content": prompt}]
+            messages=messages
         )
-        analysis_result = response['choices'][0]['message']['content'].strip()
-        return analysis_result
+
+        return {
+            'testName': 'MetadataAnalysis',
+            'success': True,
+            'response': response['choices'][0]['message']['content'].strip()
+        }
 
     except Exception as e:
-        return f"Error in analyzing metadata: {str(e)}"
+        return {
+            'success': False,
+            'error': str(e)
+        }
 
 @app.route('/extract-text', methods=['POST'])
-@cross_origin(supports_credentials=True)
 def extract_text():
-    data = request.json
-    session_token = data.get('session_token')
-    file_name = data.get('file_name')
+    try:
+        print("extract_text - Started processing request")
+        data = request.json
+        session_token = data.get('session_token')
+        file_name = data.get('file_name')
 
-    firebase_file_path = f"files/{session_token}/{file_name}"
+        print(f"extract_text - Session Token: {session_token}, File Name: {file_name}")
 
-    bucket = storage.bucket()
-    blob = bucket.blob(firebase_file_path)
-    file_blob = blob.download_as_bytes()
+        if not session_token or not file_name:
+            print("extract_text - Missing session token or file name")
+            return jsonify({"error": "Missing session token or file name"}), 400
 
-    file_stream = io.BytesIO(file_blob)
-    doc = Document(file_stream)
+        firebase_file_path = f"files/{session_token}/{file_name}"
+        print(f"extract_text - Firebase File Path: {firebase_file_path}")
 
-    full_text = '\n'.join(paragraph.text for paragraph in doc.paragraphs)
+        bucket = storage.bucket()
+        blob = bucket.blob(firebase_file_path)
+        file_blob = blob.download_as_bytes()
 
-    return jsonify({"text": full_text})
+        print("extract_text - File blob downloaded")
+
+        file_stream = io.BytesIO(file_blob)
+        doc = Document(file_stream)
+
+        full_text = '\n'.join(paragraph.text for paragraph in doc.paragraphs)
+
+        print("extract_text - Text extracted successfully")
+
+        return jsonify({"text": full_text})
+    except Exception as e:
+        print(f"extract_text - Error: {str(e)}")
+        return jsonify({"error": str(e)}), 500
 
 @app.route('/analyze-compare-texts', methods=['POST'])
-@cross_origin(supports_credentials=True)
 def analyze_compare_texts():
     data = request.json
     userText = data.get('text1')

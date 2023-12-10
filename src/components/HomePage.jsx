@@ -60,7 +60,6 @@ function HomePage() {
 
   const notifyBackend = async (fileName) => {
     try {
-      await axios.post(`${API_BASE_URL}/file-uploaded`, { fileName, sessionID }); // Potentially irrelevant line
       const documentFullText = await axios.post(`${API_BASE_URL}/extract-text`, { file_name: fileName, session_token: sessionID });
       setFileText(documentFullText.data.text);
       setText(documentFullText.data.text);
