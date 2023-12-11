@@ -13,9 +13,9 @@ const OTHER_DEV_API_BASE_URL = 'http://127.0.0.1:8080';
 const PROD_API_BASE_URL = 'https://tr-ai-torapi-d1938a8a0bce.herokuapp.com';
 
 // Toggle this line for switching environments
-//const API_BASE_URL = DEV_API_BASE_URL; // For development
+const API_BASE_URL = DEV_API_BASE_URL; // For development
 //const API_BASE_URL = OTHER_DEV_API_BASE_URL; // For development
-const API_BASE_URL = PROD_API_BASE_URL; // For production
+//const API_BASE_URL = PROD_API_BASE_URL; // For production
 
 function ProgressBar({ progress }) {
   const progressBarStyle = {
