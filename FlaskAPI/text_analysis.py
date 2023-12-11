@@ -88,7 +88,7 @@ def compare_texts(analysis1, analysis2):
     metrics = {
         "toneScore": False,
         "oxfordComma": True,
-        "123": False,
+        "commaFreak": False,
         "hyphen": True,
         "exclamationMark": True,
         "questionMark": True,
