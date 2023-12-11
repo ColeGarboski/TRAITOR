@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import axios from 'axios';
-import {Link, useNavigate} from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { useDispatch } from 'react-redux';
 import { setData } from '/src/dataSlice';
 import { storage } from '/src/firebase';
@@ -17,10 +17,15 @@ const PROD_API_BASE_URL = 'https://tr-ai-torapi-d1938a8a0bce.herokuapp.com';
 //const API_BASE_URL = OTHER_DEV_API_BASE_URL; // For development
 const API_BASE_URL = PROD_API_BASE_URL; // For production
 
-function LoadingSpinner() {
+function ProgressBar({ progress }) {
+  const progressBarStyle = {
+    width: `${progress}%`,
+    transition: 'width 0.5s ease-in-out',
+  };
+
   return (
-    <div className="flex justify-center items-center">
-      <div className="animate-spin rounded-full h-32 w-32 border-t-2 border-b-2 border-purple-500" />
+    <div className="w-full bg-gray-200 rounded h-4">
+      <div className="bg-gradient-to-r from-blue-400 to-purple-500 h-4 rounded" style={progressBarStyle}></div>
     </div>
   );
 }
@@ -38,6 +43,8 @@ function HomePage() {
   const navigate = useNavigate();
   const [sessionID, setSessionID] = useState('');
   const [isTextAreaDisabled, setIsTextAreaDisabled] = useState(false);
+  const [progress, setProgress] = useState(0);
+  const [flavorText, setFlavorText] = useState('');
 
   const handleDrop = async (e) => {
     e.preventDefault();
@@ -100,16 +107,72 @@ function HomePage() {
 
   const handleSubmit = async () => {
     setLoading(true);
+    setProgress(0);
+    setFlavorText('Initializing...');
+    let currentProgress = 0;
+  
+    const flavorTexts = [
+      { progress: 0, text: "Making sure ChatGPT is awake..." },
+      { progress: 5, text: "ChatGPT is stretching its neural networks..." },
+      { progress: 10, text: "Loading up all the AI wisdom..." },
+      { progress: 15, text: "Asking ChatGPT to put on its thinking cap..." },
+      { progress: 20, text: "ChatGPT is now sipping virtual coffee..." },
+      { progress: 25, text: "Preparing the analysis engines..." },
+      { progress: 30, text: "Diving into the depths of data..." },
+      { progress: 35, text: "ChatGPT is now juggling with bytes..." },
+      { progress: 40, text: "Calculating the secrets of the universe..." },
+      { progress: 45, text: "Engaging in digital telepathy..." },
+      { progress: 50, text: "It's busy analyzing..." },
+      { progress: 55, text: "Cross-referencing with the Library of Babel..." },
+      { progress: 60, text: "Reverse engineering your writing style..." },
+      { progress: 65, text: "ChatGPT is now bending the fabric of algorithms..." },
+      { progress: 70, text: "Polishing the pixels for clarity..." },
+      { progress: 75, text: "Taking a brief AI nap..." },
+      { progress: 80, text: "Nearly there, just adding some finishing touches..." },
+      { progress: 85, text: "Running a final spell-check..." },
+      { progress: 90, text: "Cleaning up your results..." },
+      { progress: 95, text: "Almost ready to amaze you..." },
+      { progress: 100, text: "Ta-da! Analysis complete!" },
+    ].sort((a, b) => a.progress - b.progress);
+  
+    let flavorIndex = 0; 
+  
+    const updateInterval = 50; 
+    let intervalId;
+  
     try {
       const apiLinks = [
         `${API_BASE_URL}/askgpt`,
         `${API_BASE_URL}/reverseprompt`,
         // other API routes...
       ];
-
-      const results = await Promise.all(
-          apiLinks.map(link => axios.post(link, {prompt: text}))
-      );
+  
+      const results = [];
+      
+      for (let i = 0; i < apiLinks.length; i++) {
+        const targetProgress = ((i + 1) / apiLinks.length) * 100;
+    
+        intervalId = setInterval(() => {
+          if (currentProgress < targetProgress) {
+            currentProgress += 0.1;
+            setProgress(currentProgress);
+  
+            if (flavorIndex < flavorTexts.length && currentProgress >= flavorTexts[flavorIndex].progress) {
+              setFlavorText(flavorTexts[flavorIndex].text);
+              flavorIndex++;
+            }
+          } else {
+            clearInterval(intervalId);
+          }
+        }, updateInterval);
+    
+        const res = await axios.post(apiLinks[i], { prompt: text });
+        results.push(res);
+    
+        while (currentProgress < targetProgress) {
+          await new Promise(resolve => setTimeout(resolve, updateInterval));
+        }
+      }
 
       let combinedResponse = {};
       results.forEach((res, index) => {
@@ -132,15 +195,17 @@ function HomePage() {
       console.log(combinedResponse);
       dispatch(setData(combinedResponse));
     } catch (error) {
+      clearInterval(intervalId);
       console.error('There was an error sending the requests', error);
       setResponse('There was an error sending the requests');
     } finally {
       navigate('/results');
       setLoading(false);
+      clearInterval(intervalId);
     }
   };
 
-return (
+  return (
     <div className="relative min-h-screen bg-gradient-to-br from-blue-500 to-purple-600 font-inter text-white">
       <header className="fixed top-0 left-0 right-0 p-4 bg-white rounded-b-md shadow-md z-10">
         <div className="max-w-7xl mx-auto flex justify-between items-center">
@@ -155,7 +220,10 @@ return (
       <div className="flex flex-col items-center justify-center h-screen">
         <div className="container max-w-md mx-auto px-6 py-10 bg-white opacity-90 shadow-lg rounded-xl">
           {loading ? (
-            <LoadingSpinner />
+            <div>
+              <ProgressBar progress={progress} />
+              <p style={{ color: 'black' }} className="text-center mt-4 tex">{flavorText}</p>
+            </div>
           ) : (
             <div className="flex flex-col items-center space-y-6">
               <div className="relative w-full text-black text-center">
@@ -210,4 +278,4 @@ return (
 }
 
 
-  export default HomePage;
+export default HomePage;
