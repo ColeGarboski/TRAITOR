@@ -3,7 +3,7 @@ import React from 'react';
 function Result({description, evaluation}) {
     return (
         <div className="flex justify-center items-center"> {/* Flex container to center the Result component */}
-            <div className="rounded-lg p-4 bg-white md:w-1/2 "> {/* Neutral background color */}
+            <div className="rounded-lg p-4 bg-white md:w-3/4 "> {/* Neutral background color */}
                 <style>
                     {`
                         .result-pre {

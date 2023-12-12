@@ -79,7 +79,7 @@ function ResultsPage() {
                     />
                 </div>
             </div>
-            <footer className="absolute bottom-0 w-full p-4 bg-white bg-opacity-90">
+            <footer className="w-full p-4 bg-white bg-opacity-90">
                 <p className="text-xs text-center text-black">
                     © 2023 TRAITOR. All rights reserved.
                 </p>
