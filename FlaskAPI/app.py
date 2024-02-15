@@ -21,7 +21,7 @@ from flask_cors import CORS, cross_origin
 import uuid
 from docx import Document
 import firebase_admin
-from firebase_admin import credentials, storage
+from firebase_admin import credentials, storage, firestore
 import io
 from datetime import datetime
 import nltk
@@ -39,6 +39,8 @@ else:
     cred = credentials.Certificate('FlaskAPI/firebasecred.json')
 
 firebase_admin.initialize_app(cred, {'storageBucket': 'traitor-14f52.appspot.com'})
+# Initialize Firestore Database
+db = firestore.client()
 app.config['SESSION_COOKIE_NAME'] = 'session'
 app.config['SESSION_TYPE'] = 'filesystem'
 app.secret_key = secrets.token_hex(16)
@@ -248,7 +250,17 @@ def extract_text():
             print("extract_text - Missing session token or file name")
             return jsonify({"error": "Missing session token or file name"}), 400
 
+        # WILL NEED TO CHANGE TO ACCOUNT BASED SYSTEM AFTER LOGIN IS CREATED
         firebase_file_path = f"files/{session_token}/{file_name}"
+        full_firebase_file_path = f"gs://traitor-14f52.appspot.com/{firebase_file_path}"
+
+        # Push the file path to the Firestore with student's assignment
+        #                                     TeacherID                    ClassID                       StudentID                        AssignmentID
+        # Example Firestore structure: /Users/DFnnwAeWVC4XHqxPOOjf/Classes/JyvUzZ3CrU4OsQPRKsdu/Students/cZzd0pouqJCAmVxqdlk4/Submissions/myJqgQ7n9nNkUN8Psa7A
+        db.collection('Users').document('DFnnwAeWVC4XHqxPOOjf')\
+            .collection('Classes').document('JyvUzZ3CrU4OsQPRKsdu')\
+            .collection('Students').document('cZzd0pouqJCAmVxqdlk4')\
+            .collection('Submissions').add({'assignmentTitle': 'ExampleName', 'bucketFilePath': full_firebase_file_path, 'submissionDate': datetime.now()})
         print(f"extract_text - Firebase File Path: {firebase_file_path}")
 
         bucket = storage.bucket()
@@ -287,6 +299,18 @@ def analyze_compare_texts():
     except Exception as e:
         return jsonify({"error": str(e)}), 500
 
+@app.route('/test-db', methods=['GET'])
+def testDB():
+    # This was just for testing the Firestore, not really necessary now but keeping it just in case
+    try:
+        doc_ref = db.collection('test').document('test')
+        doc_ref.set({
+            'test': 'test'
+        })
+
+        return jsonify({"success": True})
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
 
 
 if __name__ == '__main__':
