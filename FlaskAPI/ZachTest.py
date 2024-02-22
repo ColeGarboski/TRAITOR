@@ -3,6 +3,8 @@ import re
 import nltk
 from nltk.corpus import stopwords
 from textblob import TextBlob
+import math
+from wordfreq import word_frequency, zipf_frequency, tokenize
 
 #look at trends across paragraphs. Patterns in the statistics. Less complicated -> complicated -> less complicated. This is a pattern for writing style
 #distinct words attached to people. "favorite words". often uncommonly used words, or used in strange/irregular positions
@@ -13,6 +15,7 @@ from textblob import TextBlob
 
 #Title: The Enduring Legacy of William Shakespeare        I hate william shakespeare I hate him I hate him I hate him and I hope he dies. Kill shakespeare kill him kill him bad. murder him. he sucks and is bad.
 
+#1 min 20 sec for this (with spellcheck):
 fullTextInput = """I hate william shakespeare I hate him I hate him I hate him and I hope he dies. Kill shakespeare kill him kill him bad. murder him. he sucks and is bad.
 
 The Enduring Legacy of William Shakespeare
@@ -27,7 +30,11 @@ Shakespeare's influence on the English language is immeasurable. He is credited 
 
 In addition to his literary and linguistic contributions, Shakespeare's impact on the world of theater is immeasurable. His plays continue to be performed and adapted worldwide, and his theatrical innovations, such as the development of the iambic pentameter and the use of soliloquies, have set enduring standards for dramatic storytelling. The Globe Theatre, where many of his plays were first performed, remains an iconic symbol of the Elizabethan era's theatrical heritage, and it continues to attract theater enthusiasts and scholars from all corners of the globe.
 
-In conclusion, William Shakespeare's legacy is a testament to the enduring power of literature, language, and the performing arts. His works continue to enthrall and inspire, transcending time and cultural boundaries. His profound understanding of the human experience, his contributions to the English language, and his lasting impact on the theater make him an icon in the world of literature and an enduring source of fascination and admiration for generations to come. William Shakespeare's name will forever be synonymous with the pinnacle of literary achievement and the timeless exploration of the human soul."""
+In conclusion, William Shakespeare's legacy is a testament to the enduring power of literature, language, and the performing arts. His works continue to enthrall and inspire, transcending time and cultural boundaries. His profound understanding of the human experience, his contributions to the English language, and his lasting impact on the theater make him an icon in the world of literature and an enduring source of fascination and admiration for generations to come. William Shakespeare's name will forever be synonymous with the pinnacle of literary achievement and the timeless exploration of the human soul.
+
+"""
+
+
 
 #**** remember that the main use of this is to compare a " maybe human written" essay to a chat gpt essay off a similar prompt. THIS MEANS THAT MANY OF THE FACTORS THAT CAN CAUSE ISSUES WILL BE THE SAME. If one analysis is off by 10, then the other will be off by roughly 10 as well. This is veeery good...
 
@@ -48,21 +55,23 @@ class FullText:
         self.wordCount = -1
         self.paragraphList = []
 
-        self.formalityScore = -1 #idk if i want an overall at all.... might be helpful here...
-        self.verbosityScore = -1 #idk if i want an overall at all....might be helpful here...
-        self.toneScore = -1 #idk if i want an overall at all....individual paragraph tone is more important i think....
+        self.formalityScore = -1 #  This test gives the average word length (the size of words used).
+        self.verbosityScore = -1 #  This test gives the average sentence length (the size of sentences used).
+        self.toneScore = -1 #  This test gives the overall tone of the text. It ranges from negative - positive (-1.0 - 1.0). A tone of 0 is neutral.
 
-        self.oxfordComma = False #uses oxford comma always
-        self.oxfordCommaContradiction = False #uses oxford comma, but also doesn't sometimes
-        self.commaFreak = -1   #comma to sentence ratio  (how many commas per sentence on average) - 0.5 is a comma every other sentence
-        self.semiColon = False #uses semi-colons
-        self.hyphen = False #uses hyphens
-        self.exclamationMark = False #uses exclamation marks
-        self.questionMark = False #uses question marks
+        self.oxfordComma = False # This test checks if the text uses an oxford comma.
+        self.oxfordCommaContradiction = False #This test checks if the text uses oxford comma, but also doesn't use it sometimes.
+        self.commaFreak = -1   #This test gives the comma to sentence ratio of the text (how many commas per sentence on average). 0.5 is a comma every other sentence.
+        self.semiColon = False #This test checks if the text uses semi-colons.
+        self.hyphen = False #This test checks if the text uses hyphens.
+        self.exclamationMark = False #This test checks if the text uses exclamation marks.
+        self.questionMark = False #This test checks if the text uses question marks.
         self.spellingErrors = 0  #number of spelling errors
 
-        self.highToneFlag = False
-        self.lowToneFlag = False
+        self.highToneFlag = False #This test checks for tone over 0.3. If true, it means there is a significant positive tone.
+        self.lowToneFlag = False #This test checks for tone under -0.3. If true, it means there is a significant negative tone
+
+        self.rareWordList = []   #a list of all "rare" words within the text
 
         self.fullTextString = text
         self.wordCount = len(self.fullTextString.split()) #full word count
@@ -79,8 +88,9 @@ class FullText:
         self.hyphenCheck()
         self.exclamationMarkCheck()
         self.questionMarkCheck()
-        self.spellingCheck()
+        #self.spellingCheck()
         self.VFT()
+        self.rareWordCheck()
 
     def oxfordCommaCheck(self):
         pattern = r',\s+and\s+|,\s+or\s+'  # regex pattern for oxford comma
@@ -97,6 +107,7 @@ class FullText:
 
         if noxfordcomma == True and noxfordcomma == True:
             self.oxfordCommaContradiction = True
+
 
     def commaFreakCheck(self):
         sentenceCount = 0
@@ -136,7 +147,7 @@ class FullText:
         #print(correctedText)
        # print(corrected_words)
 
-        error_count = sum(1 for original, corrected in zip(original_words, corrected_words) if original != corrected)
+        error_count = sum(1 for original, corrected in zip(original_words, corrected_words) if original != corrected) #bad gpt code stupid stupid
 
         self.spellingErrors = error_count
 
@@ -160,6 +171,13 @@ class FullText:
         self.verbosityScore = Vsum / ParagraphSum
         self.formalityScore = Fsum / ParagraphSum
 
+    def rareWordCheck(self):
+        wordList = tokenize(self.fullTextString, 'en')
+        uniqueWords = set(wordList)
+        for word in uniqueWords:
+            wordFreq = word_frequency(word, 'en', wordlist='best', minimum=0.0)
+            if wordFreq < 0.00001:
+                self.rareWordList.append(word)
 
 
 class Paragraph:
@@ -240,32 +258,29 @@ class Sentence:
         # Remove stop words
         filteredSentence = [word for word in tokenizedText if word.lower() not in stopwords.words('english')] #remove punctuation probably...
 
-        # Join the filtered words back into a sentence (didn't end up using, but it could be nice later...
+        # Join the filtered words back into a sentence (didn't end up using, but it could be nice later... )
         # filtered_text = ' '.join(filteredSentence)
 
         letter_counts = [len(word) for word in filteredSentence]
 
-        self.formalityScore = sum(letter_counts) / len(filteredSentence)
+        self.formalityScore = sum(letter_counts) / ( len(filteredSentence) + 0.0000000001)
 
 
 def displayResults(FullText):
 
-    print(FullText.toneScore)
-    print(FullText.highToneFlag)
-    print(FullText.lowToneFlag)
-    print(FullText.formalityScore)
-    print(FullText.verbosityScore)
-    print(FullText.oxfordComma)
-    print(FullText.oxfordCommaContradiction)
-    print(FullText.questionMark)
-    print(FullText.exclamationMark)
-    print(FullText.hyphen)
-    print(FullText.spellingErrors)
-    print(FullText.commaFreak)
-
-
-
-
+    print(FullText.toneScore) # -1 to 1
+    print(FullText.highToneFlag)  #0 or 1    shows if there was a concentrated area of high tone
+    print(FullText.lowToneFlag)   #0 or 1    shows if there was a concentrated area of low tone
+    print(FullText.formalityScore) #0-infinity(ish)   average letter count per word
+    print(FullText.verbosityScore) #0-infinity   average word count per sentence
+    print(FullText.oxfordComma)   #0 or 1       did you use oxford comma
+    print(FullText.oxfordCommaContradiction) #0 or 1       could you have used oxford comma but didn't
+    print(FullText.questionMark) #0 or 1  did you use question mark
+    print(FullText.exclamationMark) #0 or 1 did you use exclamation
+    print(FullText.hyphen)     #0 or 1  did you use hyphens
+    print(FullText.spellingErrors)             #not currently used until we have a better way to do this
+    print(FullText.commaFreak)  #0 to infinity  how many commas did you use per sentence on average
+    #compare similarity to rareword lists
 
 
 testFullText = FullText(fullTextInput)
