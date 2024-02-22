@@ -106,102 +106,27 @@ function HomePage() {
   }, []);
 
   const handleSubmit = async () => {
-    setLoading(true);
-    setProgress(0);
-    setFlavorText('Initializing...');
-    let currentProgress = 0;
-  
-    const flavorTexts = [
-      { progress: 0, text: "Making sure ChatGPT is awake..." },
-      { progress: 5, text: "ChatGPT is stretching its neural networks..." },
-      { progress: 10, text: "Loading up all the AI wisdom..." },
-      { progress: 15, text: "Asking ChatGPT to put on its thinking cap..." },
-      { progress: 20, text: "ChatGPT is now sipping virtual coffee..." },
-      { progress: 25, text: "Preparing the analysis engines..." },
-      { progress: 30, text: "Diving into the depths of data..." },
-      { progress: 35, text: "ChatGPT is now juggling with bytes..." },
-      { progress: 40, text: "Calculating the secrets of the universe..." },
-      { progress: 45, text: "Engaging in digital telepathy..." },
-      { progress: 50, text: "It's busy analyzing..." },
-      { progress: 55, text: "Cross-referencing with the Library of Babel..." },
-      { progress: 60, text: "Reverse engineering your writing style..." },
-      { progress: 65, text: "ChatGPT is now bending the fabric of algorithms..." },
-      { progress: 70, text: "Polishing the pixels for clarity..." },
-      { progress: 75, text: "Taking a brief AI nap..." },
-      { progress: 80, text: "Nearly there, just adding some finishing touches..." },
-      { progress: 85, text: "Running a final spell-check..." },
-      { progress: 90, text: "Cleaning up your results..." },
-      { progress: 95, text: "Almost ready to amaze you..." },
-      { progress: 100, text: "Ta-da! Analysis complete!" },
-    ].sort((a, b) => a.progress - b.progress);
-  
-    let flavorIndex = 0; 
-  
-    const updateInterval = 50; 
-    let intervalId;
-  
     try {
-      const apiLinks = [
-        `${API_BASE_URL}/askgpt`,
-        `${API_BASE_URL}/reverseprompt`,
-        // other API routes...
-      ];
-  
-      const results = [];
-      
-      for (let i = 0; i < apiLinks.length; i++) {
-        const targetProgress = ((i + 1) / apiLinks.length) * 100;
-    
-        intervalId = setInterval(() => {
-          if (currentProgress < targetProgress) {
-            currentProgress += 0.1;
-            setProgress(currentProgress);
-  
-            if (flavorIndex < flavorTexts.length && currentProgress >= flavorTexts[flavorIndex].progress) {
-              setFlavorText(flavorTexts[flavorIndex].text);
-              flavorIndex++;
-            }
-          } else {
-            clearInterval(intervalId);
-          }
-        }, updateInterval);
-    
-        const res = await axios.post(apiLinks[i], { prompt: text });
-        results.push(res);
-    
-        while (currentProgress < targetProgress) {
-          await new Promise(resolve => setTimeout(resolve, updateInterval));
-        }
-      }
+      console.log("Sending text to backend for analysis");
+      let session_token = localStorage.getItem('sessionToken');
 
-      let combinedResponse = {};
-      results.forEach((res, index) => {
-        const routeKey = apiLinks[index].split('/').pop();
-        combinedResponse[routeKey] = res.data;
-      });
+      // Test vars to test API
+      const teacherID = "test_teacher_id";
+      const classID = "test_class_id";
+      const studentID = "test_student_id";
+      const assignmentID = "test_assignment_id";
 
-      if (fileUploaded) {
-        const response = await axios.post(`${API_BASE_URL}/documentscan`, { file_name: file.name, session_token: sessionID });
-        combinedResponse['fileMetadata'] = response.data.metadata;
-        combinedResponse['fileText'] = fileText;
-        combinedResponse['fileMetadataAnalysis'] = response.data.analysis;
-      }
-
-      const reversedPrompt = combinedResponse.reverseprompt.reversed_prompt;
-      const comparisonResults = await analyzeTexts(text, reversedPrompt);
-      combinedResponse.comparisonResults = comparisonResults;
-
-      setResponse(combinedResponse);
-      console.log(combinedResponse);
-      dispatch(setData(combinedResponse));
+      const response = await axios.post(`${API_BASE_URL}/analyze-assignment`, { 
+        session_token: session_token, 
+        file_name: file.name, 
+        teacherID: teacherID, 
+        classID: classID, 
+        studentID: studentID, 
+        assignmentID: assignmentID});
+      console.log(response);
     } catch (error) {
-      clearInterval(intervalId);
-      console.error('There was an error sending the requests', error);
-      setResponse('There was an error sending the requests');
-    } finally {
-      navigate('/results');
+      console.error('Error in analyzing text:', error);
       setLoading(false);
-      clearInterval(intervalId);
     }
   };
 
@@ -270,7 +195,7 @@ function HomePage() {
 
       <footer className="absolute bottom-0 w-full p-4 bg-white bg-opacity-90">
         <p className="text-xs text-center text-black">
-          © 2023 TRAITOR. All rights reserved.
+          © 2024 TRAITOR. All rights reserved.
         </p>
       </footer>
     </div>
