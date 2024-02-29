@@ -98,7 +98,8 @@ async def analyze_assignment():
     assignmentID = data.get('assignmentID')
 
     # WILL NEED TO CHANGE TO ACCOUNT BASED SYSTEM AFTER LOGIN IS CREATED
-    firebase_file_path = f"files/{session_token}/{file_name}"
+    # firebase_file_path = f"files/{session_token}/{file_name}"
+    firebase_file_path = f"files/{teacherID}/{classID}/{assignmentID}/{studentID}/{file_name}"
 
     bucket = storage.bucket()
     blob = bucket.blob(firebase_file_path)
@@ -137,18 +138,11 @@ async def run_analysis_and_update_db(user_id, file_text, file_stream, teacherID,
     #                                     TeacherID                    ClassID                          AssignmentID                     StudentID                    SubmissionID
     # Example Firestore structure: /Users/DFnnwAeWVC4XHqxPOOjf/Classes/JyvUzZ3CrU4OsQPRKsdu/Assignments/ZCN7hs1ZE20EoowIOmOg/Submisssons/xOpjlkFTKgkIV7WvkQqg/Results/RxeDC31VSlTwuzMnDn2K
     print("Sending results to Firebase")
-    db.collection('Users').add(analysis_results)
-    """resultsRef = db.collection('Users').document(teacherID)\
+    db.collection('Users').document(teacherID)\
         .collection('Classes').document(classID)\
         .collection('Assignments').document(assignmentID)\
         .collection('Submissions').document(studentID)\
-        .collection('Results')
-
-    resultsDocs = resultsRef.stream()
-
-    for doc in resultsDocs:
-        resultsRef.document(doc.id).set(analysis_results)
-        break"""
+        .collection('Results').add(analysis_results)
 
     print("Results sent to Firebase")
 

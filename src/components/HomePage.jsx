@@ -1,8 +1,9 @@
 import { useEffect, useState } from 'react';
 import axios from 'axios';
 import { Link, useNavigate } from 'react-router-dom';
-import { useDispatch } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
 import { setData } from '/src/dataSlice';
+import { selectUserId } from '/src/userSlice';
 import { storage } from '/src/firebase';
 import { ref, uploadBytes } from 'firebase/storage';
 import logo from "../assets/logo.png";
@@ -16,19 +17,6 @@ const PROD_API_BASE_URL = 'https://tr-ai-torapi-d1938a8a0bce.herokuapp.com';
 const API_BASE_URL = DEV_API_BASE_URL; // For development
 //const API_BASE_URL = OTHER_DEV_API_BASE_URL; // For development
 //const API_BASE_URL = PROD_API_BASE_URL; // For production
-
-function ProgressBar({ progress }) {
-  const progressBarStyle = {
-    width: `${progress}%`,
-    transition: 'width 0.5s ease-in-out',
-  };
-
-  return (
-    <div className="w-full bg-gray-200 rounded h-4">
-      <div className="bg-gradient-to-r from-blue-400 to-purple-500 h-4 rounded" style={progressBarStyle}></div>
-    </div>
-  );
-}
 
 function HomePage() {
   const dispatch = useDispatch();
@@ -45,6 +33,14 @@ function HomePage() {
   const [isTextAreaDisabled, setIsTextAreaDisabled] = useState(false);
   const [progress, setProgress] = useState(0);
   const [flavorText, setFlavorText] = useState('');
+  const [teacherID, setTeacherID] = useState('test_teacher_id');
+  const [classID, setClassID] = useState('test_class_id');
+  const studentID = useSelector(selectUserId);
+  const [assignmentID, setAssignmentID] = useState('test_assignment_id');
+
+  const handleTeacherIDChange = (e) => setTeacherID(e.target.value);
+  const handleClassIDChange = (e) => setClassID(e.target.value);
+  const handleAssignmentIDChange = (e) => setAssignmentID(e.target.value);
 
   const handleDrop = async (e) => {
     e.preventDefault();
@@ -55,7 +51,11 @@ function HomePage() {
     const file = e.dataTransfer.files[0];
     if (file && file.name.endsWith('.docx')) {
       setFile(file);
-      const fileRef = ref(storage, `files/${sessionID}/${file.name}`);
+
+      console.log(teacherID, classID, studentID, assignmentID)
+
+      const fileRef = ref(storage, `files/${teacherID}/${classID}/${assignmentID}/${studentID}/${file.name}`);
+      console.log(fileRef);
       await uploadBytes(fileRef, file);
       setFileUploaded(true);
       console.log('File uploaded successfully');
@@ -73,15 +73,6 @@ function HomePage() {
       setIsTextAreaDisabled(true);
     } catch (error) {
       console.error('Error in processing file:', error);
-    }
-  };
-
-  const analyzeTexts = async (text1, text2) => {
-    try {
-      const response = await axios.post(`${API_BASE_URL}/analyze-compare-texts`, { text1, text2 });
-      return response.data;
-    } catch (error) {
-      console.error('Error in analyzing and comparing texts:', error);
     }
   };
 
@@ -110,19 +101,14 @@ function HomePage() {
       console.log("Sending text to backend for analysis");
       let session_token = localStorage.getItem('sessionToken');
 
-      // Test vars to test API
-      const teacherID = "test_teacher_id";
-      const classID = "test_class_id";
-      const studentID = "test_student_id";
-      const assignmentID = "test_assignment_id";
-
-      const response = await axios.post(`${API_BASE_URL}/analyze-assignment`, { 
-        session_token: session_token, 
-        file_name: file.name, 
-        teacherID: teacherID, 
-        classID: classID, 
-        studentID: studentID, 
-        assignmentID: assignmentID});
+      const response = await axios.post(`${API_BASE_URL}/analyze-assignment`, {
+        session_token: session_token,
+        file_name: file.name,
+        teacherID: teacherID,
+        classID: classID,
+        studentID: studentID,
+        assignmentID: assignmentID
+      });
       console.log(response);
     } catch (error) {
       console.error('Error in analyzing text:', error);
@@ -144,46 +130,69 @@ function HomePage() {
 
       <div className="flex flex-col items-center justify-center h-screen">
         <div className="container max-w-md mx-auto px-6 py-10 bg-white opacity-90 shadow-lg rounded-xl">
-          {loading ? (
-            <div>
-              <ProgressBar progress={progress} />
-              <p style={{ color: 'black' }} className="text-center mt-4 tex">{flavorText}</p>
-            </div>
-          ) : (
-            <div className="flex flex-col items-center space-y-6">
-              <div className="relative w-full text-black text-center">
-                <h1 className="mb-8 font-bold">Paste or drag your content below to start:</h1>
-                <textarea
-                  value={fileText ? fileText : text}
-                  onChange={(e) => setText(e.target.value)}
-                  disabled={isTextAreaDisabled}
-                  placeholder="Enter your text here"
-                  rows={5}
-                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent resize-none"
+          <div className="flex flex-col items-center space-y-6">
+            <div className="relative w-full text-black text-center">
+              <h1 className="mb-8 font-bold">Paste or drag your content below to start:</h1>
+              <div className="flex flex-col items-center space-y-4 mb-4">
+                <input
+                  type="text"
+                  placeholder="Teacher ID"
+                  value={teacherID}
+                  onChange={handleTeacherIDChange}
+                  className="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
                 />
-                <span className="absolute bottom-4 right-4 text-xs text-gray-500">
-                  {text.length}
-                </span>
+                <input
+                  type="text"
+                  placeholder="Class ID"
+                  value={classID}
+                  onChange={handleClassIDChange}
+                  className="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                />
+                <input
+                  type="text"
+                  placeholder="User ID"
+                  value={studentID || ''}
+                  disabled={true}
+                  className="w-full px-4 py-2 border rounded-lg focus:outline-none"
+                />
+                <input
+                  type="text"
+                  placeholder="Assignment ID"
+                  value={assignmentID}
+                  onChange={handleAssignmentIDChange}
+                  className="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                />
               </div>
-              <button
-                onClick={handleSubmit}
-                className="w-full py-3 px-4 bg-gradient-to-r from-blue-400 to-purple-500 text-white rounded-lg hover:bg-blue-700 transition duration-300 hover:text-black"
-              >
-                Submit
-              </button>
-              <div
-                onDrop={handleDrop}
-                onDragOver={handleDragOver}
-                className="w-full h-32 border-2 text-black border-dashed border-gray-300 flex items-center justify-center rounded-lg"
-              >
-                {fileUploaded ? (
-                  <p>File has been uploaded!</p>
-                ) : (
-                  <p>Drag and drop a .docx file here</p>
-                )}
-              </div>
+              <textarea
+                value={fileText ? fileText : text}
+                onChange={(e) => setText(e.target.value)}
+                disabled={isTextAreaDisabled}
+                placeholder="Enter your text here"
+                rows={5}
+                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent resize-none"
+              />
+              <span className="absolute bottom-4 right-4 text-xs text-gray-500">
+                {text.length}
+              </span>
             </div>
-          )}
+            <button
+              onClick={handleSubmit}
+              className="w-full py-3 px-4 bg-gradient-to-r from-blue-400 to-purple-500 text-white rounded-lg hover:bg-blue-700 transition duration-300 hover:text-black"
+            >
+              Submit
+            </button>
+            <div
+              onDrop={handleDrop}
+              onDragOver={handleDragOver}
+              className="w-full h-32 border-2 text-black border-dashed border-gray-300 flex items-center justify-center rounded-lg"
+            >
+              {fileUploaded ? (
+                <p>File has been uploaded!</p>
+              ) : (
+                <p>Drag and drop a .docx file here</p>
+              )}
+            </div>
+          </div>
           {response && (
             <div className="flex flex-col items-center space-y-4">
               <h2 className="text-2xl leading-normal mb-2">Response:</h2>
