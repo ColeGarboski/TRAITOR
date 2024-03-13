@@ -1,7 +1,9 @@
 import React, { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { useDispatch } from 'react-redux';
-import { setUserId } from '/src/userSlice';
+import { setUserId, setUserRole } from '/src/userSlice';
 import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword } from 'firebase/auth';
+import { getFirestore, doc, setDoc } from "firebase/firestore";
 import logo from '/src/assets/logo.png';
 
 function SignupPage() {
@@ -9,33 +11,63 @@ function SignupPage() {
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
     const [name, setName] = useState('');
+    const [isTeacher, setIsTeacher] = useState(false); // Default to student
+    const [errorMessage, setErrorMessage] = useState('');
 
+    const navigate = useNavigate();
     const dispatch = useDispatch();
     const auth = getAuth();
 
     const handleToggle = () => {
         setIsActive(!isActive);
+        setErrorMessage('');
     };
 
     const handleSignUp = async (e) => {
         e.preventDefault();
+        setErrorMessage('');
         try {
             const userCredential = await createUserWithEmailAndPassword(auth, email, password);
-            dispatch(setUserId(userCredential.user.uid)); // 'dispatch' updates the Redux state with the user ID so we can use across the app
+            dispatch(setUserId(userCredential.user.uid));
+            dispatch(setUserRole(isTeacher ? 'teacher' : 'student'));
+    
+            if (isTeacher) {
+                // Set up teacher account in Firestore DB
+                const db = getFirestore();
+                const teacherRef = doc(db, "Users", userCredential.user.uid);
+    
+                await setDoc(teacherRef, {
+                    userId: userCredential.user.uid,
+                    username: name,
+                    role: 'teacher',
+                });
+                console.log('Teacher account created and added to Firestore');
+            }
+    
             console.log('Account created:', userCredential.user);
+
+            if (isTeacher) {
+                navigate('/teacher'); // Route to TeacherPage
+            } else {
+                navigate('/student'); // Route to StudentPage
+            }
         } catch (error) {
-            console.error('Error signing up:', error.message);
+            console.error('Error signing up:', error);
+            setErrorMessage(error.message); // Set the error message from Firebase
         }
     };
-    
+
     const handleSignIn = async (e) => {
         e.preventDefault();
+        setErrorMessage('');
         try {
             const userCredential = await signInWithEmailAndPassword(auth, email, password);
-            dispatch(setUserId(userCredential.user.uid)); 
+            dispatch(setUserId(userCredential.user.uid));
             console.log('Signed in:', userCredential.user);
+            navigate('/home');
         } catch (error) {
-            console.error('Error signing in:', error.message);
+            console.error('Error signing in:', error);
+            setErrorMessage(error.message); // Set the error message from Firebase
         }
     };
 
@@ -46,17 +78,49 @@ function SignupPage() {
                     <img src={logo} alt="Logo" className="mx-auto mb-4 h-40 w-40 object-cover" />
                     <h1 className="text-5xl font-bold text-gray-800 mb-4">{isActive ? 'Sign Up' : 'Sign In'}</h1>
                     <p className="text-gray-600">{isActive ? 'Join our community today.' : 'Welcome back, please sign in.'}</p>
+                    {errorMessage && (
+                        <div className="text-red-500 text-sm">{errorMessage}</div> // Display the error message
+                    )}
                 </div>
 
                 <form className="space-y-6" onSubmit={isActive ? handleSignUp : handleSignIn}>
                     {isActive && (
-                        <input
-                            type="text"
-                            placeholder="Name"
-                            className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                            value={name}
-                            onChange={(e) => setName(e.target.value)}
-                        />
+                        <div>
+                            <label className="block text-gray-700 text-sm font-bold mb-2">I am a:</label>
+                            <div className="flex items-center space-x-4">
+                                <div>
+                                    <label>
+                                        <input
+                                            type="radio"
+                                            name="role"
+                                            value="student"
+                                            checked={!isTeacher}
+                                            onChange={() => setIsTeacher(false)}
+                                        />
+                                        Student
+                                    </label>
+                                </div>
+                                <div>
+                                    <label>
+                                        <input
+                                            type="radio"
+                                            name="role"
+                                            value="teacher"
+                                            checked={isTeacher}
+                                            onChange={() => setIsTeacher(true)}
+                                        />
+                                        Teacher
+                                    </label>
+                                </div>
+                                <input
+                                    type="text"
+                                    placeholder="Name"
+                                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                                    value={name}
+                                    onChange={(e) => setName(e.target.value)}
+                                />
+                            </div>
+                        </div>
                     )}
                     <input
                         type="email"

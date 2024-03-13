@@ -24,8 +24,8 @@ function LandingPage() {
         'Overly-Technical?',
     ];
 
-    const goToHomepage = async () => {
-        navigate('/home');
+    const goToLogin = async () => {
+        navigate('/signup');
     };
 
     useEffect(() => {
@@ -169,7 +169,7 @@ function LandingPage() {
                             Uncover the truth
                         </h2>
                         <button
-                            onClick={goToHomepage}
+                            onClick={goToLogin}
                             className="px-6 py-3 text-lg bg-gradient-to-r from-blue-400 to-purple-500 font-medium text-white rounded-full shadow-lg transition duration-300 hover:bg-gray-100 hover:shadow-md hover:text-black"
                         >
                             Get Started
