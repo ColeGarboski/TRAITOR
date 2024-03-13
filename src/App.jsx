@@ -5,6 +5,8 @@ import LandingPage from '/src/components/LandingPage';
 import HomePage from '/src/components/HomePage';
 import ResultsPage from '/src/components/ResultsPage';
 import SignupPage from '/src/components/SignupPage';
+import TeacherPage from '/src/components/TeacherPage';
+import StudentPage from '/src/components/StudentPage';
 
 //import './App.css';
 
@@ -18,6 +20,8 @@ function App() {
                         <Route path="/home" element={<HomePage />}></Route>
                         <Route path="/results" element={<ResultsPage />}></Route>
                         <Route path="/signup" element={<SignupPage />}></Route>
+                        <Route path="/teacher" element={<TeacherPage />}></Route>
+                        <Route path="/student" element={<StudentPage />}></Route>
                     </Routes>
                 </div>
             </Router>
