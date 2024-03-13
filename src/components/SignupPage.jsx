@@ -87,7 +87,7 @@ function SignupPage() {
                     {isActive && (
                         <div>
                             <label className="block text-gray-700 text-sm font-bold mb-2">I am a:</label>
-                            <div className="flex items-center space-x-4">
+                            <div className="flex items-center space-x-4 text-black">
                                 <div>
                                     <label>
                                         <input
@@ -112,27 +112,27 @@ function SignupPage() {
                                         Teacher
                                     </label>
                                 </div>
-                                <input
-                                    type="text"
-                                    placeholder="Name"
-                                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                                    value={name}
-                                    onChange={(e) => setName(e.target.value)}
-                                />
                             </div>
+                            <input
+                                type="text"
+                                placeholder="Name"
+                                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-black"
+                                value={name}
+                                onChange={(e) => setName(e.target.value)}
+                            />
                         </div>
                     )}
                     <input
                         type="email"
                         placeholder="Email"
-                        className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                        className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-black"
                         value={email}
                         onChange={(e) => setEmail(e.target.value)}
                     />
                     <input
                         type="password"
                         placeholder="Password"
-                        className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                        className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-black"
                         value={password}
                         onChange={(e) => setPassword(e.target.value)}
                     />
