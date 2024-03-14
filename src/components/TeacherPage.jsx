@@ -13,6 +13,11 @@ function TeacherPage() {
     const [showAddStudentModal, setShowAddStudentModal] = useState(false);
     const [selectedDays, setSelectedDays] = useState([]);
     const [selectedClass, setSelectedClass] = useState('');
+    const [searchInput, setSearchInput] = useState('');
+    const [filteredStudents, setFilteredStudents] = useState([]);
+// Sample array of students - replace this with your actual data source
+    const students = ['Sam', 'Sean', 'Sara', 'David', 'Beth'];
+
 
 
     const teacherId = useSelector((state) => state.auth.userId);
@@ -38,6 +43,18 @@ function TeacherPage() {
         setShowAddStudentModal(false);
         setSelectedDays([]);
     };
+
+    useEffect(() => {
+        if (searchInput === '') {
+            setFilteredStudents([]);
+        } else {
+            const filtered = students.filter(student =>
+                student.toLowerCase().startsWith(searchInput.toLowerCase())
+            );
+            setFilteredStudents(filtered);
+        }
+    }, [searchInput, students]);
+
 
     const handleClassChange = (e) => {
         setSelectedClass(e.target.value);
@@ -228,10 +245,11 @@ function TeacherPage() {
                                 <input type="text" id="assignmentName" name="assignmentName" required />
                             </div>
                             <div className="form-group">
-                                <label htmlFor="endTime">End Time</label>
-                                <input type="time" id="endTime" name="endTime" required />
+                                <label htmlFor="endDateTime">End Date and Time</label>
+                                <input type="datetime-local" id="endDateTime" name="endDateTime" required />
                             </div>
                             <button type="submit" className="submit-button">Create Assignment</button>
+
                         </form>
                     </div>
                 </div>
@@ -262,8 +280,22 @@ function TeacherPage() {
                                 </select>
                             </div>
                             <div className="form-group">
-                                <label htmlFor="studentName">Student Name</label>
-                                <input type="text" id="studentName" name="studentName" required />
+                                <label htmlFor="studentSearch">Search for a Student</label>
+                                <input
+                                    type="text"
+                                    id="studentSearch"
+                                    name="studentSearch"
+                                    value={searchInput}
+                                    onChange={(e) => setSearchInput(e.target.value)}
+                                    placeholder="Type a student's name..."
+                                />
+                                {filteredStudents.length > 0 && (
+                                    <ul>
+                                        {filteredStudents.map((student, index) => (
+                                            <li key={index}>{student}</li>
+                                        ))}
+                                    </ul>
+                                )}
                             </div>
                             <button type="submit" className="submit-button">Add Student</button>
                         </form>
