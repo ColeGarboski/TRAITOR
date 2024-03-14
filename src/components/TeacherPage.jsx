@@ -12,6 +12,8 @@ function TeacherPage() {
     const [showCreateAssignmentModal, setShowCreateAssignmentModal] = useState(false);
     const [showAddStudentModal, setShowAddStudentModal] = useState(false);
     const [selectedDays, setSelectedDays] = useState([]);
+    const [selectedClass, setSelectedClass] = useState('');
+
 
     const teacherId = useSelector((state) => state.auth.userId);
     const db = getFirestore();
@@ -35,6 +37,11 @@ function TeacherPage() {
         setShowCreateAssignmentModal(false);
         setShowAddStudentModal(false);
     };
+
+    const handleClassChange = (e) => {
+        setSelectedClass(e.target.value);
+    };
+
 
     const createClass = async (classData) => {
         try {
@@ -182,8 +189,11 @@ function TeacherPage() {
                         <h2>Create Assignment Form</h2>
                         <form onSubmit={e => { e.preventDefault(); createClass({/* formData */}); }}>
                             <div className="form-group">
-                                <label htmlFor="classCode">Class Code</label>
-                                <input type="text" id="classCode" name="classCode" required />
+                                <label htmlFor="classDropdown">Select a Class</label>
+                                <select id="classDropdown" name="classDropdown" value={selectedClass} onChange={handleClassChange}>
+                                    <option value="">Select...</option>
+                                    {/* Populate these options based on your data */}
+                                </select>
                             </div>
                             <div className="form-group">
                                 <label htmlFor="className">Assignment Name</label>
@@ -206,8 +216,11 @@ function TeacherPage() {
                         <h2>Add Student</h2>
                         <form onSubmit={e => { e.preventDefault(); createClass({/* formData */}); }}>
                             <div className="form-group">
-                                <label htmlFor="classCode">Class Code</label>
-                                <input type="text" id="classCode" name="classCode" required />
+                                <label htmlFor="classDropdown">Select a Class</label>
+                                <select id="classDropdown" name="classDropdown" value={selectedClass} onChange={handleClassChange}>
+                                    <option value="">Select...</option>
+                                    {/* Populate these options based on your data */}
+                                </select>
                             </div>
                             <div className="form-group">
                                 <label htmlFor="className">Student</label>
