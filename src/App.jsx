@@ -5,7 +5,6 @@ import LandingPage from '/src/components/LandingPage';
 import HomePage from '/src/components/HomePage';
 import ResultsPage from '/src/components/ResultsPage';
 import SignupPage from '/src/components/SignupPage';
-import ClassTeacherPage from "./components/ClassTeacherPage.jsx";
 import TeacherPage from "./components/TeacherPage.jsx";
 import StudentPage from "./components/StudentPage.jsx";
 
@@ -23,7 +22,6 @@ function App() {
                         <Route path="/signup" element={<SignupPage />}></Route>
                         <Route path="/teacher" element={<TeacherPage />}></Route>
                         <Route path="/student" element={<StudentPage />}></Route>
-                        <Route path="/class" element={<ClassTeacherPage />}></Route>
                     </Routes>
                 </div>
             </Router>
