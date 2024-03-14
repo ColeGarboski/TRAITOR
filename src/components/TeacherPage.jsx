@@ -116,7 +116,7 @@ function TeacherPage() {
                     {classes.map((classItem) => (
                         <div key={classItem.id} className="div-block">
                             <div className="div-block-2">
-                                <img src={item.imageURL || '/src/assets/classy.jpg'} loading="lazy" alt="" className="image"/>
+                                <img src={classItem.imageURL || '/src/assets/classy.jpg'} loading="lazy" alt="" className="image" />
                             </div>
                             <div className="text-block-4">{classItem.classCode}</div>
                             <div className="div-block-3">
@@ -133,7 +133,7 @@ function TeacherPage() {
                     <div className="modal-content">
                         <span className="close" onClick={closeModal}>&times;</span>
                         <h2>Create Class Form</h2>
-                        <form onSubmit={e => { e.preventDefault(); createClass({/* formData */}); }}>
+                        <form onSubmit={e => { e.preventDefault(); createClass({/* formData */ }); }}>
                             <div className="form-group">
                                 <label htmlFor="classCode">Class Code</label>
                                 <input type="text" id="classCode" name="classCode" required />
@@ -161,7 +161,7 @@ function TeacherPage() {
                     <div className="modal-content">
                         <span className="close" onClick={closeModal}>&times;</span>
                         <h2>Create Class Form</h2>
-                        <form onSubmit={e => { e.preventDefault(); createClass({/* formData */}); }}>
+                        <form onSubmit={e => { e.preventDefault(); createClass({/* formData */ }); }}>
                             <div className="form-group">
                                 <label htmlFor="classCode">Class Code</label>
                                 <input type="text" id="classCode" name="classCode" required />
