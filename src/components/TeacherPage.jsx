@@ -11,6 +11,7 @@ function TeacherPage() {
     const [showCreateClassModal, setShowCreateClassModal] = useState(false);
     const [showCreateAssignmentModal, setShowCreateAssignmentModal] = useState(false);
     const [showAddStudentModal, setShowAddStudentModal] = useState(false);
+    const [selectedDays, setSelectedDays] = useState([]);
 
     const teacherId = useSelector((state) => state.auth.userId);
     const db = getFirestore();
@@ -54,6 +55,18 @@ function TeacherPage() {
             endTime: "10:30",
             days: ["Mon", "Wed", "Thurs"],
             className: "Introduction to Testing"
+        });
+    };
+
+    const handleDayChange = (day) => {
+        setSelectedDays(prev => {
+            if (prev.includes(day)) {
+                // If the day is already selected, remove it
+                return prev.filter(d => d !== day);
+            } else {
+                // Otherwise, add the day to the selected days
+                return [...prev, day];
+            }
         });
     };
 
@@ -147,6 +160,24 @@ function TeacherPage() {
                                 <input type="time" id="startTime" name="startTime" required />
                             </div>
                             <div className="form-group">
+                                <label>Days of the Week</label>
+                                <div>
+                                    {["Mon", "Tues", "Wed", "Thurs", "Fri"].map((day) => (
+                                        <div key={day}>
+                                            <input
+                                                type="checkbox"
+                                                id={day}
+                                                name="classDays"
+                                                value={day}
+                                                checked={selectedDays.includes(day)}
+                                                onChange={() => handleDayChange(day)}
+                                            />
+                                            <label htmlFor={day}>{day}</label>
+                                        </div>
+                                    ))}
+                                </div>
+                            </div>
+                            <div className="form-group">
                                 <label htmlFor="endTime">End Time</label>
                                 <input type="time" id="endTime" name="endTime" required />
                             </div>
@@ -184,9 +215,18 @@ function TeacherPage() {
                 <div className="modal">
                     <div className="modal-content">
                         <span className="close" onClick={closeModal}>&times;</span>
-                        <h2>Add Student Form</h2>
-                        {/* Implement the form here */}
-                        <button onClick={() => addStudentToClass("classIdHere", "studentIdHere")}>Submit</button>
+                        <h2>Add Student</h2>
+                        <form onSubmit={e => { e.preventDefault(); createClass({/* formData */}); }}>
+                            <div className="form-group">
+                                <label htmlFor="classCode">Class Code</label>
+                                <input type="text" id="classCode" name="classCode" required />
+                            </div>
+                            <div className="form-group">
+                                <label htmlFor="className">Student</label>
+                                <input type="text" id="className" name="className" required />
+                            </div>
+                            <button type="submit" className="submit-button">Add Student</button>
+                        </form>
                     </div>
                 </div>
             )}
