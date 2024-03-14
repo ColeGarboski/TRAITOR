@@ -7,7 +7,7 @@ import '/src/ClassTeacherPage.css';
 function TeacherPage() {
     useRoleRedirect('teacher');
 
-    const [data, setData] = useState([]);
+    const [classes, setClasses] = useState([]);
     const [showCreateClassModal, setShowCreateClassModal] = useState(false);
     const [showCreateAssignmentModal, setShowCreateAssignmentModal] = useState(false);
     const [showAddStudentModal, setShowAddStudentModal] = useState(false);
@@ -15,45 +15,54 @@ function TeacherPage() {
     const [selectedClass, setSelectedClass] = useState('');
     const [searchInput, setSearchInput] = useState('');
     const [filteredStudents, setFilteredStudents] = useState([]);
-// Sample array of students - replace this with your actual data source
-    const students = ['Sam', 'Sean', 'Sara', 'David', 'Beth'];
-
-
 
     const teacherId = useSelector((state) => state.auth.userId);
     const db = getFirestore();
 
-    useEffect(() => {
-        const fetchData = async () => {
-            const q = query(collection(db, "someCollection"), where("role", "==", "teacher"));
-            const querySnapshot = await getDocs(q);
-            const items = [];
-            querySnapshot.forEach((doc) => {
-                items.push(doc.data());
-            });
-            setData(items);
-        };
+    const fetchData = async () => {
+        const classesRef = collection(db, `Users/${teacherId}/Classes`);
+        const querySnapshot = await getDocs(classesRef);
+        const fetchedClasses = [];
+        querySnapshot.forEach((doc) => {
+            fetchedClasses.push({ id: doc.id, ...doc.data() });
+        });
+        setClasses(fetchedClasses);
+    };
 
+    useEffect(() => {
+        const fetchStudents = async () => {
+            const usersRef = collection(db, "Users");
+            const q = query(usersRef, where("role", "==", "student"));
+            const querySnapshot = await getDocs(q);
+            const fetchedStudents = [];
+            querySnapshot.forEach((doc) => {
+                fetchedStudents.push(doc.data().username); // Make sure the field name matches your Firestore schema
+            });
+            // Filter students based on the search input
+            const filtered = fetchedStudents.filter(student =>
+                student.toLowerCase().includes(searchInput.toLowerCase())
+            );
+            setFilteredStudents(filtered);
+        };
+    
+        if (searchInput !== '' && showAddStudentModal) {
+            fetchStudents();
+        } else {
+            setFilteredStudents([]);
+        }
+    }, [searchInput, showAddStudentModal, db]);
+    
+
+    useEffect(() => {
         fetchData();
-    }, [db]);
+    }, [teacherId, db]); // Dependency array ensures fetchData is called when these values change
 
     const closeModal = () => {
         setShowCreateClassModal(false);
         setShowCreateAssignmentModal(false);
         setShowAddStudentModal(false);
+        setSelectedDays([]);
     };
-
-    useEffect(() => {
-        if (searchInput === '') {
-            setFilteredStudents([]);
-        } else {
-            const filtered = students.filter(student =>
-                student.toLowerCase().startsWith(searchInput.toLowerCase())
-            );
-            setFilteredStudents(filtered);
-        }
-    }, [searchInput, students]);
-
 
     const handleClassChange = (e) => {
         setSelectedClass(e.target.value);
@@ -66,9 +75,23 @@ function TeacherPage() {
             await setDoc(classRef, classData);
             console.log("Class created with ID: ", classRef.id);
             closeModal();
+            await fetchData();
         } catch (error) {
             console.error("Error creating class: ", error);
         }
+    };
+
+    const handleCreateClassFormSubmit = (event) => {
+        event.preventDefault();
+        const formData = new FormData(event.target);
+        const classData = {
+            classCode: formData.get('classCode'),
+            className: formData.get('className'),
+            startTime: formData.get('startTime'),
+            endTime: formData.get('endTime'),
+            days: selectedDays,
+        };
+        createClass(classData);
     };
 
     const handleDayChange = (day) => {
@@ -138,15 +161,15 @@ function TeacherPage() {
 
             <main>
                 <div className="grid">
-                    {data.map((item, index) => (
-                        <div key={index} className="div-block">
+                    {classes.map((classItem) => (
+                        <div key={classItem.id} className="div-block">
                             <div className="div-block-2">
-                                <img src={item.imageURL || '/src/assets/classy.jpg'} loading="lazy" alt="" className="image"/>
+                                <img src={classItem.imageURL || '/src/assets/classy.jpg'} loading="lazy" alt="" className="image" />
                             </div>
-                            <div className="text-block-4">{item.classCode}</div>
+                            <div className="text-block-4">{classItem.classCode}</div>
                             <div className="div-block-3">
-                                <div className="text-block-5">{item.schedule}</div>
-                                <div className="text-block-6">{item.instructor}</div>
+                                <div className="text-block-5">{classItem.days.join('-')}</div>
+                                <div className="text-block-6">{classItem.startTime}-{classItem.endTime}</div>
                             </div>
                         </div>
                     ))}
@@ -158,7 +181,7 @@ function TeacherPage() {
                     <div className="modal-content">
                         <span className="close" onClick={closeModal}>&times;</span>
                         <h2>Create Class Form</h2>
-                        <form onSubmit={e => { e.preventDefault(); createClass({/* formData */}); }}>
+                        <form onSubmit={handleCreateClassFormSubmit}>
                             <div className="form-group">
                                 <label htmlFor="classCode">Class Code</label>
                                 <input type="text" id="classCode" name="classCode" required />
@@ -204,17 +227,30 @@ function TeacherPage() {
                     <div className="modal-content">
                         <span className="close" onClick={closeModal}>&times;</span>
                         <h2>Create Assignment Form</h2>
-                        <form onSubmit={e => { e.preventDefault(); createClass({/* formData */}); }}>
+                        <form onSubmit={e => {
+                            e.preventDefault();
+                            const formData = new FormData(e.target);
+                            const assignmentData = {
+                                classId: formData.get('classDropdown'), // Assuming you need classId for something specific in your data structure
+                                assignmentName: formData.get('assignmentName'),
+                                endTime: formData.get('endTime'),
+                            };
+                            createAssignment(formData.get('classDropdown'), assignmentData);
+                        }}>
                             <div className="form-group">
                                 <label htmlFor="classDropdown">Select a Class</label>
                                 <select id="classDropdown" name="classDropdown" value={selectedClass} onChange={handleClassChange}>
                                     <option value="">Select...</option>
-                                    {/* Populate these options based on your data */}
+                                    {classes.map((classItem) => (
+                                        <option key={classItem.id} value={classItem.id}>
+                                            {classItem.classCode}
+                                        </option>
+                                    ))}
                                 </select>
                             </div>
                             <div className="form-group">
-                                <label htmlFor="className">Assignment Name</label>
-                                <input type="text" id="className" name="className" required />
+                                <label htmlFor="assignmentName">Assignment Name</label>
+                                <input type="text" id="assignmentName" name="assignmentName" required />
                             </div>
                             <div className="form-group">
                                 <label htmlFor="endDateTime">End Date and Time</label>
@@ -227,17 +263,28 @@ function TeacherPage() {
                 </div>
             )}
 
+
             {showAddStudentModal && (
                 <div className="modal">
                     <div className="modal-content">
                         <span className="close" onClick={closeModal}>&times;</span>
                         <h2>Add Student</h2>
-                        <form onSubmit={e => { e.preventDefault(); createClass({/* formData */}); }}>
+                        <form onSubmit={e => {
+                            e.preventDefault();
+                            const formData = new FormData(e.target);
+                            const studentId = formData.get('studentName'); // Assuming studentName is the ID; adjust based on your actual data structure
+                            const classId = formData.get('classDropdownStudent');
+                            addStudentToClass(classId, { studentId }); // Adjust the second parameter based on how you're structuring student data in Firestore
+                        }}>
                             <div className="form-group">
-                                <label htmlFor="classDropdown">Select a Class</label>
-                                <select id="classDropdown" name="classDropdown" value={selectedClass} onChange={handleClassChange}>
+                                <label htmlFor="classDropdownStudent">Select a Class</label>
+                                <select id="classDropdownStudent" name="classDropdownStudent" value={selectedClass} onChange={handleClassChange}>
                                     <option value="">Select...</option>
-                                    {/* Populate these options based on your data */}
+                                    {classes.map((classItem) => (
+                                        <option key={classItem.id} value={classItem.id}>
+                                            {classItem.classCode}
+                                        </option>
+                                    ))}
                                 </select>
                             </div>
                             <div className="form-group">
@@ -263,6 +310,7 @@ function TeacherPage() {
                     </div>
                 </div>
             )}
+
         </div>
     );
 }
