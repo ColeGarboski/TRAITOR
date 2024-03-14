@@ -7,7 +7,7 @@ import '/src/ClassTeacherPage.css';
 function TeacherPage() {
     useRoleRedirect('teacher');
 
-    const [classes, setClasses] = useState([]); // Updated state to store classes
+    const [classes, setClasses] = useState([]);
     const [showCreateClassModal, setShowCreateClassModal] = useState(false);
     const [showCreateAssignmentModal, setShowCreateAssignmentModal] = useState(false);
     const [showAddStudentModal, setShowAddStudentModal] = useState(false);
@@ -15,10 +15,6 @@ function TeacherPage() {
     const [selectedClass, setSelectedClass] = useState('');
     const [searchInput, setSearchInput] = useState('');
     const [filteredStudents, setFilteredStudents] = useState([]);
-// Sample array of students - replace this with your actual data source
-    const students = ['Sam', 'Sean', 'Sara', 'David', 'Beth'];
-
-
 
     const teacherId = useSelector((state) => state.auth.userId);
     const db = getFirestore();
@@ -34,6 +30,30 @@ function TeacherPage() {
     };
 
     useEffect(() => {
+        const fetchStudents = async () => {
+            const usersRef = collection(db, "Users");
+            const q = query(usersRef, where("role", "==", "student"));
+            const querySnapshot = await getDocs(q);
+            const fetchedStudents = [];
+            querySnapshot.forEach((doc) => {
+                fetchedStudents.push(doc.data().username); // Make sure the field name matches your Firestore schema
+            });
+            // Filter students based on the search input
+            const filtered = fetchedStudents.filter(student =>
+                student.toLowerCase().includes(searchInput.toLowerCase())
+            );
+            setFilteredStudents(filtered);
+        };
+    
+        if (searchInput !== '' && showAddStudentModal) {
+            fetchStudents();
+        } else {
+            setFilteredStudents([]);
+        }
+    }, [searchInput, showAddStudentModal, db]);
+    
+
+    useEffect(() => {
         fetchData();
     }, [teacherId, db]); // Dependency array ensures fetchData is called when these values change
 
@@ -43,18 +63,6 @@ function TeacherPage() {
         setShowAddStudentModal(false);
         setSelectedDays([]);
     };
-
-    useEffect(() => {
-        if (searchInput === '') {
-            setFilteredStudents([]);
-        } else {
-            const filtered = students.filter(student =>
-                student.toLowerCase().startsWith(searchInput.toLowerCase())
-            );
-            setFilteredStudents(filtered);
-        }
-    }, [searchInput, students]);
-
 
     const handleClassChange = (e) => {
         setSelectedClass(e.target.value);
