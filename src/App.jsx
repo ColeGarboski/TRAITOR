@@ -7,6 +7,10 @@ import ResultsPage from '/src/components/ResultsPage';
 import SignupPage from '/src/components/SignupPage';
 import TeacherPage from "./components/TeacherPage.jsx";
 import StudentPage from "./components/StudentPage.jsx";
+import UpcomingAssignments from "./components/UpcomingAssignments.jsx";
+import UpcomingAssignmentsTeacher from "./components/UpcomingAssignmentsTeacher.jsx";
+import PreviousScores from "./components/PreviousScores.jsx";
+import PreviousScoresTeacher from "./components/PreviousScoresTeacher.jsx";
 
 //import './App.css';
 
@@ -22,6 +26,10 @@ function App() {
                         <Route path="/signup" element={<SignupPage />}></Route>
                         <Route path="/teacher" element={<TeacherPage />}></Route>
                         <Route path="/student" element={<StudentPage />}></Route>
+                        <Route path="/upcoming-assignments" element={<UpcomingAssignments />}></Route>
+                        <Route path="/upcoming-assignments-teacher" element={<UpcomingAssignmentsTeacher />}></Route>
+                        <Route path="/previous-scores" element={<PreviousScores />}></Route>
+                        <Route path="/previous-scores-teacher" element={<PreviousScoresTeacher />}></Route>
                     </Routes>
                 </div>
             </Router>
