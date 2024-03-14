@@ -51,12 +51,6 @@ function StudentPage() {
                                     <li>
                                         <a href="#" className="nav-link">Previous Scores</a>
                                     </li>
-                                    <li>
-                                        <div className="nav-divider"></div>
-                                    </li>
-                                    <li className="mobile-margin-top-10">
-                                        <a href="#" className="button-primary">Create class</a>
-                                    </li>
                                 </ul>
                             </nav>
                             <div className="menu-button">
