@@ -11,6 +11,7 @@ function TeacherPage() {
     const [showCreateClassModal, setShowCreateClassModal] = useState(false);
     const [showCreateAssignmentModal, setShowCreateAssignmentModal] = useState(false);
     const [showAddStudentModal, setShowAddStudentModal] = useState(false);
+    const [selectedDays, setSelectedDays] = useState([]);
 
     const teacherId = useSelector((state) => state.auth.userId);
     const db = getFirestore();
@@ -44,6 +45,18 @@ function TeacherPage() {
         } catch (error) {
             console.error("Error creating class: ", error);
         }
+    };
+
+    const handleDayChange = (day) => {
+        setSelectedDays(prev => {
+            if (prev.includes(day)) {
+                // If the day is already selected, remove it
+                return prev.filter(d => d !== day);
+            } else {
+                // Otherwise, add the day to the selected days
+                return [...prev, day];
+            }
+        });
     };
 
     const createAssignment = async (classId, assignmentData) => {
@@ -133,6 +146,24 @@ function TeacherPage() {
                             <div className="form-group">
                                 <label htmlFor="startTime">Start Time</label>
                                 <input type="time" id="startTime" name="startTime" required />
+                            </div>
+                            <div className="form-group">
+                                <label>Days of the Week</label>
+                                <div>
+                                    {["Mon", "Tues", "Wed", "Thurs", "Fri"].map((day) => (
+                                        <div key={day}>
+                                            <input
+                                                type="checkbox"
+                                                id={day}
+                                                name="classDays"
+                                                value={day}
+                                                checked={selectedDays.includes(day)}
+                                                onChange={() => handleDayChange(day)}
+                                            />
+                                            <label htmlFor={day}>{day}</label>
+                                        </div>
+                                    ))}
+                                </div>
                             </div>
                             <div className="form-group">
                                 <label htmlFor="endTime">End Time</label>
