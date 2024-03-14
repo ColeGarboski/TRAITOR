@@ -31,21 +31,19 @@ function SignupPage() {
             dispatch(setUserId(userCredential.user.uid));
             dispatch(setUserRole(isTeacher ? 'teacher' : 'student'));
     
-            if (isTeacher) {
-                // Set up teacher account in Firestore DB
-                const db = getFirestore();
-                const teacherRef = doc(db, "Users", userCredential.user.uid);
+            const db = getFirestore();
+            const userRef = doc(db, "Users", userCredential.user.uid);
     
-                await setDoc(teacherRef, {
-                    userId: userCredential.user.uid,
-                    username: name,
-                    role: 'teacher',
-                });
-                console.log('Teacher account created and added to Firestore');
-            }
+            const userData = {
+                userId: userCredential.user.uid,
+                username: name,
+                role: isTeacher ? 'teacher' : 'student', // Determine the role based on the isTeacher
+            };
     
-            console.log('Account created:', userCredential.user);
-
+            await setDoc(userRef, userData);
+            console.log(`${isTeacher ? 'Teacher' : 'Student'} account created and added to Firestore`);
+    
+            // Redirect based on the role
             if (isTeacher) {
                 navigate('/teacher'); // Route to TeacherPage
             } else {
