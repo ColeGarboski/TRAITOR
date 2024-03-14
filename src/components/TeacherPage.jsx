@@ -217,10 +217,11 @@ function TeacherPage() {
                                 <input type="text" id="className" name="className" required />
                             </div>
                             <div className="form-group">
-                                <label htmlFor="endTime">End Time</label>
-                                <input type="time" id="endTime" name="endTime" required />
+                                <label htmlFor="endDateTime">End Date and Time</label>
+                                <input type="datetime-local" id="endDateTime" name="endDateTime" required />
                             </div>
                             <button type="submit" className="submit-button">Create Assignment</button>
+
                         </form>
                     </div>
                 </div>
