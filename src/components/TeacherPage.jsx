@@ -50,7 +50,7 @@ function TeacherPage() {
             await setDoc(classRef, classData);
             console.log("Class created with ID: ", classRef.id);
             closeModal();
-            await fetchData(); 
+            await fetchData();
         } catch (error) {
             console.error("Error creating class: ", error);
         }
@@ -201,18 +201,31 @@ function TeacherPage() {
                 <div className="modal">
                     <div className="modal-content">
                         <span className="close" onClick={closeModal}>&times;</span>
-                        <h2>Create Class Form</h2>
-                        <form onSubmit={e => { e.preventDefault(); createClass({/* formData */ }); }}>
+                        <h2>Create Assignment Form</h2>
+                        <form onSubmit={e => {
+                            e.preventDefault();
+                            const formData = new FormData(e.target);
+                            const assignmentData = {
+                                classId: formData.get('classDropdown'), // Assuming you need classId for something specific in your data structure
+                                assignmentName: formData.get('assignmentName'),
+                                endTime: formData.get('endTime'),
+                            };
+                            createAssignment(formData.get('classDropdown'), assignmentData);
+                        }}>
                             <div className="form-group">
                                 <label htmlFor="classDropdown">Select a Class</label>
                                 <select id="classDropdown" name="classDropdown" value={selectedClass} onChange={handleClassChange}>
                                     <option value="">Select...</option>
-                                    {/* Populate these options based on your data */}
+                                    {classes.map((classItem) => (
+                                        <option key={classItem.id} value={classItem.id}>
+                                            {classItem.classCode}
+                                        </option>
+                                    ))}
                                 </select>
                             </div>
                             <div className="form-group">
-                                <label htmlFor="className">Assignment Name</label>
-                                <input type="text" id="className" name="className" required />
+                                <label htmlFor="assignmentName">Assignment Name</label>
+                                <input type="text" id="assignmentName" name="assignmentName" required />
                             </div>
                             <div className="form-group">
                                 <label htmlFor="endTime">End Time</label>
@@ -224,28 +237,40 @@ function TeacherPage() {
                 </div>
             )}
 
+
             {showAddStudentModal && (
                 <div className="modal">
                     <div className="modal-content">
                         <span className="close" onClick={closeModal}>&times;</span>
                         <h2>Add Student</h2>
-                        <form onSubmit={e => { e.preventDefault(); createClass({/* formData */ }); }}>
+                        <form onSubmit={e => {
+                            e.preventDefault();
+                            const formData = new FormData(e.target);
+                            const studentId = formData.get('studentName'); // Assuming studentName is the ID; adjust based on your actual data structure
+                            const classId = formData.get('classDropdownStudent');
+                            addStudentToClass(classId, { studentId }); // Adjust the second parameter based on how you're structuring student data in Firestore
+                        }}>
                             <div className="form-group">
-                                <label htmlFor="classDropdown">Select a Class</label>
-                                <select id="classDropdown" name="classDropdown" value={selectedClass} onChange={handleClassChange}>
+                                <label htmlFor="classDropdownStudent">Select a Class</label>
+                                <select id="classDropdownStudent" name="classDropdownStudent" value={selectedClass} onChange={handleClassChange}>
                                     <option value="">Select...</option>
-                                    {/* Populate these options based on your data */}
+                                    {classes.map((classItem) => (
+                                        <option key={classItem.id} value={classItem.id}>
+                                            {classItem.classCode}
+                                        </option>
+                                    ))}
                                 </select>
                             </div>
                             <div className="form-group">
-                                <label htmlFor="className">Student</label>
-                                <input type="text" id="className" name="className" required />
+                                <label htmlFor="studentName">Student Name</label>
+                                <input type="text" id="studentName" name="studentName" required />
                             </div>
                             <button type="submit" className="submit-button">Add Student</button>
                         </form>
                     </div>
                 </div>
             )}
+
         </div>
     );
 }
