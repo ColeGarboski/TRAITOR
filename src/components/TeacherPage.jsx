@@ -16,25 +16,25 @@ function TeacherPage() {
     const teacherId = useSelector((state) => state.auth.userId);
     const db = getFirestore();
 
-    useEffect(() => {
-        const fetchData = async () => {
-            const classesRef = collection(db, `Users/${teacherId}/Classes`);
-            const querySnapshot = await getDocs(classesRef);
-            const fetchedClasses = [];
-            querySnapshot.forEach((doc) => {
-                // Adding doc.id to the object to keep track of the class ID
-                fetchedClasses.push({ id: doc.id, ...doc.data() });
-            });
-            setClasses(fetchedClasses);
-        };
+    const fetchData = async () => {
+        const classesRef = collection(db, `Users/${teacherId}/Classes`);
+        const querySnapshot = await getDocs(classesRef);
+        const fetchedClasses = [];
+        querySnapshot.forEach((doc) => {
+            fetchedClasses.push({ id: doc.id, ...doc.data() });
+        });
+        setClasses(fetchedClasses);
+    };
 
+    useEffect(() => {
         fetchData();
-    }, [teacherId, db]);
+    }, [teacherId, db]); // Dependency array ensures fetchData is called when these values change
 
     const closeModal = () => {
         setShowCreateClassModal(false);
         setShowCreateAssignmentModal(false);
         setShowAddStudentModal(false);
+        setSelectedDays([]);
     };
 
     const createClass = async (classData) => {
@@ -43,19 +43,23 @@ function TeacherPage() {
             await setDoc(classRef, classData);
             console.log("Class created with ID: ", classRef.id);
             closeModal();
+            await fetchData(); 
         } catch (error) {
             console.error("Error creating class: ", error);
         }
     };
 
-    const handleCreateClassClick = () => { // Change to user input data
-        createClass({
-            classCode: "CS-303",
-            startTime: "09:00",
-            endTime: "10:30",
-            days: ["Mon", "Wed", "Thurs"],
-            className: "Introduction to Testing"
-        });
+    const handleCreateClassFormSubmit = (event) => {
+        event.preventDefault();
+        const formData = new FormData(event.target);
+        const classData = {
+            classCode: formData.get('classCode'),
+            className: formData.get('className'),
+            startTime: formData.get('startTime'),
+            endTime: formData.get('endTime'),
+            days: selectedDays,
+        };
+        createClass(classData);
     };
 
     const handleDayChange = (day) => {
@@ -115,7 +119,6 @@ function TeacherPage() {
                                     </li>
                                     <li className="mobile-margin-top-10">
                                         <button onClick={() => setShowAddStudentModal(true)} className="button-primary">Add student</button>
-                                        <button onClick={handleCreateClassClick} className="button-primary">Create class</button>
                                     </li>
                                 </ul>
                             </nav>
@@ -146,7 +149,7 @@ function TeacherPage() {
                     <div className="modal-content">
                         <span className="close" onClick={closeModal}>&times;</span>
                         <h2>Create Class Form</h2>
-                        <form onSubmit={e => { e.preventDefault(); createClass({/* formData */ }); }}>
+                        <form onSubmit={handleCreateClassFormSubmit}>
                             <div className="form-group">
                                 <label htmlFor="classCode">Class Code</label>
                                 <input type="text" id="classCode" name="classCode" required />
@@ -216,7 +219,7 @@ function TeacherPage() {
                     <div className="modal-content">
                         <span className="close" onClick={closeModal}>&times;</span>
                         <h2>Add Student</h2>
-                        <form onSubmit={e => { e.preventDefault(); createClass({/* formData */}); }}>
+                        <form onSubmit={e => { e.preventDefault(); createClass({/* formData */ }); }}>
                             <div className="form-group">
                                 <label htmlFor="classCode">Class Code</label>
                                 <input type="text" id="classCode" name="classCode" required />
