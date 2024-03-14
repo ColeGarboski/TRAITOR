@@ -148,7 +148,7 @@ function TeacherPage() {
                 <div className="modal">
                     <div className="modal-content">
                         <span className="close" onClick={closeModal}>&times;</span>
-                        <h2>Create Class Form</h2>
+                        <h2>Create Assignment Form</h2>
                         <form onSubmit={e => { e.preventDefault(); createClass({/* formData */}); }}>
                             <div className="form-group">
                                 <label htmlFor="classCode">Class Code</label>
@@ -172,9 +172,18 @@ function TeacherPage() {
                 <div className="modal">
                     <div className="modal-content">
                         <span className="close" onClick={closeModal}>&times;</span>
-                        <h2>Add Student Form</h2>
-                        {/* Implement the form here */}
-                        <button onClick={() => addStudentToClass("classIdHere", "studentIdHere")}>Submit</button>
+                        <h2>Add Student</h2>
+                        <form onSubmit={e => { e.preventDefault(); createClass({/* formData */}); }}>
+                            <div className="form-group">
+                                <label htmlFor="classCode">Class Code</label>
+                                <input type="text" id="classCode" name="classCode" required />
+                            </div>
+                            <div className="form-group">
+                                <label htmlFor="className">Student</label>
+                                <input type="text" id="className" name="className" required />
+                            </div>
+                            <button type="submit" className="submit-button">Add Student</button>
+                        </form>
                     </div>
                 </div>
             )}
