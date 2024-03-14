@@ -216,7 +216,7 @@ function TeacherPage() {
                                 <label htmlFor="endTime">End Time</label>
                                 <input type="time" id="endTime" name="endTime" required />
                             </div>
-                            <button type="submit" className="submit-button">Create Class</button>
+                            <button type="submit" className="button-primary">Create Class</button>
                         </form>
                     </div>
                 </div>
@@ -256,7 +256,7 @@ function TeacherPage() {
                                 <label htmlFor="endDateTime">End Date and Time</label>
                                 <input type="datetime-local" id="endDateTime" name="endDateTime" required />
                             </div>
-                            <button type="submit" className="submit-button">Create Assignment</button>
+                            <button type="submit" className="button-primary">Create Assignment</button>
 
                         </form>
                     </div>
@@ -305,7 +305,7 @@ function TeacherPage() {
                                     </ul>
                                 )}
                             </div>
-                            <button type="submit" className="submit-button">Add Student</button>
+                            <button type="submit" className="button-primary">Add Student</button>
                         </form>
                     </div>
                 </div>

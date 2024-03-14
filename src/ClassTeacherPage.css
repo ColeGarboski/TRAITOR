@@ -187,7 +187,6 @@
     display: flex;
     justify-content: center;
     align-items: center;
-    z-index: 1050;
 }
 
 .modal-content {
@@ -230,9 +229,6 @@
     cursor: pointer;
 }
 
-.submit-button:hover {
-    background-color: #0056b3;
-}
 
 .button-primary {
     color: #fff;
@@ -246,16 +242,13 @@
     line-height: 20px;
     transition: all .2s;
     margin-right: 7px;
+    z-index: auto;
 }
 
 .button-primary:hover {
-    color: #fff;
-    background-color: #32343a;
+    background-color: #333;
 }
 
-.button-primary:active {
-    background-color: #43464d;
-}
 
 .text-block {
     color: #fff;
