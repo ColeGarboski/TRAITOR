@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { useSelector } from 'react-redux';
-import { getFirestore, collection, query, where, getDocs, doc, setDoc } from 'firebase/firestore';
+import { getFirestore, collection, query, where, getDocs, getDoc, doc, setDoc } from 'firebase/firestore';
 import useRoleRedirect from '../hooks/useRoleRedirect';
 import '/src/ClassTeacherPage.css';
 
@@ -13,6 +13,7 @@ function TeacherPage() {
     const [showAddStudentModal, setShowAddStudentModal] = useState(false);
     const [selectedDays, setSelectedDays] = useState([]);
     const [selectedClass, setSelectedClass] = useState('');
+    const [selectedStudent, setSelectedStudent] = useState('');
     const [searchInput, setSearchInput] = useState('');
     const [filteredStudents, setFilteredStudents] = useState([]);
 
@@ -31,27 +32,31 @@ function TeacherPage() {
 
     useEffect(() => {
         const fetchStudents = async () => {
+            if (searchInput === '' || !showAddStudentModal) {
+                setFilteredStudents([]);
+                return;
+            }
+
             const usersRef = collection(db, "Users");
             const q = query(usersRef, where("role", "==", "student"));
             const querySnapshot = await getDocs(q);
-            const fetchedStudents = [];
+            const studentsData = [];
             querySnapshot.forEach((doc) => {
-                fetchedStudents.push(doc.data().username); // Make sure the field name matches your Firestore schema
+                // Push both username and userId (UID) to studentsData
+                studentsData.push({ username: doc.data().username, userId: doc.id });
             });
-            // Filter students based on the search input
-            const filtered = fetchedStudents.filter(student =>
-                student.toLowerCase().includes(searchInput.toLowerCase())
+
+            // Filter based on username match with searchInput
+            const filtered = studentsData.filter(student =>
+                student.username.toLowerCase().includes(searchInput.toLowerCase())
             );
+
             setFilteredStudents(filtered);
         };
-    
-        if (searchInput !== '' && showAddStudentModal) {
-            fetchStudents();
-        } else {
-            setFilteredStudents([]);
-        }
+
+        fetchStudents();
     }, [searchInput, showAddStudentModal, db]);
-    
+
 
     useEffect(() => {
         fetchData();
@@ -117,15 +122,50 @@ function TeacherPage() {
         }
     };
 
-    const addStudentToClass = async (classId, studentId) => {
+    const addStudentToClass = async (classId, selectedStudent) => {
         try {
-            const studentRef = doc(db, `Users/${teacherId}/Classes/${classId}/Students/${studentId}`);
-            await setDoc(studentRef, { added: true });
-            console.log(`Student ${studentId} added to class ${classId}`);
+            if (!classId || !selectedStudent.userId) throw new Error("Missing classId or student userId");
+    
+            // Add student to class
+            const studentClassRef = doc(db, `Users/${teacherId}/Classes/${classId}/Students/${selectedStudent.userId}`);
+            await setDoc(studentClassRef, { username: selectedStudent.username });
+    
+            // Fetch class information
+            const classRef = doc(db, `Users/${teacherId}/Classes/${classId}`);
+            const classSnap = await getDoc(classRef);
+            if (!classSnap.exists()) {
+                console.log("No such class!");
+                return;
+            }
+            const classData = classSnap.data();
+    
+            // Add class to student
+            const studentClassesRef = doc(db, `Users/${selectedStudent.userId}/Classes/${classId}`);
+            await setDoc(studentClassesRef, {
+                classCode: classData.classCode,
+                className: classData.className,
+                startTime: classData.startTime,
+                endTime: classData.endTime,
+                days: classData.days,
+                teacherId: teacherId
+            });
+    
+            console.log(`Class ${classId} added to student ${selectedStudent.username} (${selectedStudent.userId})`);
             closeModal();
         } catch (error) {
-            console.error("Error adding student to class: ", error);
+            console.error("Error adding student to class or class to student: ", error);
         }
+    };
+    
+
+    const handleSubmitAddStudentForm = async (e) => {
+        e.preventDefault();
+        const formData = new FormData(e.target);
+        const classId = formData.get('classDropdownStudent');
+        await addStudentToClass(classId, selectedStudent);
+        // Reset state as necessary
+        setSelectedStudent('');
+        setSearchInput('');
     };
 
     return (
@@ -231,7 +271,7 @@ function TeacherPage() {
                             e.preventDefault();
                             const formData = new FormData(e.target);
                             const assignmentData = {
-                                classId: formData.get('classDropdown'), // Assuming you need classId for something specific in your data structure
+                                classId: formData.get('classDropdown'),
                                 assignmentName: formData.get('assignmentName'),
                                 endTime: formData.get('endTime'),
                             };
@@ -269,16 +309,10 @@ function TeacherPage() {
                     <div className="modal-content">
                         <span className="close" onClick={closeModal}>&times;</span>
                         <h2>Add Student</h2>
-                        <form onSubmit={e => {
-                            e.preventDefault();
-                            const formData = new FormData(e.target);
-                            const studentId = formData.get('studentName'); // Assuming studentName is the ID; adjust based on your actual data structure
-                            const classId = formData.get('classDropdownStudent');
-                            addStudentToClass(classId, { studentId }); // Adjust the second parameter based on how you're structuring student data in Firestore
-                        }}>
+                        <form onSubmit={handleSubmitAddStudentForm}>
                             <div className="form-group">
                                 <label htmlFor="classDropdownStudent">Select a Class</label>
-                                <select id="classDropdownStudent" name="classDropdownStudent" value={selectedClass} onChange={handleClassChange}>
+                                <select id="classDropdownStudent" name="classDropdownStudent" required>
                                     <option value="">Select...</option>
                                     {classes.map((classItem) => (
                                         <option key={classItem.id} value={classItem.id}>
@@ -292,24 +326,25 @@ function TeacherPage() {
                                 <input
                                     type="text"
                                     id="studentSearch"
-                                    name="studentSearch"
                                     value={searchInput}
                                     onChange={(e) => setSearchInput(e.target.value)}
                                     placeholder="Type a student's name..."
                                 />
-                                {filteredStudents.length > 0 && (
-                                    <ul>
-                                        {filteredStudents.map((student, index) => (
-                                            <li key={index}>{student}</li>
+                                <ul id="searchResults">
+                                    {filteredStudents.length > 0 &&
+                                        filteredStudents.map((student, index) => (
+                                            <li key={index} onClick={() => setSelectedStudent({ userId: student.userId, username: student.username })}>
+                                                {student.username}
+                                            </li>
                                         ))}
-                                    </ul>
-                                )}
+                                </ul>
                             </div>
                             <button type="submit" className="button-primary">Add Student</button>
                         </form>
                     </div>
                 </div>
             )}
+
 
         </div>
     );
