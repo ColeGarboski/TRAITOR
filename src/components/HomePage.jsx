@@ -1,17 +1,17 @@
-import { useEffect, useState } from 'react';
-import axios from 'axios';
-import { Link, useNavigate } from 'react-router-dom';
-import { useDispatch, useSelector } from 'react-redux';
-import { setData } from '/src/dataSlice';
-import { selectUserId } from '/src/userSlice';
-import { storage } from '/src/firebase';
-import { ref, uploadBytes } from 'firebase/storage';
+import { useEffect, useState } from "react";
+import axios from "axios";
+import { Link, useNavigate } from "react-router-dom";
+import { useDispatch, useSelector } from "react-redux";
+import { setData } from "/src/dataSlice";
+import { selectUserId } from "/src/userSlice";
+import { storage } from "/src/firebase";
+import { ref, uploadBytes } from "firebase/storage";
 import logo from "../assets/logo.png";
 
 // Define API base URLs
-const DEV_API_BASE_URL = 'http://127.0.0.1:5000';
-const OTHER_DEV_API_BASE_URL = 'http://127.0.0.1:8080';
-const PROD_API_BASE_URL = 'https://tr-ai-torapi-d1938a8a0bce.herokuapp.com';
+const DEV_API_BASE_URL = "http://127.0.0.1:5000";
+const OTHER_DEV_API_BASE_URL = "http://127.0.0.1:8080";
+const PROD_API_BASE_URL = "https://tr-ai-torapi-d1938a8a0bce.herokuapp.com";
 
 // Toggle this line for switching environments
 const API_BASE_URL = DEV_API_BASE_URL; // For development
@@ -20,8 +20,8 @@ const API_BASE_URL = DEV_API_BASE_URL; // For development
 
 function HomePage() {
   const dispatch = useDispatch();
-  const [text, setText] = useState('');
-  const [response, setResponse] = useState('');
+  const [text, setText] = useState("");
+  const [response, setResponse] = useState("");
   const [loading, setLoading] = useState(false);
   const [file, setFile] = useState(null);
   const [fileUploaded, setFileUploaded] = useState(false);
@@ -29,14 +29,14 @@ function HomePage() {
   const [fileMetadataAnalysis, setFileMetadataAnalysis] = useState(null);
   const [fileText, setFileText] = useState(null);
   const navigate = useNavigate();
-  const [sessionID, setSessionID] = useState('');
+  const [sessionID, setSessionID] = useState("");
   const [isTextAreaDisabled, setIsTextAreaDisabled] = useState(false);
   const [progress, setProgress] = useState(0);
-  const [flavorText, setFlavorText] = useState('');
-  const [teacherID, setTeacherID] = useState('test_teacher_id');
-  const [classID, setClassID] = useState('test_class_id');
+  const [flavorText, setFlavorText] = useState("");
+  const [teacherID, setTeacherID] = useState("test_teacher_id");
+  const [classID, setClassID] = useState("test_class_id");
   const studentID = useSelector(selectUserId);
-  const [assignmentID, setAssignmentID] = useState('test_assignment_id');
+  const [assignmentID, setAssignmentID] = useState("test_assignment_id");
 
   const handleTeacherIDChange = (e) => setTeacherID(e.target.value);
   const handleClassIDChange = (e) => setClassID(e.target.value);
@@ -45,34 +45,40 @@ function HomePage() {
   const handleDrop = async (e) => {
     e.preventDefault();
     if (fileUploaded) {
-      alert('File has already been uploaded');
+      alert("File has already been uploaded");
       return;
     }
     const file = e.dataTransfer.files[0];
-    if (file && file.name.endsWith('.docx')) {
+    if (file && file.name.endsWith(".docx")) {
       setFile(file);
 
-      console.log(teacherID, classID, studentID, assignmentID)
+      console.log(teacherID, classID, studentID, assignmentID);
 
-      const fileRef = ref(storage, `files/${teacherID}/${classID}/${assignmentID}/${studentID}/${file.name}`);
+      const fileRef = ref(
+        storage,
+        `files/${teacherID}/${classID}/${assignmentID}/${studentID}/${file.name}`
+      );
       console.log(fileRef);
       await uploadBytes(fileRef, file);
       setFileUploaded(true);
-      console.log('File uploaded successfully');
+      console.log("File uploaded successfully");
       notifyBackend(file.name);
     } else {
-      alert('Please upload a .docx file');
+      alert("Please upload a .docx file");
     }
   };
 
   const notifyBackend = async (fileName) => {
     try {
-      const documentFullText = await axios.post(`${API_BASE_URL}/extract-text`, { file_name: fileName, session_token: sessionID });
+      const documentFullText = await axios.post(
+        `${API_BASE_URL}/extract-text`,
+        { file_name: fileName, session_token: sessionID }
+      );
       setFileText(documentFullText.data.text);
       setText(documentFullText.data.text);
       setIsTextAreaDisabled(true);
     } catch (error) {
-      console.error('Error in processing file:', error);
+      console.error("Error in processing file:", error);
     }
   };
 
@@ -83,11 +89,11 @@ function HomePage() {
   useEffect(() => {
     (async () => {
       try {
-        let token = localStorage.getItem('sessionToken');
+        let token = localStorage.getItem("sessionToken");
         if (!token) {
           const response = await axios.get(`${API_BASE_URL}/get-token`);
           token = response.data;
-          localStorage.setItem('sessionToken', token);
+          localStorage.setItem("sessionToken", token);
         }
         setSessionID(token);
       } catch (error) {
@@ -99,7 +105,7 @@ function HomePage() {
   const handleSubmit = async () => {
     try {
       console.log("Sending text to backend for analysis");
-      let session_token = localStorage.getItem('sessionToken');
+      let session_token = localStorage.getItem("sessionToken");
 
       const response = await axios.post(`${API_BASE_URL}/analyze-assignment`, {
         session_token: session_token,
@@ -107,11 +113,11 @@ function HomePage() {
         teacherID: teacherID,
         classID: classID,
         studentID: studentID,
-        assignmentID: assignmentID
+        assignmentID: assignmentID,
       });
       console.log(response);
     } catch (error) {
-      console.error('Error in analyzing text:', error);
+      console.error("Error in analyzing text:", error);
       setLoading(false);
     }
   };
@@ -120,10 +126,16 @@ function HomePage() {
     <div className="relative min-h-screen bg-gradient-to-br from-blue-500 to-purple-600 font-inter text-white">
       <header className="fixed top-0 left-0 right-0 p-4 bg-white rounded-b-md shadow-md z-10">
         <div className="max-w-7xl mx-auto flex justify-between items-center">
-          <Link to="/" className="text-xl font-bold ml-2" style={{ letterSpacing: '1.5px' }}>
-            <span style={{ color: 'black' }}>TR</span>
-            <span className="italic bg-clip-text text-transparent bg-gradient-to-r from-blue-400 to-purple-500">AI</span>
-            <span style={{ color: 'black' }}>TOR</span>
+          <Link
+            to="/"
+            className="text-xl font-bold ml-2"
+            style={{ letterSpacing: "1.5px" }}
+          >
+            <span style={{ color: "black" }}>TR</span>
+            <span className="italic bg-clip-text text-transparent bg-gradient-to-r from-blue-400 to-purple-500">
+              AI
+            </span>
+            <span style={{ color: "black" }}>TOR</span>
           </Link>
         </div>
       </header>
@@ -132,7 +144,9 @@ function HomePage() {
         <div className="container max-w-md mx-auto px-6 py-10 bg-white opacity-90 shadow-lg rounded-xl">
           <div className="flex flex-col items-center space-y-6">
             <div className="relative w-full text-black text-center">
-              <h1 className="mb-8 font-bold">Paste or drag your content below to start:</h1>
+              <h1 className="mb-8 font-bold">
+                Paste or drag your content below to start:
+              </h1>
               <div className="flex flex-col items-center space-y-4 mb-4">
                 <input
                   type="text"
@@ -151,7 +165,7 @@ function HomePage() {
                 <input
                   type="text"
                   placeholder="User ID"
-                  value={studentID || ''}
+                  value={studentID || ""}
                   disabled={true}
                   className="w-full px-4 py-2 border rounded-lg focus:outline-none"
                 />
@@ -210,6 +224,5 @@ function HomePage() {
     </div>
   );
 }
-
 
 export default HomePage;
