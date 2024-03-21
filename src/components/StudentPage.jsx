@@ -1,35 +1,29 @@
 import React, { useEffect, useState } from 'react';
 import { useSelector } from 'react-redux';
-import { useNavigate } from 'react-router-dom';
-import { getFirestore, collection, query, where, getDocs } from 'firebase/firestore';
-import useRoleRedirect from '../hooks/useRoleRedirect';
+import { getFirestore, collection, query, getDocs } from 'firebase/firestore';
 import '/src/ClassTeacherPage.css';
 
 function StudentPage() {
-    useRoleRedirect('student'); // Redirect if not a student
+    const [classes, setClasses] = useState([]);
 
-    const [data, setData] = useState([]); // Placeholder for your data
+    const studentId = useSelector((state) => state.auth.userId); // Assume Redux store has this info
 
     useEffect(() => {
-        const fetchData = async () => {
+        const fetchClasses = async () => {
             const db = getFirestore();
-            // Example: fetching some data from Firestore
-            const q = query(collection(db, "someCollection"), where("role", "==", "teacher"));
-            const querySnapshot = await getDocs(q);
-            const items = [];
+            const classesRef = collection(db, `Users/${studentId}/Classes`);
+            const querySnapshot = await getDocs(classesRef);
+            const fetchedClasses = [];
             querySnapshot.forEach((doc) => {
-                items.push(doc.data());
+                // Assuming the document structure matches your description
+                const classData = { id: doc.id, ...doc.data() };
+                fetchedClasses.push(classData);
             });
-            setData(items);
+            setClasses(fetchedClasses);
         };
 
-        fetchData();
-    }, []);
-
-    // Placeholder for your JS functions
-    const yourFunction = () => {
-        // Function logic here
-    };
+        fetchClasses();
+    }, [studentId]);
 
     return (
         <div className="App">
@@ -63,15 +57,17 @@ function StudentPage() {
 
             <main>
                 <div className="grid">
-                    {[...Array(6)].map((_, i) => (
+                    {classes.map((classItem, i) => (
                         <div key={i} className="div-block">
                             <div className="div-block-2">
                                 <img src="/src/assets/classy.jpg" loading="lazy" alt="" className="image"/>
                             </div>
-                            <div className="text-block-4">CS-301</div>
+                            <div className="text-block-4">{classItem.classCode}</div>
                             <div className="div-block-3">
-                                <div className="text-block-5">Rasel Dazel</div>
-                                <div className="text-block-6">2:00pm-3:15pm</div>
+                                <div className="text-block-5">{classItem.className}</div>
+                                <div className="text-block-6">{`${classItem.startTime} - ${classItem.endTime}`}</div>
+                                <div className="text-block-7">{`Days: ${classItem.days.join(', ')}`}</div>
+                                {/* Optionally display teacher name if you fetch it */}
                             </div>
                         </div>
                     ))}

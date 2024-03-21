@@ -254,26 +254,12 @@ function Class() {
       {showAddStudentModal && (
         <div className="modal">
           <div className="modal-content">
-            <span className="close" onClick={closeModal}>
-              &times;
-            </span>
-            <form
-              onSubmit={(e) => {
-                e.preventDefault();
-                const formData = new FormData(e.target);
-                const studentId = formData.get("studentName"); // Assuming studentName is the ID; adjust based on your actual data structure
-                const classId = formData.get("classDropdownStudent");
-                addStudentToClass(classId, { studentId }); // Adjust the second parameter based on how you're structuring student data in Firestore
-              }}
-            >
+            <span className="close" onClick={closeModal}>&times;</span>
+            <h2>Add Student</h2>
+            <form onSubmit={handleSubmitAddStudentForm}>
               <div className="form-group">
                 <label htmlFor="classDropdownStudent">Select a Class</label>
-                <select
-                  id="classDropdownStudent"
-                  name="classDropdownStudent"
-                  value={selectedClass}
-                  onChange={handleClassChange}
-                >
+                <select id="classDropdownStudent" name="classDropdownStudent" required>
                   <option value="">Select...</option>
                   {classes.map((classItem) => (
                     <option key={classItem.id} value={classItem.id}>
@@ -287,22 +273,21 @@ function Class() {
                 <input
                   type="text"
                   id="studentSearch"
-                  name="studentSearch"
                   value={searchInput}
                   onChange={(e) => setSearchInput(e.target.value)}
                   placeholder="Type a student's name..."
                 />
-                {filteredStudents.length > 0 && (
-                  <ul>
-                    {filteredStudents.map((student, index) => (
-                      <li key={index}>{student}</li>
+                <ul id="searchResults">
+                  {filteredStudents.length > 0 &&
+                    filteredStudents.map((student, index) => (
+                      <li key={index} onClick={() => setSelectedStudent({ userId: student.userId, username: student.username })}>
+                        {student.username}
+                      </li>
                     ))}
-                  </ul>
-                )}
+                </ul>
               </div>
-              <button type="submit" className="button-primary">
-                Add Student
-              </button>
+              {/* The student ID input field has been removed. Selection is handled via search results. */}
+              <button type="submit" className="button-primary">Add Student</button>
             </form>
           </div>
         </div>
