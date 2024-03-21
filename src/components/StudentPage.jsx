@@ -14,17 +14,25 @@ function StudentPage() {
     const fetchClasses = async () => {
       const classesRef = collection(db, `Users/${studentId}/Classes`);
       const querySnapshot = await getDocs(classesRef);
-      const fetchedClasses = [];
-      querySnapshot.forEach((doc) => {
+      const fetchedClassesPromises = querySnapshot.docs.map(async (doc) => {
         const classData = { id: doc.id, ...doc.data() };
-        fetchedClasses.push(classData);
+        const teacherRef = doc(db, `Users/${classData.teacherId}`);
+        const teacherSnap = await getDocs(teacherRef);
+        if (teacherSnap.exists()) {
+          classData.teacherName = teacherSnap.data().username; // Fetching teacher's username
+        } else {
+          classData.teacherName = "Unknown"; // Fallback if teacher not found
+        }
+        return classData;
       });
+
+      const fetchedClasses = await Promise.all(fetchedClassesPromises);
       setClasses(fetchedClasses);
       fetchUpcomingAssignments(fetchedClasses);
     };
 
     fetchClasses();
-  }, [studentId]);
+  }, [studentId, db]);
 
   const fetchUpcomingAssignments = async (fetchedClasses) => {
     const allAssignments = [];
@@ -104,7 +112,7 @@ function StudentPage() {
                 <div className="text-block-7">{`Days: ${classItem.days.join(
                   ", "
                 )}`}</div>
-                {/* Optionally display teacher name if you fetch it */}
+                <div className="text-block-8">{`Teacher: ${classItem.teacherName}`}</div>
               </div>
             </div>
           ))}
