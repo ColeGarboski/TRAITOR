@@ -125,11 +125,11 @@ function TeacherPage() {
     const addStudentToClass = async (classId, selectedStudent) => {
         try {
             if (!classId || !selectedStudent.userId) throw new Error("Missing classId or student userId");
-    
+
             // Add student to class
             const studentClassRef = doc(db, `Users/${teacherId}/Classes/${classId}/Students/${selectedStudent.userId}`);
             await setDoc(studentClassRef, { username: selectedStudent.username });
-    
+
             // Fetch class information
             const classRef = doc(db, `Users/${teacherId}/Classes/${classId}`);
             const classSnap = await getDoc(classRef);
@@ -138,7 +138,7 @@ function TeacherPage() {
                 return;
             }
             const classData = classSnap.data();
-    
+
             // Add class to student
             const studentClassesRef = doc(db, `Users/${selectedStudent.userId}/Classes/${classId}`);
             await setDoc(studentClassesRef, {
@@ -149,14 +149,14 @@ function TeacherPage() {
                 days: classData.days,
                 teacherId: teacherId
             });
-    
+
             console.log(`Class ${classId} added to student ${selectedStudent.username} (${selectedStudent.userId})`);
             closeModal();
         } catch (error) {
             console.error("Error adding student to class or class to student: ", error);
         }
     };
-    
+
 
     const handleSubmitAddStudentForm = async (e) => {
         e.preventDefault();
@@ -175,22 +175,27 @@ function TeacherPage() {
                     <div className="container">
                         <div className="navbar-wrapper">
                             <a href="#" className="navbar-brand">
-                                <div className="text-block">TR<em>AI</em>TOR</div>
+                                <div className="logo">
+                                    <img src="src/assets/logo.png" />
+                                </div>
                             </a>
                             <nav className="nav-menu-wrapper">
                                 <ul className="nav-menu-two">
-                                    <li><a href="#" className="nav-link">Classes</a></li>
-                                    <li><a href="#" className="nav-link">Upcoming Assignments</a></li>
-                                    <li><a href="#" className="nav-link">Previous Scores</a></li>
-                                    <li><div className="nav-divider"></div></li>
-                                    <li className="mobile-margin-top-10">
-                                        <button onClick={() => setShowCreateClassModal(true)} className="button-primary">Create class</button>
+                                    <li>
+                                        <a href="#" className="nav-link">
+                                            Class List
+                                        </a>
+                                    </li>
+                                    <li>
+                                        <div className="nav-divider"></div>
                                     </li>
                                     <li className="mobile-margin-top-10">
-                                        <button onClick={() => setShowCreateAssignmentModal(true)} className="button-primary">Create assignment</button>
-                                    </li>
-                                    <li className="mobile-margin-top-10">
-                                        <button onClick={() => setShowAddStudentModal(true)} className="button-primary">Add student</button>
+                                        <button
+                                            onClick={() => setShowCreateClassModal(true)}
+                                            className="button-primary"
+                                        >
+                                            Create class
+                                        </button>
                                     </li>
                                 </ul>
                             </nav>
@@ -204,12 +209,19 @@ function TeacherPage() {
                     {classes.map((classItem) => (
                         <div key={classItem.id} className="div-block">
                             <div className="div-block-2">
-                                <img src={classItem.imageURL || '/src/assets/classy.jpg'} loading="lazy" alt="" className="image" />
+                                <img
+                                    src={classItem.imageURL || "/src/assets/classy.jpg"}
+                                    loading="lazy"
+                                    alt=""
+                                    className="image"
+                                />
                             </div>
                             <div className="text-block-4">{classItem.classCode}</div>
                             <div className="div-block-3">
-                                <div className="text-block-5">{classItem.days.join('-')}</div>
-                                <div className="text-block-6">{classItem.startTime}-{classItem.endTime}</div>
+                                <div className="text-block-5">{classItem.days.join("-")}</div>
+                                <div className="text-block-6">
+                                    {classItem.startTime}-{classItem.endTime}
+                                </div>
                             </div>
                         </div>
                     ))}
@@ -219,8 +231,9 @@ function TeacherPage() {
             {showCreateClassModal && (
                 <div className="modal">
                     <div className="modal-content">
-                        <span className="close" onClick={closeModal}>&times;</span>
-                        <h2>Create Class Form</h2>
+                        <span className="close" onClick={closeModal}>
+                            &times;
+                        </span>
                         <form onSubmit={handleCreateClassFormSubmit}>
                             <div className="form-group">
                                 <label htmlFor="classCode">Class Code</label>
@@ -238,7 +251,13 @@ function TeacherPage() {
                                 <label>Days of the Week</label>
                                 <div>
                                     {["Mon", "Tues", "Wed", "Thurs", "Fri"].map((day) => (
-                                        <div key={day}>
+                                        <label
+                                            key={day}
+                                            htmlFor={day}
+                                            className={`day-label ${selectedDays.includes(day) ? "selected" : ""
+                                                }`}
+                                        >
+                                            {day}
                                             <input
                                                 type="checkbox"
                                                 id={day}
@@ -246,107 +265,24 @@ function TeacherPage() {
                                                 value={day}
                                                 checked={selectedDays.includes(day)}
                                                 onChange={() => handleDayChange(day)}
+                                                style={{ display: "none" }}
                                             />
-                                            <label htmlFor={day}>{day}</label>
-                                        </div>
+                                        </label>
                                     ))}
                                 </div>
                             </div>
+
                             <div className="form-group">
                                 <label htmlFor="endTime">End Time</label>
                                 <input type="time" id="endTime" name="endTime" required />
                             </div>
-                            <button type="submit" className="button-primary">Create Class</button>
+                            <button type="submit" className="button-primary">
+                                Create Class
+                            </button>
                         </form>
                     </div>
                 </div>
             )}
-
-            {showCreateAssignmentModal && (
-                <div className="modal">
-                    <div className="modal-content">
-                        <span className="close" onClick={closeModal}>&times;</span>
-                        <h2>Create Assignment Form</h2>
-                        <form onSubmit={e => {
-                            e.preventDefault();
-                            const formData = new FormData(e.target);
-                            const assignmentData = {
-                                classId: formData.get('classDropdown'), // Assuming you need classId for something specific in your data structure
-                                assignmentName: formData.get('assignmentName'),
-                                endTime: formData.get('endTime'),
-                            };
-                            createAssignment(formData.get('classDropdown'), assignmentData);
-                        }}>
-                            <div className="form-group">
-                                <label htmlFor="classDropdown">Select a Class</label>
-                                <select id="classDropdown" name="classDropdown" value={selectedClass} onChange={handleClassChange}>
-                                    <option value="">Select...</option>
-                                    {classes.map((classItem) => (
-                                        <option key={classItem.id} value={classItem.id}>
-                                            {classItem.classCode}
-                                        </option>
-                                    ))}
-                                </select>
-                            </div>
-                            <div className="form-group">
-                                <label htmlFor="assignmentName">Assignment Name</label>
-                                <input type="text" id="assignmentName" name="assignmentName" required />
-                            </div>
-                            <div className="form-group">
-                                <label htmlFor="endDateTime">End Date and Time</label>
-                                <input type="datetime-local" id="endDateTime" name="endDateTime" required />
-                            </div>
-                            <button type="submit" className="button-primary">Create Assignment</button>
-
-                        </form>
-                    </div>
-                </div>
-            )}
-
-
-            {showAddStudentModal && (
-                <div className="modal">
-                    <div className="modal-content">
-                        <span className="close" onClick={closeModal}>&times;</span>
-                        <h2>Add Student</h2>
-                        <form onSubmit={handleSubmitAddStudentForm}>
-                            <div className="form-group">
-                                <label htmlFor="classDropdownStudent">Select a Class</label>
-                                <select id="classDropdownStudent" name="classDropdownStudent" required>
-                                    <option value="">Select...</option>
-                                    {classes.map((classItem) => (
-                                        <option key={classItem.id} value={classItem.id}>
-                                            {classItem.classCode}
-                                        </option>
-                                    ))}
-                                </select>
-                            </div>
-                            <div className="form-group">
-                                <label htmlFor="studentSearch">Search for a Student</label>
-                                <input
-                                    type="text"
-                                    id="studentSearch"
-                                    value={searchInput}
-                                    onChange={(e) => setSearchInput(e.target.value)}
-                                    placeholder="Type a student's name..."
-                                />
-                                <ul id="searchResults">
-                                    {filteredStudents.length > 0 &&
-                                        filteredStudents.map((student, index) => (
-                                            <li key={index} onClick={() => setSelectedStudent({ userId: student.userId, username: student.username })}>
-                                                {student.username}
-                                            </li>
-                                        ))}
-                                </ul>
-                            </div>
-                            {/* The student ID input field has been removed. Selection is handled via search results. */}
-                            <button type="submit" className="button-primary">Add Student</button>
-                        </form>
-                    </div>
-                </div>
-            )}
-
-
         </div>
     );
 }
