@@ -28,7 +28,6 @@ Sometimes on the news there is either an accident or a suicide. It might involve
 
 Phones are fine to use and it's also the best way to come over help. If you go through a problem and you can't find help you ,always have a phone there with you. Even though phones are used almost every day as long as you're safe it would come into use if you get into trouble. Make sure you do not be like this phone while you're in the middle of driving. The news always updated when people do something stupid around that involves their phones. The safest way is the best way to stay safe.    
 """
-#essay 1 is AI
 fullTextInput2 = """Driving while on the phone
 
 Driving while being on the phone is very dangerous. No one should be operating a vehicle and using technology. It can ruin your life. People don't think before they do stuff and it doesn't always end good. You might think you can pay attention to the road and drive at the same time, but you never know until its too late. Many wrecks have been caused by people texting and driving. You could look up at the road one second too late and take someone's life.
@@ -37,7 +36,8 @@ Most teens are addicted to their phone and right when it buzzes, they grab it an
 
 That's why you shouldn't drive and be on your phone. Its very dangerous and can take someone's life. You never know when that day will be. You can never be certain on what will happen. That's why you should always be safe and not do it. Think before you take someone's life.      
 """
-#essay 2 is Human...lol and its pretty bad
+#both essays are AI rn, which is why its an 80 percent similarity
+
 
 #**** remember that the main use of this is to compare a " maybe human written" essay to a chat gpt essay off a similar prompt. THIS MEANS THAT MANY OF THE FACTORS THAT CAN CAUSE ISSUES WILL BE THE SAME. If one analysis is off by 10, then the other will be off by roughly 10 as well. This is veeery good...
 
