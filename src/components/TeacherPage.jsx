@@ -73,7 +73,6 @@ function TeacherPage() {
         setSelectedClass(e.target.value);
     };
 
-
     const createClass = async (classData) => {
         try {
             const classRef = doc(collection(db, `Users/${teacherId}/Classes`));

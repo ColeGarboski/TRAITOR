@@ -12,15 +12,13 @@ import {
 import useRoleRedirect from "../hooks/useRoleRedirect";
 import "/src/ClassTeacherPage.css";
 
-function TeacherPage() {
+function Class() {
   useRoleRedirect("teacher");
 
   const [classes, setClasses] = useState([]);
-  const [showCreateClassModal, setShowCreateClassModal] = useState(false);
   const [showCreateAssignmentModal, setShowCreateAssignmentModal] =
     useState(false);
   const [showAddStudentModal, setShowAddStudentModal] = useState(false);
-  const [selectedDays, setSelectedDays] = useState([]);
   const [selectedClass, setSelectedClass] = useState("");
   const [searchInput, setSearchInput] = useState("");
   const [filteredStudents, setFilteredStudents] = useState([]);
@@ -66,53 +64,15 @@ function TeacherPage() {
   }, [teacherId, db]); // Dependency array ensures fetchData is called when these values change
 
   const closeModal = () => {
-    setShowCreateClassModal(false);
     setShowCreateAssignmentModal(false);
     setShowAddStudentModal(false);
-    setSelectedDays([]);
   };
 
   const handleClassChange = (e) => {
     setSelectedClass(e.target.value);
   };
 
-  const createClass = async (classData) => {
-    try {
-      const classRef = doc(collection(db, `Users/${teacherId}/Classes`));
-      await setDoc(classRef, classData);
-      console.log("Class created with ID: ", classRef.id);
-      closeModal();
-      await fetchData();
-    } catch (error) {
-      console.error("Error creating class: ", error);
-    }
-  };
-
-  const handleCreateClassFormSubmit = (event) => {
-    event.preventDefault();
-    const formData = new FormData(event.target);
-    const classData = {
-      classCode: formData.get("classCode"),
-      className: formData.get("className"),
-      startTime: formData.get("startTime"),
-      endTime: formData.get("endTime"),
-      days: selectedDays,
-    };
-    createClass(classData);
-  };
-
-  const handleDayChange = (selectedDay) => {
-    setSelectedDays((prevSelectedDays) => {
-      if (prevSelectedDays.includes(selectedDay)) {
-        // If the day is already selected, remove it from the array
-        return prevSelectedDays.filter((day) => day !== selectedDay);
-      } else {
-        // Otherwise, add the day to the array of selected days
-        return [...prevSelectedDays, selectedDay];
-      }
-    });
-  };
-
+  // FIX ME OLD CODE
   const createAssignment = async (classId, assignmentData) => {
     try {
       const assignmentRef = doc(
@@ -126,6 +86,7 @@ function TeacherPage() {
     }
   };
 
+  // FIX ME OLD CODE
   const addStudentToClass = async (classId, studentId) => {
     try {
       const studentRef = doc(
@@ -154,8 +115,13 @@ function TeacherPage() {
               <nav className="nav-menu-wrapper">
                 <ul className="nav-menu-two">
                   <li>
-                    <a href="#" className="nav-link">
+                    <a href="/teacher" className="nav-link">
                       Class List
+                    </a>
+                  </li>
+                  <li>
+                    <a href="#" className="nav-link">
+                      Assignments
                     </a>
                   </li>
                   <li>
@@ -163,10 +129,18 @@ function TeacherPage() {
                   </li>
                   <li className="mobile-margin-top-10">
                     <button
-                      onClick={() => setShowCreateClassModal(true)}
+                      onClick={() => setShowCreateAssignmentModal(true)}
                       className="button-primary"
                     >
-                      Create class
+                      Create Assignment
+                    </button>
+                  </li>
+                  <li className="mobile-margin-top-10">
+                    <button
+                      onClick={() => setShowAddStudentModal(true)}
+                      className="button-primary"
+                    >
+                      Add Student
                     </button>
                   </li>
                 </ul>
@@ -175,87 +149,6 @@ function TeacherPage() {
           </div>
         </div>
       </header>
-
-      <main>
-        <div className="grid">
-          {classes.map((classItem) => (
-            <div key={classItem.id} className="div-block">
-              <div className="div-block-2">
-                <img
-                  src={classItem.imageURL || "/src/assets/classy.jpg"}
-                  loading="lazy"
-                  alt=""
-                  className="image"
-                />
-              </div>
-              <div className="text-block-4">{classItem.classCode}</div>
-              <div className="div-block-3">
-                <div className="text-block-5">{classItem.days.join("-")}</div>
-                <div className="text-block-6">
-                  {classItem.startTime}-{classItem.endTime}
-                </div>
-              </div>
-            </div>
-          ))}
-        </div>
-      </main>
-
-      {showCreateClassModal && (
-        <div className="modal">
-          <div className="modal-content">
-            <span className="close" onClick={closeModal}>
-              &times;
-            </span>
-            <form onSubmit={handleCreateClassFormSubmit}>
-              <div className="form-group">
-                <label htmlFor="classCode">Class Code</label>
-                <input type="text" id="classCode" name="classCode" required />
-              </div>
-              <div className="form-group">
-                <label htmlFor="className">Class Name</label>
-                <input type="text" id="className" name="className" required />
-              </div>
-              <div className="form-group">
-                <label htmlFor="startTime">Start Time</label>
-                <input type="time" id="startTime" name="startTime" required />
-              </div>
-              <div className="form-group">
-                <label>Days of the Week</label>
-                <div>
-                  {["Mon", "Tues", "Wed", "Thurs", "Fri"].map((day) => (
-                    <label
-                      key={day}
-                      htmlFor={day}
-                      className={`day-label ${
-                        selectedDays.includes(day) ? "selected" : ""
-                      }`}
-                    >
-                      {day}
-                      <input
-                        type="checkbox"
-                        id={day}
-                        name="classDays"
-                        value={day}
-                        checked={selectedDays.includes(day)}
-                        onChange={() => handleDayChange(day)}
-                        style={{ display: "none" }}
-                      />
-                    </label>
-                  ))}
-                </div>
-              </div>
-
-              <div className="form-group">
-                <label htmlFor="endTime">End Time</label>
-                <input type="time" id="endTime" name="endTime" required />
-              </div>
-              <button type="submit" className="button-primary">
-                Create Class
-              </button>
-            </form>
-          </div>
-        </div>
-      )}
 
       {showCreateAssignmentModal && (
         <div className="modal">
@@ -377,4 +270,4 @@ function TeacherPage() {
   );
 }
 
-export default TeacherPage;
+export default Class;
