@@ -72,7 +72,6 @@ function Class() {
     setSelectedClass(e.target.value);
   };
 
-  // FIX ME OLD CODE
   const createAssignment = async (classId, assignmentData) => {
     try {
       const assignmentRef = doc(
@@ -86,19 +85,61 @@ function Class() {
     }
   };
 
-  // FIX ME OLD CODE
-  const addStudentToClass = async (classId, studentId) => {
+  const addStudentToClass = async (classId, selectedStudent) => {
     try {
-      const studentRef = doc(
+      if (!classId || !selectedStudent.userId)
+        throw new Error("Missing classId or student userId");
+
+      // Add student to class
+      const studentClassRef = doc(
         db,
-        `Users/${teacherId}/Classes/${classId}/Students/${studentId}`
+        `Users/${teacherId}/Classes/${classId}/Students/${selectedStudent.userId}`
       );
-      await setDoc(studentRef, { added: true });
-      console.log(`Student ${studentId} added to class ${classId}`);
+      await setDoc(studentClassRef, { username: selectedStudent.username });
+
+      // Fetch class information
+      const classRef = doc(db, `Users/${teacherId}/Classes/${classId}`);
+      const classSnap = await getDoc(classRef);
+      if (!classSnap.exists()) {
+        console.log("No such class!");
+        return;
+      }
+      const classData = classSnap.data();
+
+      // Add class to student
+      const studentClassesRef = doc(
+        db,
+        `Users/${selectedStudent.userId}/Classes/${classId}`
+      );
+      await setDoc(studentClassesRef, {
+        classCode: classData.classCode,
+        className: classData.className,
+        startTime: classData.startTime,
+        endTime: classData.endTime,
+        days: classData.days,
+        teacherId: teacherId,
+      });
+
+      console.log(
+        `Class ${classId} added to student ${selectedStudent.username} (${selectedStudent.userId})`
+      );
       closeModal();
     } catch (error) {
-      console.error("Error adding student to class: ", error);
+      console.error(
+        "Error adding student to class or class to student: ",
+        error
+      );
     }
+  };
+
+  const handleSubmitAddStudentForm = async (e) => {
+    e.preventDefault();
+    const formData = new FormData(e.target);
+    const classId = formData.get("classDropdownStudent");
+    await addStudentToClass(classId, selectedStudent);
+    // Reset state as necessary
+    setSelectedStudent("");
+    setSearchInput("");
   };
 
   return (
