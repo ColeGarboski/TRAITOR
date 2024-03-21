@@ -7,6 +7,7 @@ import ResultsPage from "/src/components/ResultsPage";
 import SignupPage from "/src/components/SignupPage";
 import TeacherPage from "./components/TeacherPage.jsx";
 import StudentPage from "./components/StudentPage.jsx";
+import Class from "./components/Class.jsx";
 
 //import './App.css';
 
@@ -22,6 +23,7 @@ function App() {
             <Route path="/signup" element={<SignupPage />}></Route>
             <Route path="/teacher" element={<TeacherPage />}></Route>
             <Route path="/student" element={<StudentPage />}></Route>
+            <Route path="/class" element={<StudentPage />}></Route>
           </Routes>
         </div>
       </Router>
