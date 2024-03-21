@@ -271,7 +271,7 @@ function TeacherPage() {
                             e.preventDefault();
                             const formData = new FormData(e.target);
                             const assignmentData = {
-                                classId: formData.get('classDropdown'),
+                                classId: formData.get('classDropdown'), // Assuming you need classId for something specific in your data structure
                                 assignmentName: formData.get('assignmentName'),
                                 endTime: formData.get('endTime'),
                             };
@@ -339,6 +339,7 @@ function TeacherPage() {
                                         ))}
                                 </ul>
                             </div>
+                            {/* The student ID input field has been removed. Selection is handled via search results. */}
                             <button type="submit" className="button-primary">Add Student</button>
                         </form>
                     </div>
