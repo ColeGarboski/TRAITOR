@@ -1,12 +1,14 @@
 import React, { useEffect, useState } from "react";
 import { useSelector } from "react-redux";
 import { getFirestore, collection, query, getDocs } from "firebase/firestore";
+import { useNavigate } from "react-router-dom";
 import "/src/ClassTeacherPage.css";
 
 function StudentPage() {
   const [classes, setClasses] = useState([]);
   const [assignments, setAssignments] = useState([]);
 
+  const navigate = useNavigate();
   const studentId = useSelector((state) => state.auth.userId); // Assume Redux store has this info
   const db = getFirestore();
 
@@ -55,6 +57,10 @@ function StudentPage() {
     setAssignments(allAssignments);
   };
 
+  const handleClassCardClick = (classData) => {
+    navigate('/class', { state: { classData } });
+  };
+
   return (
     <div className="App">
       <header className="navbar-logo-left">
@@ -96,7 +102,7 @@ function StudentPage() {
       <main>
         <div className="grid">
           {classes.map((classItem, i) => (
-            <div key={i} className="div-block">
+            <div key={i} className="div-block" onClick={() => handleClassCardClick(classItem)}>
               <div className="div-block-2">
                 <img
                   src="/src/assets/classy.jpg"
