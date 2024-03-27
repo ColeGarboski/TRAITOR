@@ -19,6 +19,7 @@ import secrets
 import openai
 import asyncio
 from flask_cors import CORS, cross_origin
+import joblib
 import uuid
 from docx import Document
 import firebase_admin
@@ -126,12 +127,16 @@ async def run_analysis_and_update_db(user_id, file_text, file_stream, teacherID,
     reverse_prompt_result = await reverse_prompt_analysis(file_text) # Reverse engineer the prompt, regenerate the text, and compare the two
     print("File Metadata")
     file_metadata_result = await file_metadata_analysis(file_stream) # Extract metadata from the document and analyze it
+    print("AI Model Analysis")
+    ai_model_result = await ai_model_analysis(file_text) # Analyze the text using our AI model
+
     
     # Aggregate results
     analysis_results = {
         "ask_gpt_result": ask_gpt_result,
         "reverse_prompt_result": reverse_prompt_result,
         "file_metadata_result": file_metadata_result,
+        "ai_model_result": ai_model_result,
     }
     
     # Update Firebase with the aggregated results
@@ -258,6 +263,25 @@ async def file_metadata_analysis(file_stream):
             'success': False,
             'error': str(e)
         }
+
+async def ai_model_analysis(file_text):
+
+    # Load vectorizer and model
+    vectorizer = joblib.load("tfidf_vectorizer_bigDataSet.pkl")
+    model = joblib.load("logistic_regression_model_bigDataSet.pkl")
+
+    # Vectorize the text
+    file_text_tfidf = vectorizer.transform([file_text])
+
+    # Predict using the AI model
+    prediction = model.predict(file_text_tfidf)
+    
+    return {
+        'testName': 'AIModelAnalysis',
+        'success': True,
+        'prediction': prediction[0]
+    }
+
 ############################################################################################################################################################################
 # This endpoint is one of our detection methods. It will ask GPT if it wrote the text or not and try to provide reasoning.
 @app.route('/askgpt', methods=['POST'])
