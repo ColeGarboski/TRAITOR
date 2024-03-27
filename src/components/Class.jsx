@@ -269,20 +269,20 @@ function Class() {
                   placeholder="Type a student's name..."
                 />
                 <ul id="searchResults">
-                  {filteredStudents.length > 0 &&
-                    filteredStudents.map((student, index) => (
-                      <li
-                        key={index}
-                        onClick={() =>
-                          setSelectedStudent({
-                            userId: student.userId,
-                            username: student.username,
-                          })
-                        }
-                      >
-                        {student.username}
-                      </li>
-                    ))}
+                  {filteredStudents.map((student, index) => (
+                    <li
+                      key={index}
+                      style={{ cursor: "pointer" }}
+                      onClick={() =>
+                        setSelectedStudent({
+                          userId: student.userId,
+                          username: student.username,
+                        })
+                      }
+                    >
+                      {student.username}
+                    </li>
+                  ))}
                 </ul>
               </div>
               {/* The student ID input field has been removed. Selection is handled via search results. */}
