@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { useSelector } from "react-redux";
 import { useLocation } from "react-router-dom";
+import axios from "axios";
 import {
   getFirestore,
   collection,
@@ -12,6 +13,8 @@ import {
   Timestamp,
   orderBy,
 } from "firebase/firestore";
+import { ref, uploadBytes } from "firebase/storage";
+import { storage } from "/src/firebase";
 import "/src/ClassTeacherPage.css";
 
 function Class() {
@@ -23,6 +26,8 @@ function Class() {
   const [showSubmitAssignmentModal, setShowSubmitAssignmentModal] =
     useState(false);
   const [selectedClass, setSelectedClass] = useState(classData.id);
+  const [selectedFile, setSelectedFile] = useState(null);
+  const [assignmentID, setAssignmentID] = useState("");
   const [searchInput, setSearchInput] = useState("");
   const [filteredStudents, setFilteredStudents] = useState([]);
   const [upcomingAssignments, setUpcomingAssignments] = useState([]);
@@ -35,11 +40,78 @@ function Class() {
     fetchUpcomingAssignments();
   }, []);
 
+  const uploadToFirebase = async (file) => {
+    if (!file) {
+      console.error("No file selected for upload");
+      return;
+    }
+    if (!assignmentID) {
+      console.error("No assignment selected");
+      return;
+    }
+
+    // Construct the file path in Firebase storage
+    const filePath = `files/${selectedClass}/${assignmentID}/${userId}/${file.name}`;
+    const fileRef = ref(storage, filePath);
+
+    try {
+      await uploadBytes(fileRef, file);
+      console.log("File uploaded successfully");
+      notifyBackend(filePath, file.name); // Pass the file path and name to notifyBackend function
+    } catch (error) {
+      console.error("Error uploading file to Firebase:", error);
+    }
+  };
+
+  const notifyBackend = async (filePath, fileName) => {
+    // Define the API endpoint. Adjust the URL to your computer
+    const apiUrl = "http://127.0.0.1:5000/analyze-assignment";
+
+    // Prepare the data to send
+    const postData = {
+      file_path: filePath,
+      file_name: fileName,
+      classID: selectedClass,
+      studentID: userId,
+      assignmentID: assignmentID,
+    };
+
+    try {
+      const response = await axios.post(apiUrl, postData);
+      console.log("Backend notified successfully:", response.data);
+    } catch (error) {
+      console.error("Error notifying backend:", error);
+    }
+  };
+
+  const handleFileSelect = (event) => {
+    const file = event.target.files[0];
+    if (file && file.name.endsWith(".docx")) {
+      setSelectedFile(file);
+    } else {
+      alert("Please select a .docx file.");
+    }
+  };
+
+  const handleFileDrop = (event) => {
+    event.preventDefault();
+    const file = event.dataTransfer.files[0];
+    if (file && file.name.endsWith(".docx")) {
+      setSelectedFile(file);
+    } else {
+      alert("Please drop a .docx file.");
+    }
+  };
+
+  const handleDragOver = (event) => {
+    event.preventDefault();
+  };
+
   const closeModal = () => {
     setShowCreateAssignmentModal(false);
   };
 
-  const createAssignment = async (classId, assignmentData) => {
+  const createAssignment = async (assignmentData) => {
     try {
       const endTime = assignmentData.endTime;
       // Convert endTime to a Firestore Timestamp
@@ -124,7 +196,6 @@ function Class() {
                     </li>
                   ) : (
                     <li className="mobile-margin-top-10">
-                      {/* This button could potentially show a modal for submitting an assignment */}
                       <button
                         onClick={() => setShowSubmitAssignmentModal(true)}
                         className="button-primary"
@@ -154,7 +225,7 @@ function Class() {
                   assignmentName: formData.get("assignmentName"),
                   endTime: formData.get("endDateTime"),
                 };
-                createAssignment(selectedClass, assignmentData);
+                createAssignment(assignmentData);
               }}
             >
               <div className="form-group">
@@ -202,7 +273,14 @@ function Class() {
             <form onSubmit={(e) => e.preventDefault()}>
               <div className="form-group">
                 <label htmlFor="assignmentSelect">Choose an assignment:</label>
-                <select id="assignmentSelect" name="assignmentSelect">
+                <select
+                  id="assignmentSelect"
+                  name="assignmentSelect"
+                  onChange={(e) => {
+                    setAssignmentID(e.target.value);
+                    console.log("Selected Assignment ID:", e.target.value); // Check if this logs the expected value
+                  }}
+                >
                   {upcomingAssignments.map((assignment) => (
                     <option key={assignment.id} value={assignment.id}>
                       {assignment.assignmentName}
@@ -212,12 +290,25 @@ function Class() {
               </div>
               <div className="form-group">
                 <label>Upload your assignment:</label>
-                <div className="file-upload">
-                  <input type="file" />
-                  {/* Placeholder for a more complex drag-and-drop implementation */}
+                <input type="file" accept=".docx" onChange={handleFileSelect} />
+                <div
+                  className="file-upload"
+                  onDrop={handleFileDrop}
+                  onDragOver={handleDragOver}
+                  style={{
+                    border: "2px dashed #000",
+                    padding: "20px",
+                    cursor: "pointer",
+                  }}
+                >
+                  Drag and drop a .docx file here or click to select a file.
                 </div>
               </div>
-              <button type="button" className="button-primary">
+              <button
+                type="button"
+                className="button-primary"
+                onClick={() => selectedFile && uploadToFirebase(selectedFile)}
+              >
                 Submit
               </button>
             </form>
