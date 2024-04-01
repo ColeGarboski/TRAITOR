@@ -7,7 +7,7 @@ import {
   createUserWithEmailAndPassword,
   signInWithEmailAndPassword,
 } from "firebase/auth";
-import { getFirestore, doc, setDoc } from "firebase/firestore";
+import { getFirestore, doc, setDoc, getDoc } from "firebase/firestore";
 import logo from "/src/assets/logo.png";
 
 function SignupPage() {
@@ -40,12 +40,15 @@ function SignupPage() {
       dispatch(setUserRole(isTeacher ? "teacher" : "student"));
 
       const db = getFirestore();
-      const userRef = doc(db, "Users", userCredential.user.uid);
+
+      const collectionName = isTeacher ? "Teachers" : "Students";
+      const userRef = doc(db, collectionName, userCredential.user.uid);
 
       const userData = {
         userId: userCredential.user.uid,
         username: name,
-        role: isTeacher ? "teacher" : "student", // Determine the role based on the isTeacher
+        email: email,
+        role: isTeacher ? "teacher" : "student",
       };
 
       await setDoc(userRef, userData);
@@ -78,7 +81,34 @@ function SignupPage() {
       );
       dispatch(setUserId(userCredential.user.uid));
       console.log("Signed in:", userCredential.user);
-      navigate("/home");
+
+      // Attempt to fetch user role from Firestore
+      const db = getFirestore();
+      let userRole = "";
+      const teacherRef = doc(db, "Teachers", userCredential.user.uid);
+      const studentRef = doc(db, "Students", userCredential.user.uid);
+
+      const teacherSnap = await getDoc(teacherRef);
+      if (teacherSnap.exists()) {
+        userRole = "teacher";
+      } else {
+        const studentSnap = await getDoc(studentRef);
+        if (studentSnap.exists()) {
+          userRole = "student";
+        }
+      }
+
+      if (!userRole) {
+        console.error("User role not found.");
+        setErrorMessage(
+          "Your account role could not be verified. Please contact support."
+        );
+        return;
+      }
+
+      // Dispatch user role and navigate accordingly
+      dispatch(setUserRole(userRole));
+      navigate(userRole === "teacher" ? "/teacher" : "/student");
     } catch (error) {
       console.error("Error signing in:", error);
       setErrorMessage(error.message); // Set the error message from Firebase

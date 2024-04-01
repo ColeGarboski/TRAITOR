@@ -33,14 +33,22 @@ function TeacherPage() {
   const db = getFirestore();
 
   const fetchData = async () => {
-    const classesRef = collection(db, `Users/${teacherId}/Classes`);
-    const querySnapshot = await getDocs(classesRef);
+    const teacherClassesRef = collection(db, `Teachers/${teacherId}/Classes`);
+    const querySnapshot = await getDocs(teacherClassesRef);
+    const classIds = querySnapshot.docs.map(doc => doc.id);
+  
     const fetchedClasses = [];
-    querySnapshot.forEach((doc) => {
-      fetchedClasses.push({ id: doc.id, ...doc.data() });
-    });
+    for (const classId of classIds) {
+      const classRef = doc(db, 'Classes', classId);
+      const classSnap = await getDoc(classRef);
+      if (classSnap.exists()) {
+        fetchedClasses.push({ id: classSnap.id, ...classSnap.data() });
+      }
+    }
+  
     setClasses(fetchedClasses);
   };
+  
 
   useEffect(() => {
     const fetchStudents = async () => {
@@ -80,21 +88,65 @@ function TeacherPage() {
     setSelectedDays([]);
   };
 
-  const handleClassChange = (e) => {
-    setSelectedClass(e.target.value);
+  const fetchExistingJoinCodes = async () => {
+    const classesRef = collection(db, "Classes");
+    const querySnapshot = await getDocs(classesRef);
+    
+    const joinCodes = new Set();
+  
+    querySnapshot.forEach((doc) => {
+      if (doc.exists() && doc.data().joinCode) {
+        joinCodes.add(doc.data().joinCode);
+      }
+    });
+  
+    return joinCodes;
+  };
+
+  const generateJoinCode = () => {
+    const characters = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
+    let result = "";
+    const charactersLength = characters.length;
+    for (let i = 0; i < 15; i++) {
+      result += characters.charAt(Math.floor(Math.random() * charactersLength));
+    }
+    return result;
+  };
+
+  const generateUniqueJoinCode = async () => {
+    const existingCodes = await fetchExistingJoinCodes();
+    let newCode;
+    do {
+      newCode = generateJoinCode();
+    } while (existingCodes.has(newCode));
+    return newCode;
   };
 
   const createClass = async (classData) => {
     try {
-      const classRef = doc(collection(db, `Users/${teacherId}/Classes`));
-      await setDoc(classRef, classData);
-      console.log("Class created with ID: ", classRef.id);
+      const joinCode = await generateUniqueJoinCode();
+      const newClassData = {
+        ...classData,
+        joinCode,
+        teacherId,
+      };
+  
+      // Add the new class to the 'Classes' collection
+      const classRef = doc(collection(db, 'Classes'));
+      await setDoc(classRef, newClassData);
+  
+      // Update the teacher's 'Classes' subcollection with the new class ID
+      const teacherClassesRef = doc(db, `Teachers/${teacherId}/Classes`, classRef.id);
+      await setDoc(teacherClassesRef, { classId: classRef.id });
+  
+      console.log("Class created with ID: ", classRef.id, " and Join Code: ", joinCode);
       closeModal();
       await fetchData();
     } catch (error) {
       console.error("Error creating class: ", error);
     }
   };
+  
 
   const handleCreateClassFormSubmit = (event) => {
     event.preventDefault();
@@ -121,78 +173,8 @@ function TeacherPage() {
     });
   };
 
-  const createAssignment = async (classId, assignmentData) => {
-    try {
-      const assignmentRef = doc(
-        collection(db, `Users/${teacherId}/Classes/${classId}/Assignments`)
-      );
-      await setDoc(assignmentRef, assignmentData);
-      console.log("Assignment created with ID: ", assignmentRef.id);
-      closeModal();
-    } catch (error) {
-      console.error("Error creating assignment: ", error);
-    }
-  };
-
-  const addStudentToClass = async (classId, selectedStudent) => {
-    try {
-      if (!classId || !selectedStudent.userId)
-        throw new Error("Missing classId or student userId");
-
-      // Add student to class
-      const studentClassRef = doc(
-        db,
-        `Users/${teacherId}/Classes/${classId}/Students/${selectedStudent.userId}`
-      );
-      await setDoc(studentClassRef, { username: selectedStudent.username });
-
-      // Fetch class information
-      const classRef = doc(db, `Users/${teacherId}/Classes/${classId}`);
-      const classSnap = await getDoc(classRef);
-      if (!classSnap.exists()) {
-        console.log("No such class!");
-        return;
-      }
-      const classData = classSnap.data();
-
-      // Add class to student
-      const studentClassesRef = doc(
-        db,
-        `Users/${selectedStudent.userId}/Classes/${classId}`
-      );
-      await setDoc(studentClassesRef, {
-        classCode: classData.classCode,
-        className: classData.className,
-        startTime: classData.startTime,
-        endTime: classData.endTime,
-        days: classData.days,
-        teacherId: teacherId,
-      });
-
-      console.log(
-        `Class ${classId} added to student ${selectedStudent.username} (${selectedStudent.userId})`
-      );
-      closeModal();
-    } catch (error) {
-      console.error(
-        "Error adding student to class or class to student: ",
-        error
-      );
-    }
-  };
-
-  const handleSubmitAddStudentForm = async (e) => {
-    e.preventDefault();
-    const formData = new FormData(e.target);
-    const classId = formData.get("classDropdownStudent");
-    await addStudentToClass(classId, selectedStudent);
-    // Reset state as necessary
-    setSelectedStudent("");
-    setSearchInput("");
-  };
-
   const handleClassCardClick = (classData) => {
-    navigate('/class', { state: { classData } });
+    navigate("/class", { state: { classData } });
   };
 
   return (
@@ -234,7 +216,11 @@ function TeacherPage() {
       <main>
         <div className="grid">
           {classes.map((classItem) => (
-            <div key={classItem.id} className="div-block" onClick={() => handleClassCardClick(classItem)}>
+            <div
+              key={classItem.id}
+              className="div-block"
+              onClick={() => handleClassCardClick(classItem)}
+            >
               <div className="div-block-2">
                 <img
                   src={classItem.imageURL || "/src/assets/classy.jpg"}
