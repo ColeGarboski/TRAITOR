@@ -204,90 +204,89 @@ function Class() {
           </div>
         </div>
       </div>
-      <div className="w-layout-grid grid-3">
-        {/* Assignments */}
-        <div className="div-block-7">
-          <div className="div-block-8">
-            <div className="text-block-13">Assignments</div>
+      <div className="grid-container">
+        <div className="w-layout-grid grid-3">
+          {/* Assignments */}
+          <div className="div-block-7">
+            <div className="div-block-8">
+              <div className="text-block-13">Assignments</div>
+            </div>
+            <div className="div-block-13">
+              {upcomingAssignments.map((assignment, index) => (
+                <div key={index} className="div-block-14">
+                  <div className="text-block-14">
+                    {assignment.assignmentName}
+                    <br />
+                    Due: {assignment.dueDate}
+                  </div>
+                </div>
+              ))}
+            </div>
           </div>
-          <div className="div-block-13">
-            {upcomingAssignments.map((assignment, index) => (
-              <div key={index} className="div-block-14">
-                <div className="text-block-14">
-                  {assignment.assignmentName}
-                  <br />
-                  Due: {assignment.dueDate}
+          {/* Recent Submissions */}
+          {/* Placeholder for dynamic recent submissions, similar structure as assignments */}
+          <div className="div-block-9">
+            <div className="div-block-10">
+              <div className="text-block-13">Recent Submissions</div>
+              <div class="div-block-15">
+                <div class="w-layout-grid grid-4">
+                  <div
+                    id="w-node-_63283496-afac-d614-b3e0-93d3f3f3ebc8-86864658"
+                    class="div-block-16"
+                  >
+                    <div class="text-block-16">
+                      Samuel Tyler
+                      <br />
+                      SETA Showcase
+                    </div>
+                  </div>
+                  <div
+                    id="w-node-_1948e13b-a63a-7610-4248-4837464ed72a-86864658"
+                    class="div-block-16"
+                  >
+                    <div class="text-block-16">
+                      Samuel Tyler
+                      <br />
+                      SETA Showcase
+                    </div>
+                  </div>
+                  <div
+                    id="w-node-_1c2af66f-f038-d641-b575-c78615ccbec1-86864658"
+                    class="div-block-16"
+                  >
+                    <div class="text-block-16">
+                      Samuel Tyler
+                      <br />
+                      SETA Showcase
+                    </div>
+                  </div>
+                  <div
+                    id="w-node-_03eccc87-085b-27df-c00e-2e7ccdb0cb2a-86864658"
+                    class="div-block-16"
+                  >
+                    <div class="text-block-16">
+                      Samuel Tyler
+                      <br />
+                      SETA Showcase
+                    </div>
+                  </div>
                 </div>
               </div>
-            ))}
-          </div>
-        </div>
-        {/* Recent Submissions */}
-        {/* Placeholder for dynamic recent submissions, similar structure as assignments */}
-        <div className="div-block-9">
-          <div className="div-block-10">
-            <div className="text-block-13">Recent Submissions</div>
-            <div class="div-block-15">
-              <div class="w-layout-grid grid-4">
-                <div
-                  id="w-node-_63283496-afac-d614-b3e0-93d3f3f3ebc8-86864658"
-                  class="div-block-16"
-                >
-                  <div class="text-block-16">
-                    Samuel Tyler
-                    <br />
-                    SETA Showcase
-                  </div>
-                </div>
-                <div
-                  id="w-node-_1948e13b-a63a-7610-4248-4837464ed72a-86864658"
-                  class="div-block-16"
-                >
-                  <div class="text-block-16">
-                    Samuel Tyler
-                    <br />
-                    SETA Showcase
-                  </div>
-                </div>
-                <div
-                  id="w-node-_1c2af66f-f038-d641-b575-c78615ccbec1-86864658"
-                  class="div-block-16"
-                >
-                  <div class="text-block-16">
-                    Samuel Tyler
-                    <br />
-                    SETA Showcase
-                  </div>
-                </div>
-                <div
-                  id="w-node-_03eccc87-085b-27df-c00e-2e7ccdb0cb2a-86864658"
-                  class="div-block-16"
-                >
-                  <div class="text-block-16">
-                    Samuel Tyler
-                    <br />
-                    SETA Showcase
+              <div className="div-block-9">
+                <div className="div-block-10">
+                  <div className="text-block-13">Announcements</div>
+                  <div class="text-block-18">
+                    Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed
+                    sed est rhoncus, tincidunt risus in, commodo odio. Phasellus
+                    quam ante, rhoncus id consectetur ut, tristique eu nibh.
                   </div>
                 </div>
               </div>
             </div>
           </div>
         </div>
+
         {/* Announcements */}
-        <div className="div-block-9">
-          <div className="div-block-10">
-            <div className="text-block-13">Announcements</div>
-            <div class="text-block-18">
-              Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed sed
-              est rhoncus, tincidunt risus in, commodo odio. Phasellus quam
-              ante, rhoncus id consectetur ut, tristique eu nibh. Integer
-              efficitur metus et mattis varius. Aenean vel neque odio. Sed
-              gravida sed nibh quis auctor. Aenean sed elit commodo, efficitur
-              metus sed, posuere leo. Aliquam erat volutpat. Quisque auctor mi
-              eget purus varius vehicula.
-            </div>
-          </div>
-        </div>
       </div>
       {showCreateAssignmentModal && (
         <div className="modal">

@@ -2217,6 +2217,13 @@
   font-weight: 900;
 }
 
+.grid-container {
+    justify-content: center; /* Center horizontally */
+    align-items: center; /* Center vertically */
+    height: 100vh; /* Make it as tall as the viewport */
+  }
+  
+
 .grid-3 {
   grid-column-gap: 1rem;
   grid-row-gap: 1rem;
