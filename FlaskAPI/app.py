@@ -89,18 +89,12 @@ def get_token():
 async def analyze_assignment():
     # Extract necessary data from request
     data = request.json
-    #user_id = data.get('user_id')
-    user_id = 'nut'
-    session_token = data.get('session_token')
     file_name = data.get('file_name')
-    teacherID = data.get('teacherID')
     classID = data.get('classID')
     studentID = data.get('studentID')
     assignmentID = data.get('assignmentID')
 
-    # WILL NEED TO CHANGE TO ACCOUNT BASED SYSTEM AFTER LOGIN IS CREATED
-    # firebase_file_path = f"files/{session_token}/{file_name}"
-    firebase_file_path = f"files/{teacherID}/{classID}/{assignmentID}/{studentID}/{file_name}"
+    firebase_file_path = f"files/{classID}/{assignmentID}/{studentID}/{file_name}"
 
     bucket = storage.bucket()
     blob = bucket.blob(firebase_file_path)
@@ -113,11 +107,11 @@ async def analyze_assignment():
     
     # Start background task for analysis and Firebase update
     print("Starting background task for analysis and Firebase update")
-    asyncio.create_task(run_analysis_and_update_db(user_id, file_text, file_stream, teacherID, classID, studentID, assignmentID))
+    asyncio.create_task(run_analysis_and_update_db(file_text, file_stream, classID, studentID, assignmentID))
     
     return jsonify({"message": "Analysis in progress. Results will be updated in the database."})
 
-async def run_analysis_and_update_db(user_id, file_text, file_stream, teacherID, classID, studentID, assignmentID):
+async def run_analysis_and_update_db(file_text, file_stream, classID, studentID, assignmentID):
     
     # Perform analyses
     print("Performing analyses")
@@ -140,11 +134,8 @@ async def run_analysis_and_update_db(user_id, file_text, file_stream, teacherID,
     }
     
     # Update Firebase with the aggregated results
-    #                                     TeacherID                    ClassID                          AssignmentID                     StudentID                    SubmissionID
-    # Example Firestore structure: /Users/DFnnwAeWVC4XHqxPOOjf/Classes/JyvUzZ3CrU4OsQPRKsdu/Assignments/ZCN7hs1ZE20EoowIOmOg/Submisssons/xOpjlkFTKgkIV7WvkQqg/Results/RxeDC31VSlTwuzMnDn2K
     print("Sending results to Firebase")
-    db.collection('Users').document(teacherID)\
-        .collection('Classes').document(classID)\
+    db.collection('Classes').document(classID)\
         .collection('Assignments').document(assignmentID)\
         .collection('Submissions').document(studentID)\
         .collection('Results').add(analysis_results)
@@ -265,10 +256,9 @@ async def file_metadata_analysis(file_stream):
         }
 
 async def ai_model_analysis(file_text):
-
     # Load vectorizer and model
-    vectorizer = joblib.load("tfidf_vectorizer_bigDataSet.pkl")
-    model = joblib.load("logistic_regression_model_bigDataSet.pkl")
+    vectorizer = joblib.load("FlaskAPI/tfidf_vectorizer_bigDataSet.pkl")
+    model = joblib.load("FlaskAPI/logistic_regression_model_bigDataSet.pkl")
 
     # Vectorize the text
     file_text_tfidf = vectorizer.transform([file_text])
@@ -276,11 +266,15 @@ async def ai_model_analysis(file_text):
     # Predict using the AI model
     prediction = model.predict(file_text_tfidf)
     
+    # Convert numpy.int64 to Python int
+    prediction = int(prediction[0])
+    
     return {
         'testName': 'AIModelAnalysis',
         'success': True,
-        'prediction': prediction[0]
+        'prediction': prediction
     }
+
 
 ############################################################################################################################################################################
 # This endpoint is one of our detection methods. It will ask GPT if it wrote the text or not and try to provide reasoning.
