@@ -15,7 +15,7 @@ import {
 } from "firebase/firestore";
 import { ref, uploadBytes } from "firebase/storage";
 import { storage } from "/src/firebase";
-import "/src/ClassTeacherPage.css";
+import "/src/teacherDash.css";
 
 function Class() {
   const location = useLocation();
@@ -158,59 +158,137 @@ function Class() {
 
   return (
     <div className="App">
-      <header className="navbar-logo-left">
+      <div className="navbar-logo-left">
         <div className="navbar-logo-left-container shadow-three">
           <div className="container">
             <div className="navbar-wrapper">
-              <a href="#" className="navbar-brand">
-                <div className="logo">
-                  <img src="src/assets/logo.png" />
+              <a href="#" className="navbar-brand w-nav-brand">
+                <div className="text-block">
+                  TR<em>AI</em>TOR
                 </div>
               </a>
-              <nav className="nav-menu-wrapper">
-                <ul className="nav-menu-two">
+              <nav role="navigation" className="nav-menu-wrapper w-nav-menu">
+                <ul role="list" className="nav-menu-two w-list-unstyled">
                   <li>
-                    <a href="/teacher" className="nav-link">
-                      Class List
+                    <a href="#" className="nav-link">
+                      Classes
                     </a>
                   </li>
                   <li>
-                    <button
-                      className="nav-link"
-                      onClick={fetchUpcomingAssignments}
-                    >
-                      Assignments
-                    </button>
+                    <a href="#" className="nav-link">
+                      Upcoming Assignments
+                    </a>
+                  </li>
+                  <li>
+                    <a href="#" className="nav-link">
+                      Previous Scores
+                    </a>
                   </li>
                   <li>
                     <div className="nav-divider"></div>
                   </li>
-                  {userRole === "teacher" ? (
-                    <li className="mobile-margin-top-10">
-                      <button
-                        onClick={() => setShowCreateAssignmentModal(true)}
-                        className="button-primary"
-                      >
-                        Create Assignment
-                      </button>
-                    </li>
-                  ) : (
-                    <li className="mobile-margin-top-10">
-                      <button
-                        onClick={() => setShowSubmitAssignmentModal(true)}
-                        className="button-primary"
-                      >
-                        Submit Assignment
-                      </button>
-                    </li>
-                  )}
+                  <li className="mobile-margin-top-10">
+                    <button
+                      onClick={() => setShowCreateAssignmentModal(true)}
+                      className="button-primary w-button"
+                    >
+                      Create class
+                    </button>
+                  </li>
                 </ul>
               </nav>
+              <div className="menu-button w-nav-button">
+                <div className="w-icon-nav-menu"></div>
+              </div>
             </div>
           </div>
         </div>
-      </header>
-
+      </div>
+      <div className="w-layout-grid grid-3">
+        {/* Assignments */}
+        <div className="div-block-7">
+          <div className="div-block-8">
+            <div className="text-block-13">Assignments</div>
+          </div>
+          <div className="div-block-13">
+            {upcomingAssignments.map((assignment, index) => (
+              <div key={index} className="div-block-14">
+                <div className="text-block-14">
+                  {assignment.assignmentName}
+                  <br />
+                  Due: {assignment.dueDate}
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+        {/* Recent Submissions */}
+        {/* Placeholder for dynamic recent submissions, similar structure as assignments */}
+        <div className="div-block-9">
+          <div className="div-block-10">
+            <div className="text-block-13">Recent Submissions</div>
+            <div class="div-block-15">
+              <div class="w-layout-grid grid-4">
+                <div
+                  id="w-node-_63283496-afac-d614-b3e0-93d3f3f3ebc8-86864658"
+                  class="div-block-16"
+                >
+                  <div class="text-block-16">
+                    Samuel Tyler
+                    <br />
+                    SETA Showcase
+                  </div>
+                </div>
+                <div
+                  id="w-node-_1948e13b-a63a-7610-4248-4837464ed72a-86864658"
+                  class="div-block-16"
+                >
+                  <div class="text-block-16">
+                    Samuel Tyler
+                    <br />
+                    SETA Showcase
+                  </div>
+                </div>
+                <div
+                  id="w-node-_1c2af66f-f038-d641-b575-c78615ccbec1-86864658"
+                  class="div-block-16"
+                >
+                  <div class="text-block-16">
+                    Samuel Tyler
+                    <br />
+                    SETA Showcase
+                  </div>
+                </div>
+                <div
+                  id="w-node-_03eccc87-085b-27df-c00e-2e7ccdb0cb2a-86864658"
+                  class="div-block-16"
+                >
+                  <div class="text-block-16">
+                    Samuel Tyler
+                    <br />
+                    SETA Showcase
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        {/* Announcements */}
+        <div className="div-block-9">
+          <div className="div-block-10">
+            <div className="text-block-13">Announcements</div>
+            <div class="text-block-18">
+              Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed sed
+              est rhoncus, tincidunt risus in, commodo odio. Phasellus quam
+              ante, rhoncus id consectetur ut, tristique eu nibh. Integer
+              efficitur metus et mattis varius. Aenean vel neque odio. Sed
+              gravida sed nibh quis auctor. Aenean sed elit commodo, efficitur
+              metus sed, posuere leo. Aliquam erat volutpat. Quisque auctor mi
+              eget purus varius vehicula.
+            </div>
+          </div>
+        </div>
+      </div>
       {showCreateAssignmentModal && (
         <div className="modal">
           <div className="modal-content">
@@ -259,7 +337,6 @@ function Class() {
           </div>
         </div>
       )}
-
       {userRole === "student" && showSubmitAssignmentModal && (
         <div className="modal">
           <div className="modal-content">
@@ -276,10 +353,7 @@ function Class() {
                 <select
                   id="assignmentSelect"
                   name="assignmentSelect"
-                  onChange={(e) => {
-                    setAssignmentID(e.target.value);
-                    console.log("Selected Assignment ID:", e.target.value); // Check if this logs the expected value
-                  }}
+                  onChange={(e) => setAssignmentID(e.target.value)}
                 >
                   {upcomingAssignments.map((assignment) => (
                     <option key={assignment.id} value={assignment.id}>
