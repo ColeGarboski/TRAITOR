@@ -140,11 +140,8 @@ async def run_analysis_and_update_db(user_id, file_text, file_stream, teacherID,
     }
     
     # Update Firebase with the aggregated results
-    #                                     TeacherID                    ClassID                          AssignmentID                     StudentID                    SubmissionID
-    # Example Firestore structure: /Users/DFnnwAeWVC4XHqxPOOjf/Classes/JyvUzZ3CrU4OsQPRKsdu/Assignments/ZCN7hs1ZE20EoowIOmOg/Submisssons/xOpjlkFTKgkIV7WvkQqg/Results/RxeDC31VSlTwuzMnDn2K
     print("Sending results to Firebase")
-    db.collection('Users').document(teacherID)\
-        .collection('Classes').document(classID)\
+    db.collection('Classes').document(classID)\
         .collection('Assignments').document(assignmentID)\
         .collection('Submissions').document(studentID)\
         .collection('Results').add(analysis_results)
