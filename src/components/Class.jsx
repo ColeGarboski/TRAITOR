@@ -31,6 +31,7 @@ function Class() {
   const [searchInput, setSearchInput] = useState("");
   const [filteredStudents, setFilteredStudents] = useState([]);
   const [upcomingAssignments, setUpcomingAssignments] = useState([]);
+  const [assignmentResults, setAssignmentResults] = useState([]);
 
   const userRole = useSelector((state) => state.auth.role);
   const userId = useSelector((state) => state.auth.userId);
@@ -109,6 +110,45 @@ function Class() {
 
   const closeModal = () => {
     setShowCreateAssignmentModal(false);
+  };
+
+  const fetchAssignmentResults = async (assignmentId) => {
+    const submissionsRef = collection(
+      db,
+      `Classes/${selectedClass}/Assignments/${assignmentId}/Submissions`
+    );
+    const submissionsSnapshot = await getDocs(submissionsRef);
+
+    const resultsPromises = submissionsSnapshot.docs.map(
+      async (submissionDoc) => {
+        const submissionId = submissionDoc.id;
+        const resultsRef = collection(
+          db,
+          `Classes/${selectedClass}/Assignments/${assignmentId}/Submissions/${submissionId}/Results`
+        );
+        const resultsSnapshot = await getDocs(resultsRef);
+
+        // Since there's only one result per submission, take the first doc
+        const resultDoc = resultsSnapshot.docs[0];
+        if (!resultDoc) {
+          console.error("No result found for submission:", submissionId);
+          return null;
+        }
+
+        return {
+          submissionId,
+          ...resultDoc.data(), // Spread the result data directly into the result object
+        };
+      }
+    );
+
+    const results = await Promise.all(resultsPromises);
+
+    // Filter out any nulls that might have been added due to missing results
+    const filteredResults = results.filter((result) => result !== null);
+
+    setAssignmentResults(filteredResults);
+    console.log("Fetched Results: ", filteredResults);
   };
 
   const createAssignment = async (assignmentData) => {
