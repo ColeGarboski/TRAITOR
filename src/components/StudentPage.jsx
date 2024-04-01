@@ -1,12 +1,26 @@
 import React, { useEffect, useState } from "react";
 import { useSelector } from "react-redux";
-import { getFirestore, collection, query, getDocs } from "firebase/firestore";
+import {
+  getFirestore,
+  collection,
+  query,
+  getDocs,
+  getDoc,
+  where,
+  doc,
+  setDoc,
+} from "firebase/firestore";
 import { useNavigate } from "react-router-dom";
+import useRoleRedirect from "../hooks/useRoleRedirect";
 import "/src/ClassTeacherPage.css";
 
 function StudentPage() {
+  useRoleRedirect("student");
+
   const [classes, setClasses] = useState([]);
   const [assignments, setAssignments] = useState([]);
+  const [showJoinClassModal, setShowJoinClassModal] = useState(false);
+  const [joinCode, setJoinCode] = useState("");
 
   const navigate = useNavigate();
   const studentId = useSelector((state) => state.auth.userId); // Assume Redux store has this info
@@ -14,21 +28,20 @@ function StudentPage() {
 
   useEffect(() => {
     const fetchClasses = async () => {
-      const classesRef = collection(db, `Users/${studentId}/Classes`);
-      const querySnapshot = await getDocs(classesRef);
-      const fetchedClassesPromises = querySnapshot.docs.map(async (doc) => {
-        const classData = { id: doc.id, ...doc.data() };
-        const teacherRef = doc(db, `Users/${classData.teacherId}`);
-        const teacherSnap = await getDocs(teacherRef);
-        if (teacherSnap.exists()) {
-          classData.teacherName = teacherSnap.data().username; // Fetching teacher's username
-        } else {
-          classData.teacherName = "Unknown"; // Fallback if teacher not found
+      const studentClassesRef = collection(db, `Students/${studentId}/Classes`);
+      const querySnapshot = await getDocs(studentClassesRef);
+      const fetchedClassesPromises = querySnapshot.docs.map(async (docRef) => {
+        const classRef = doc(db, `Classes/${docRef.id}`);
+        const classSnap = await getDoc(classRef);
+        if (classSnap.exists()) {
+          return { id: classSnap.id, ...classSnap.data() };
         }
-        return classData;
+        return null;
       });
 
-      const fetchedClasses = await Promise.all(fetchedClassesPromises);
+      const fetchedClasses = (await Promise.all(fetchedClassesPromises)).filter(
+        Boolean
+      );
       setClasses(fetchedClasses);
       fetchUpcomingAssignments(fetchedClasses);
     };
@@ -36,29 +49,68 @@ function StudentPage() {
     fetchClasses();
   }, [studentId, db]);
 
+  const handleJoinClass = async () => {
+    const classesRef = collection(db, "Classes");
+    const q = query(classesRef, where("joinCode", "==", joinCode));
+    const querySnapshot = await getDocs(q);
+
+    if (!querySnapshot.empty) {
+      const classDoc = querySnapshot.docs[0]; // Assuming join codes are unique, there should only be one match.
+
+      // Retrieve student's data
+      const studentRef = doc(db, `Students/${studentId}`);
+      const studentSnap = await getDoc(studentRef);
+
+      if (!studentSnap.exists()) {
+        alert("Student data not found.");
+        return;
+      }
+
+      const { username, email } = studentSnap.data();
+
+      // Add class to student
+      const studentClassRef = doc(
+        db,
+        `Students/${studentId}/Classes`,
+        classDoc.id
+      );
+      await setDoc(studentClassRef, { joinCode });
+
+      // Add student to class with required data
+      const classStudentRef = doc(
+        db,
+        `Classes/${classDoc.id}/Students`,
+        studentId
+      );
+      await setDoc(classStudentRef, { studentId, username, email }); // Now storing additional student info
+
+      alert("Successfully joined the class!");
+    } else {
+      alert("Invalid join code. Please try again.");
+    }
+  };
+
   const fetchUpcomingAssignments = async (fetchedClasses) => {
     const allAssignments = [];
     for (let classInfo of fetchedClasses) {
-      const teacherId = classInfo.teacherId; // Assuming each classData has a teacherId field
       const assignmentsRef = collection(
         db,
-        `Users/${teacherId}/Classes/${classInfo.id}/Assignments`
+        `Classes/${classInfo.id}/Assignments`
       );
       const querySnapshot = await getDocs(assignmentsRef);
       querySnapshot.forEach((doc) => {
-        const assignmentData = {
+        allAssignments.push({
           id: doc.id,
           ...doc.data(),
           classCode: classInfo.classCode,
-        };
-        allAssignments.push(assignmentData);
+        });
       });
     }
     setAssignments(allAssignments);
   };
 
   const handleClassCardClick = (classData) => {
-    navigate('/class', { state: { classData } });
+    navigate("/class", { state: { classData } });
   };
 
   return (
@@ -93,6 +145,12 @@ function StudentPage() {
               </nav>
               <div className="menu-button">
                 <div className="w-icon-nav-menu"></div>
+                <button
+                  onClick={() => setShowJoinClassModal(true)}
+                  className="button-primary"
+                >
+                  Join a Class
+                </button>
               </div>
             </div>
           </div>
@@ -102,7 +160,11 @@ function StudentPage() {
       <main>
         <div className="grid">
           {classes.map((classItem, i) => (
-            <div key={i} className="div-block" onClick={() => handleClassCardClick(classItem)}>
+            <div
+              key={i}
+              className="div-block"
+              onClick={() => handleClassCardClick(classItem)}
+            >
               <div className="div-block-2">
                 <img
                   src="/src/assets/classy.jpg"
@@ -124,6 +186,40 @@ function StudentPage() {
           ))}
         </div>
       </main>
+
+      {showJoinClassModal && (
+        <div className="modal">
+          <div className="modal-content">
+            <span
+              className="close"
+              onClick={() => setShowJoinClassModal(false)}
+            >
+              &times;
+            </span>
+            <h2>Join Class</h2>
+            <form
+              onSubmit={(e) => {
+                e.preventDefault();
+                handleJoinClass();
+              }}
+            >
+              <div className="form-group">
+                <label htmlFor="joinCode">Class Join Code:</label>
+                <input
+                  type="text"
+                  id="joinCode"
+                  value={joinCode}
+                  onChange={(e) => setJoinCode(e.target.value)}
+                  required
+                />
+              </div>
+              <button type="submit" className="button-primary">
+                Join
+              </button>
+            </form>
+          </div>
+        </div>
+      )}
 
       {/* Scripts */}
       <script
