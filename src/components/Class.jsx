@@ -192,7 +192,7 @@ function Class() {
                       onClick={() => setShowCreateAssignmentModal(true)}
                       className="button-primary w-button"
                     >
-                      Create class
+                      Create Assignment
                     </button>
                   </li>
                 </ul>
