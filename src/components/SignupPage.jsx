@@ -117,7 +117,7 @@ function SignupPage() {
 
   return (
     <div className="flex justify-center items-center h-screen bg-gradient-to-r from-blue-400 to-purple-500">
-      <div className="max-w-md mx-auto px-6 py-10 bg-white shadow-lg rounded-xl">
+      <div className="max-w-2xl mx-auto px-6 py-10 bg-white shadow-lg rounded-xl w-1/3">
         <div className="text-center mb-10">
           <img
             src={logo}
@@ -142,57 +142,62 @@ function SignupPage() {
           onSubmit={isActive ? handleSignUp : handleSignIn}
         >
           {isActive && (
-            <div className="flex justify-center items-center mb-4">
-              <label className="text-gray-700 text-sm font-bold mr-2">
-                I am a:
-              </label>
-              <div className="flex items-center space-x-4">
-                <label className="flex items-center">
-                  <input
-                    type="radio"
-                    name="role"
-                    value="student"
-                    checked={!isTeacher}
-                    onChange={() => setIsTeacher(false)}
-                    className="form-radio h-5 w-5 text-purple-600 border-gray-300 focus:ring-purple-500"
-                  />
-                  Student
-                </label>
-                <label className="flex items-center">
-                  <input
-                    type="radio"
-                    name="role"
-                    value="teacher"
-                    checked={isTeacher}
-                    onChange={() => setIsTeacher(true)}
-                    className="form-radio h-5 w-5 text-purple-600 border-gray-300 focus:ring-purple-500"
-                  />
-                  Teacher
-                </label>
+            <>
+              <div className="flex justify-center items-center mb-4">
+                {/* Role Selector */}
               </div>
-            </div>
+              <label
+                htmlFor="UserName"
+                className="block overflow-hidden rounded-md border border-gray-200 px-3 py-2 shadow-sm focus-within:border-blue-600 focus-within:ring-1 focus-within:ring-blue-600"
+              >
+                <span className="text-xs font-medium text-gray-700">
+                  {" "}
+                  Name{" "}
+                </span>
+                <input
+                  type="text"
+                  id="UserName"
+                  placeholder="John Doe"
+                  className="mt-1 w-full border-none p-0 focus:border-transparent focus:outline-none focus:ring-0 sm:text-sm"
+                  value={name}
+                  onChange={(e) => setName(e.target.value)}
+                />
+              </label>
+            </>
           )}
-          <input
-            type="text"
-            placeholder="Name"
-            className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-black"
-            value={name}
-            onChange={(e) => setName(e.target.value)}
-          />
-          <input
-            type="email"
-            placeholder="Email"
-            className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-black"
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
-          />
-          <input
-            type="password"
-            placeholder="Password"
-            className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-black"
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
-          />
+          {/* Email Input */}
+          <label
+            htmlFor="UserEmail"
+            className="block overflow-hidden rounded-md border border-gray-200 px-3 py-2 shadow-sm focus-within:border-blue-600 focus-within:ring-1 focus-within:ring-blue-600"
+          >
+            <span className="text-xs font-medium text-gray-700"> Email </span>
+            <input
+              type="email"
+              id="UserEmail"
+              placeholder="example@email.com"
+              className="mt-1 w-full border-none p-0 focus:border-transparent focus:outline-none focus:ring-0 sm:text-sm"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+            />
+          </label>
+          {/* Password Input */}
+          <label
+            htmlFor="UserPassword" // Updated ID for clarity
+            className="block overflow-hidden rounded-md border border-gray-200 px-3 py-2 shadow-sm focus-within:border-blue-600 focus-within:ring-1 focus-within:ring-blue-600"
+          >
+            <span className="text-xs font-medium text-gray-700">
+              {" "}
+              Password{" "}
+            </span>
+            <input
+              type="password"
+              id="UserPassword" // Updated ID for clarity
+              placeholder="••••••••"
+              className="mt-1 w-full border-none p-0 focus:border-transparent focus:outline-none focus:ring-0 sm:text-sm"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+            />
+          </label>
 
           <button
             type="submit"
