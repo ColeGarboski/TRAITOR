@@ -112,6 +112,43 @@ async def analyze_assignment():
     return jsonify({"message": "Analysis in progress. Results will be updated in the database."})
 
 async def run_analysis_and_update_db(file_text, file_stream, classID, studentID, assignmentID):
+    # Perform analyses
+    print("Performing analyses")
+    print("Asking GPT")
+    ask_gpt_result = await ask_gpt_analysis(file_text)  # Ask GPT if it wrote the text
+    print("Reverse Prompt")
+    reverse_prompt_result = await reverse_prompt_analysis(file_text)  # Reverse engineer the prompt, regenerate the text, and compare the two
+    print("File Metadata")
+    file_metadata_result = await file_metadata_analysis(file_stream)  # Extract metadata from the document and analyze it
+    print("AI Model Analysis")
+    ai_model_result = await ai_model_analysis(file_text)  # Analyze the text using our AI model
+
+    # Aggregate results
+    analysis_results = {
+        "ask_gpt_result": ask_gpt_result,
+        "reverse_prompt_result": reverse_prompt_result,
+        "file_metadata_result": file_metadata_result,
+        "ai_model_result": ai_model_result,
+    }
+
+    # Ensure the existence of ancestor documents
+    classes_doc_ref = db.collection('Classes').document(classID)
+    assignments_doc_ref = classes_doc_ref.collection('Assignments').document(assignmentID)
+    submissions_doc_ref = assignments_doc_ref.collection('Submissions').document(studentID)
+
+    # Check if the documents exist and create them if they don't
+    if not classes_doc_ref.get().exists:
+        classes_doc_ref.set({})
+    if not assignments_doc_ref.get().exists:
+        assignments_doc_ref.set({})
+    if not submissions_doc_ref.get().exists:
+        submissions_doc_ref.set({})
+
+    # Update Firebase with the aggregated results
+    print("Sending results to Firebase")
+    submissions_doc_ref.collection('Results').add(analysis_results)
+
+    print("Results sent to Firebase")
     
     # Perform analyses
     print("Performing analyses")
