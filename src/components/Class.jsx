@@ -38,7 +38,12 @@ function Class() {
   const db = getFirestore();
 
   useEffect(() => {
-    fetchUpcomingAssignments();
+    fetchUpcomingAssignments().then(() => {
+      // Only fetch assignment results if there are upcoming assignments
+      if (upcomingAssignments.length > 0) {
+        fetchAssignmentResults(upcomingAssignments[0].id);
+      }
+    });
   }, []);
 
   const uploadToFirebase = async (file) => {
@@ -118,6 +123,7 @@ function Class() {
       `Classes/${selectedClass}/Assignments/${assignmentId}/Submissions`
     );
     const submissionsSnapshot = await getDocs(submissionsRef);
+    console.log("Submissions: ", submissionsSnapshot.docs)
 
     const resultsPromises = submissionsSnapshot.docs.map(
       async (submissionDoc) => {
@@ -233,6 +239,12 @@ function Class() {
                       className="button-primary w-button"
                     >
                       Create Assignment
+                    </button>
+                    <button
+                      onClick={() => setShowSubmitAssignmentModal(true)}
+                      className="button-primary w-button"
+                    >
+                      Submit Assignment
                     </button>
                   </li>
                 </ul>
