@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { useSelector } from "react-redux";
 import { useNavigate } from "react-router-dom";
+import logo from "/src/assets/logo.png";
 import {
   getFirestore,
   collection,
@@ -193,10 +194,6 @@ function TeacherPage() {
               <h1 class="text-2xl font-bold text-white sm:text-3xl">
                 Welcome Back, Jim!
               </h1>
-
-              <p class="mt-1.5 text-sm text-gray-500">
-                Let's write a new blog post! 🎉
-              </p>
             </div>
 
             <div class="mt-4 flex flex-col gap-4 sm:mt-0 sm:flex-row sm:items-center">
@@ -204,7 +201,7 @@ function TeacherPage() {
                 class="inline-flex items-center justify-center gap-1.5 rounded-lg border border-gray-200 px-5 py-3 text-white transition hover:bg-gray-50 hover:text-gray-700 focus:outline-none focus:ring"
                 type="button"
               >
-                <span class="text-sm font-medium"> View Website </span>
+                <span class="text-sm font-medium"> Assignments </span>
 
                 <svg
                   xmlns="http://www.w3.org/2000/svg"
@@ -223,10 +220,10 @@ function TeacherPage() {
               </button>
 
               <button
-                class="block rounded-lg bg-indigo-600 px-5 py-3 text-sm font-medium text-white transition hover:bg-indigo-700 focus:outline-none focus:ring"
+                class="block rounded-lg px-5 py-3 w-full bg-black text-white hover:bg-white/30 hover:text-white transition duration-300"
                 type="button"
               >
-                Create Post
+                Create Class
               </button>
             </div>
           </div>
@@ -241,141 +238,21 @@ function TeacherPage() {
         </div>
         <div className="grid">
           <article class="hover:animate-background rounded-xl bg-gradient-to-r from-green-300 via-blue-500 to-purple-600 p-0.5 shadow-xl transition hover:bg-[length:400%_400%] hover:shadow-sm hover:[animation-duration:_4s]">
-            <div class="rounded-[10px] bg-white p-4 !pt-20 sm:p-6">
+            <div class="rounded-[10px] bg-white p-4 sm:p-6 h-60 flex flex-col justify-center">
               <time datetime="2022-10-10" class="block text-xs text-gray-500">
                 {" "}
-                10th Oct 2022{" "}
+                Fall Semester{" "}
               </time>
 
               <a href="#">
                 <h3 class="mt-0.5 text-lg font-medium text-gray-900">
-                  How to center an element using JavaScript and jQuery
+                  CS-101 Introduction to Programming
                 </h3>
               </a>
 
-              <div class="mt-4 flex flex-wrap gap-1">
+              <div class="mt-4 flex flex-wrap gap-1 top-4">
                 <span class="whitespace-nowrap rounded-full bg-purple-100 px-2.5 py-0.5 text-xs text-purple-600">
-                  Snippet
-                </span>
-
-                <span class="whitespace-nowrap rounded-full bg-purple-100 px-2.5 py-0.5 text-xs text-purple-600">
-                  JavaScript
-                </span>
-              </div>
-            </div>
-          </article>
-          <article class="hover:animate-background rounded-xl bg-gradient-to-r from-green-300 via-blue-500 to-purple-600 p-0.5 shadow-xl transition hover:bg-[length:400%_400%] hover:shadow-sm hover:[animation-duration:_4s]">
-            <div class="rounded-[10px] bg-white p-4 !pt-20 sm:p-6">
-              <time datetime="2022-10-10" class="block text-xs text-gray-500">
-                {" "}
-                10th Oct 2022{" "}
-              </time>
-
-              <a href="#">
-                <h3 class="mt-0.5 text-lg font-medium text-gray-900">
-                  How to center an element using JavaScript and jQuery
-                </h3>
-              </a>
-
-              <div class="mt-4 flex flex-wrap gap-1">
-                <span class="whitespace-nowrap rounded-full bg-purple-100 px-2.5 py-0.5 text-xs text-purple-600">
-                  Snippet
-                </span>
-
-                <span class="whitespace-nowrap rounded-full bg-purple-100 px-2.5 py-0.5 text-xs text-purple-600">
-                  JavaScript
-                </span>
-              </div>
-            </div>
-          </article>
-          <article class="hover:animate-background rounded-xl bg-gradient-to-r from-green-300 via-blue-500 to-purple-600 p-0.5 shadow-xl transition hover:bg-[length:400%_400%] hover:shadow-sm hover:[animation-duration:_4s]">
-            <div class="rounded-[10px] bg-white p-4 !pt-20 sm:p-6">
-              <time datetime="2022-10-10" class="block text-xs text-gray-500">
-                {" "}
-                10th Oct 2022{" "}
-              </time>
-
-              <a href="#">
-                <h3 class="mt-0.5 text-lg font-medium text-gray-900">
-                  How to center an element using JavaScript and jQuery
-                </h3>
-              </a>
-
-              <div class="mt-4 flex flex-wrap gap-1">
-                <span class="whitespace-nowrap rounded-full bg-purple-100 px-2.5 py-0.5 text-xs text-purple-600">
-                  Snippet
-                </span>
-
-                <span class="whitespace-nowrap rounded-full bg-purple-100 px-2.5 py-0.5 text-xs text-purple-600">
-                  JavaScript
-                </span>
-              </div>
-            </div>
-          </article>
-          <article class="hover:animate-background rounded-xl bg-gradient-to-r from-green-300 via-blue-500 to-purple-600 p-0.5 shadow-xl transition hover:bg-[length:400%_400%] hover:shadow-sm hover:[animation-duration:_4s]">
-            <div class="rounded-[10px] bg-white p-4 !pt-20 sm:p-6">
-              <time datetime="2022-10-10" class="block text-xs text-gray-500">
-                {" "}
-                10th Oct 2022{" "}
-              </time>
-
-              <a href="#">
-                <h3 class="mt-0.5 text-lg font-medium text-gray-900">
-                  How to center an element using JavaScript and jQuery
-                </h3>
-              </a>
-
-              <div class="mt-4 flex flex-wrap gap-1">
-                <span class="whitespace-nowrap rounded-full bg-purple-100 px-2.5 py-0.5 text-xs text-purple-600">
-                  Snippet
-                </span>
-
-                <span class="whitespace-nowrap rounded-full bg-purple-100 px-2.5 py-0.5 text-xs text-purple-600">
-                  JavaScript
-                </span>
-              </div>
-            </div>
-          </article>
-          <article class="hover:animate-background rounded-xl bg-gradient-to-r from-green-300 via-blue-500 to-purple-600 p-0.5 shadow-xl transition hover:bg-[length:400%_400%] hover:shadow-sm hover:[animation-duration:_4s]">
-            <div class="rounded-[10px] bg-white p-4 !pt-20 sm:p-6">
-              <time datetime="2022-10-10" class="block text-xs text-gray-500">
-                {" "}
-                10th Oct 2022{" "}
-              </time>
-
-              <a href="#">
-                <h3 class="mt-0.5 text-lg font-medium text-gray-900">
-                  How to center an element using JavaScript and jQuery
-                </h3>
-              </a>
-
-              <div class="mt-4 flex flex-wrap gap-1">
-                <span class="whitespace-nowrap rounded-full bg-purple-100 px-2.5 py-0.5 text-xs text-purple-600">
-                  Snippet
-                </span>
-
-                <span class="whitespace-nowrap rounded-full bg-purple-100 px-2.5 py-0.5 text-xs text-purple-600">
-                  JavaScript
-                </span>
-              </div>
-            </div>
-          </article>
-          <article class="hover:animate-background rounded-xl bg-gradient-to-r from-green-300 via-blue-500 to-purple-600 p-0.5 shadow-xl transition hover:bg-[length:400%_400%] hover:shadow-sm hover:[animation-duration:_4s]">
-            <div class="rounded-[10px] bg-white p-4 !pt-20 sm:p-6">
-              <time datetime="2022-10-10" class="block text-xs text-gray-500">
-                {" "}
-                10th Oct 2022{" "}
-              </time>
-
-              <a href="#">
-                <h3 class="mt-0.5 text-lg font-medium text-gray-900">
-                  How to center an element using JavaScript and jQuery
-                </h3>
-              </a>
-
-              <div class="mt-4 flex flex-wrap gap-1">
-                <span class="whitespace-nowrap rounded-full bg-purple-100 px-2.5 py-0.5 text-xs text-purple-600">
-                  Snippet
+                  C++
                 </span>
 
                 <span class="whitespace-nowrap rounded-full bg-purple-100 px-2.5 py-0.5 text-xs text-purple-600">
@@ -386,6 +263,14 @@ function TeacherPage() {
           </article>
         </div>
       </main>
+
+      <footer class="">
+        <div class="mx-auto my-32 max-w-screen-xl">
+          <p class="mt-4 text-center text-sm text-gray-500 lg:mt-0 lg:text-center">
+            Traitor &copy; 2023. All rights reserved.
+          </p>
+        </div>
+      </footer>
 
       {showCreateClassModal && (
         <div className="modal">
