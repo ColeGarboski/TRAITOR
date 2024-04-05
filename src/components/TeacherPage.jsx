@@ -35,20 +35,19 @@ function TeacherPage() {
   const fetchData = async () => {
     const teacherClassesRef = collection(db, `Teachers/${teacherId}/Classes`);
     const querySnapshot = await getDocs(teacherClassesRef);
-    const classIds = querySnapshot.docs.map(doc => doc.id);
-  
+    const classIds = querySnapshot.docs.map((doc) => doc.id);
+
     const fetchedClasses = [];
     for (const classId of classIds) {
-      const classRef = doc(db, 'Classes', classId);
+      const classRef = doc(db, "Classes", classId);
       const classSnap = await getDoc(classRef);
       if (classSnap.exists()) {
         fetchedClasses.push({ id: classSnap.id, ...classSnap.data() });
       }
     }
-  
+
     setClasses(fetchedClasses);
   };
-  
 
   useEffect(() => {
     const fetchStudents = async () => {
@@ -91,15 +90,15 @@ function TeacherPage() {
   const fetchExistingJoinCodes = async () => {
     const classesRef = collection(db, "Classes");
     const querySnapshot = await getDocs(classesRef);
-    
+
     const joinCodes = new Set();
-  
+
     querySnapshot.forEach((doc) => {
       if (doc.exists() && doc.data().joinCode) {
         joinCodes.add(doc.data().joinCode);
       }
     });
-  
+
     return joinCodes;
   };
 
@@ -130,23 +129,31 @@ function TeacherPage() {
         joinCode,
         teacherId,
       };
-  
+
       // Add the new class to the 'Classes' collection
-      const classRef = doc(collection(db, 'Classes'));
+      const classRef = doc(collection(db, "Classes"));
       await setDoc(classRef, newClassData);
-  
+
       // Update the teacher's 'Classes' subcollection with the new class ID
-      const teacherClassesRef = doc(db, `Teachers/${teacherId}/Classes`, classRef.id);
+      const teacherClassesRef = doc(
+        db,
+        `Teachers/${teacherId}/Classes`,
+        classRef.id
+      );
       await setDoc(teacherClassesRef, { classId: classRef.id });
-  
-      console.log("Class created with ID: ", classRef.id, " and Join Code: ", joinCode);
+
+      console.log(
+        "Class created with ID: ",
+        classRef.id,
+        " and Join Code: ",
+        joinCode
+      );
       closeModal();
       await fetchData();
     } catch (error) {
       console.error("Error creating class: ", error);
     }
   };
-  
 
   const handleCreateClassFormSubmit = (event) => {
     event.preventDefault();
@@ -179,65 +186,204 @@ function TeacherPage() {
 
   return (
     <div className="App">
-      <header className="navbar-logo-left">
-        <div className="navbar-logo-left-container shadow-three">
-          <div className="container">
-            <div className="navbar-wrapper">
-              <a href="#" className="navbar-brand">
-                <div className="logo">
-                  <img src="src/assets/logo.png" />
-                </div>
-              </a>
-              <nav className="nav-menu-wrapper">
-                <ul className="nav-menu-two">
-                  <li>
-                    <a href="#" className="nav-link">
-                      Class List
-                    </a>
-                  </li>
-                  <li>
-                    <div className="nav-divider"></div>
-                  </li>
-                  <li className="mobile-margin-top-10">
-                    <button
-                      onClick={() => setShowCreateClassModal(true)}
-                      className="button-primary"
-                    >
-                      Create class
-                    </button>
-                  </li>
-                </ul>
-              </nav>
+      <header>
+        <div class="mx-auto max-w-screen-xl px-4 py-8 sm:px-6 sm:py-12 lg:px-8 h-32">
+          <div class="sm:flex sm:items-center sm:justify-between">
+            <div class="text-center sm:text-left">
+              <h1 class="text-2xl font-bold text-white sm:text-3xl">
+                Welcome Back, Jim!
+              </h1>
+
+              <p class="mt-1.5 text-sm text-gray-500">
+                Let's write a new blog post! 🎉
+              </p>
+            </div>
+
+            <div class="mt-4 flex flex-col gap-4 sm:mt-0 sm:flex-row sm:items-center">
+              <button
+                class="inline-flex items-center justify-center gap-1.5 rounded-lg border border-gray-200 px-5 py-3 text-white transition hover:bg-gray-50 hover:text-gray-700 focus:outline-none focus:ring"
+                type="button"
+              >
+                <span class="text-sm font-medium"> View Website </span>
+
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  class="h-4 w-4"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                  stroke="currentColor"
+                  stroke-width="2"
+                >
+                  <path
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"
+                  />
+                </svg>
+              </button>
+
+              <button
+                class="block rounded-lg bg-indigo-600 px-5 py-3 text-sm font-medium text-white transition hover:bg-indigo-700 focus:outline-none focus:ring"
+                type="button"
+              >
+                Create Post
+              </button>
             </div>
           </div>
         </div>
       </header>
 
       <main>
+        <div>
+          <div class="wave"></div>
+          <div class="wave"></div>
+          <div class="wave"></div>
+        </div>
         <div className="grid">
-          {classes.map((classItem) => (
-            <div
-              key={classItem.id}
-              className="div-block"
-              onClick={() => handleClassCardClick(classItem)}
-            >
-              <div className="div-block-2">
-                <img
-                  src={classItem.imageURL || "/src/assets/classy.jpg"}
-                  loading="lazy"
-                  alt=""
-                  className="image"
-                />
-              </div>
-              <div className="text-block-4">{classItem.classCode}</div>
-              <div className="div-block-3">
-                <div className="text-block-5">{classItem.days.join("-")}</div>
-                <div className="text-block-6">
-                  {classItem.startTime}-{classItem.endTime}
-                </div>
+          <article class="hover:animate-background rounded-xl bg-gradient-to-r from-green-300 via-blue-500 to-purple-600 p-0.5 shadow-xl transition hover:bg-[length:400%_400%] hover:shadow-sm hover:[animation-duration:_4s]">
+            <div class="rounded-[10px] bg-white p-4 !pt-20 sm:p-6">
+              <time datetime="2022-10-10" class="block text-xs text-gray-500">
+                {" "}
+                10th Oct 2022{" "}
+              </time>
+
+              <a href="#">
+                <h3 class="mt-0.5 text-lg font-medium text-gray-900">
+                  How to center an element using JavaScript and jQuery
+                </h3>
+              </a>
+
+              <div class="mt-4 flex flex-wrap gap-1">
+                <span class="whitespace-nowrap rounded-full bg-purple-100 px-2.5 py-0.5 text-xs text-purple-600">
+                  Snippet
+                </span>
+
+                <span class="whitespace-nowrap rounded-full bg-purple-100 px-2.5 py-0.5 text-xs text-purple-600">
+                  JavaScript
+                </span>
               </div>
             </div>
-          ))}
+          </article>
+          <article class="hover:animate-background rounded-xl bg-gradient-to-r from-green-300 via-blue-500 to-purple-600 p-0.5 shadow-xl transition hover:bg-[length:400%_400%] hover:shadow-sm hover:[animation-duration:_4s]">
+            <div class="rounded-[10px] bg-white p-4 !pt-20 sm:p-6">
+              <time datetime="2022-10-10" class="block text-xs text-gray-500">
+                {" "}
+                10th Oct 2022{" "}
+              </time>
+
+              <a href="#">
+                <h3 class="mt-0.5 text-lg font-medium text-gray-900">
+                  How to center an element using JavaScript and jQuery
+                </h3>
+              </a>
+
+              <div class="mt-4 flex flex-wrap gap-1">
+                <span class="whitespace-nowrap rounded-full bg-purple-100 px-2.5 py-0.5 text-xs text-purple-600">
+                  Snippet
+                </span>
+
+                <span class="whitespace-nowrap rounded-full bg-purple-100 px-2.5 py-0.5 text-xs text-purple-600">
+                  JavaScript
+                </span>
+              </div>
+            </div>
+          </article>
+          <article class="hover:animate-background rounded-xl bg-gradient-to-r from-green-300 via-blue-500 to-purple-600 p-0.5 shadow-xl transition hover:bg-[length:400%_400%] hover:shadow-sm hover:[animation-duration:_4s]">
+            <div class="rounded-[10px] bg-white p-4 !pt-20 sm:p-6">
+              <time datetime="2022-10-10" class="block text-xs text-gray-500">
+                {" "}
+                10th Oct 2022{" "}
+              </time>
+
+              <a href="#">
+                <h3 class="mt-0.5 text-lg font-medium text-gray-900">
+                  How to center an element using JavaScript and jQuery
+                </h3>
+              </a>
+
+              <div class="mt-4 flex flex-wrap gap-1">
+                <span class="whitespace-nowrap rounded-full bg-purple-100 px-2.5 py-0.5 text-xs text-purple-600">
+                  Snippet
+                </span>
+
+                <span class="whitespace-nowrap rounded-full bg-purple-100 px-2.5 py-0.5 text-xs text-purple-600">
+                  JavaScript
+                </span>
+              </div>
+            </div>
+          </article>
+          <article class="hover:animate-background rounded-xl bg-gradient-to-r from-green-300 via-blue-500 to-purple-600 p-0.5 shadow-xl transition hover:bg-[length:400%_400%] hover:shadow-sm hover:[animation-duration:_4s]">
+            <div class="rounded-[10px] bg-white p-4 !pt-20 sm:p-6">
+              <time datetime="2022-10-10" class="block text-xs text-gray-500">
+                {" "}
+                10th Oct 2022{" "}
+              </time>
+
+              <a href="#">
+                <h3 class="mt-0.5 text-lg font-medium text-gray-900">
+                  How to center an element using JavaScript and jQuery
+                </h3>
+              </a>
+
+              <div class="mt-4 flex flex-wrap gap-1">
+                <span class="whitespace-nowrap rounded-full bg-purple-100 px-2.5 py-0.5 text-xs text-purple-600">
+                  Snippet
+                </span>
+
+                <span class="whitespace-nowrap rounded-full bg-purple-100 px-2.5 py-0.5 text-xs text-purple-600">
+                  JavaScript
+                </span>
+              </div>
+            </div>
+          </article>
+          <article class="hover:animate-background rounded-xl bg-gradient-to-r from-green-300 via-blue-500 to-purple-600 p-0.5 shadow-xl transition hover:bg-[length:400%_400%] hover:shadow-sm hover:[animation-duration:_4s]">
+            <div class="rounded-[10px] bg-white p-4 !pt-20 sm:p-6">
+              <time datetime="2022-10-10" class="block text-xs text-gray-500">
+                {" "}
+                10th Oct 2022{" "}
+              </time>
+
+              <a href="#">
+                <h3 class="mt-0.5 text-lg font-medium text-gray-900">
+                  How to center an element using JavaScript and jQuery
+                </h3>
+              </a>
+
+              <div class="mt-4 flex flex-wrap gap-1">
+                <span class="whitespace-nowrap rounded-full bg-purple-100 px-2.5 py-0.5 text-xs text-purple-600">
+                  Snippet
+                </span>
+
+                <span class="whitespace-nowrap rounded-full bg-purple-100 px-2.5 py-0.5 text-xs text-purple-600">
+                  JavaScript
+                </span>
+              </div>
+            </div>
+          </article>
+          <article class="hover:animate-background rounded-xl bg-gradient-to-r from-green-300 via-blue-500 to-purple-600 p-0.5 shadow-xl transition hover:bg-[length:400%_400%] hover:shadow-sm hover:[animation-duration:_4s]">
+            <div class="rounded-[10px] bg-white p-4 !pt-20 sm:p-6">
+              <time datetime="2022-10-10" class="block text-xs text-gray-500">
+                {" "}
+                10th Oct 2022{" "}
+              </time>
+
+              <a href="#">
+                <h3 class="mt-0.5 text-lg font-medium text-gray-900">
+                  How to center an element using JavaScript and jQuery
+                </h3>
+              </a>
+
+              <div class="mt-4 flex flex-wrap gap-1">
+                <span class="whitespace-nowrap rounded-full bg-purple-100 px-2.5 py-0.5 text-xs text-purple-600">
+                  Snippet
+                </span>
+
+                <span class="whitespace-nowrap rounded-full bg-purple-100 px-2.5 py-0.5 text-xs text-purple-600">
+                  JavaScript
+                </span>
+              </div>
+            </div>
+          </article>
         </div>
       </main>
 

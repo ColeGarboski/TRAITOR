@@ -116,8 +116,8 @@ function SignupPage() {
   };
 
   return (
-    <div className="flex justify-center items-center h-screen bg-gradient-to-r from-blue-400 to-purple-500">
-      <div className="max-w-2xl mx-auto px-6 py-10 bg-white shadow-lg rounded-xl w-1/3">
+    <div className="flex justify-center items-center h-screen">
+      <div className="max-w-2xl mx-auto px-6 py-10 bg-white/30 shadow-lg rounded-xl w-1/3 backdrop-blur-lg border border-gray-200/50">
         <div className="text-center mb-10">
           <img
             src={logo}
@@ -127,7 +127,7 @@ function SignupPage() {
           <h1 className="text-5xl font-bold text-gray-800 mb-4">
             {isActive ? "Sign Up" : "Sign In"}
           </h1>
-          <p className="text-gray-600">
+          <p className="text-white">
             {isActive
               ? "Join our community today."
               : "Welcome back, please sign in."}
@@ -148,9 +148,9 @@ function SignupPage() {
               </div>
               <label
                 htmlFor="UserName"
-                className="block overflow-hidden rounded-md border border-gray-200 px-3 py-2 shadow-sm focus-within:border-blue-600 focus-within:ring-1 focus-within:ring-blue-600"
+                className="block overflow-hidden rounded-md px-3 py-2 shadow-sm bg-white/20"
               >
-                <span className="text-xs font-medium text-gray-700">
+                <span className="text-xs font-medium text-gray-800">
                   {" "}
                   Name{" "}
                 </span>
@@ -158,7 +158,7 @@ function SignupPage() {
                   type="text"
                   id="UserName"
                   placeholder="John Doe"
-                  className="mt-1 w-full border-none p-0 focus:border-transparent focus:outline-none focus:ring-0 sm:text-sm"
+                  className="mt-1 w-full border-none p-0 bg-transparent focus:border-transparent focus:outline-none focus:ring-0 sm:text-sm placeholder-gray-600"
                   value={name}
                   onChange={(e) => setName(e.target.value)}
                 />
@@ -168,32 +168,32 @@ function SignupPage() {
           {/* Email Input */}
           <label
             htmlFor="UserEmail"
-            className="block overflow-hidden rounded-md border border-gray-200 px-3 py-2 shadow-sm focus-within:border-blue-600 focus-within:ring-1 focus-within:ring-blue-600"
+            className="block overflow-hidden rounded-md px-3 py-2 shadow-sm bg-white/20"
           >
-            <span className="text-xs font-medium text-gray-700"> Email </span>
+            <span className="text-xs font-medium text-gray-800"> Email </span>
             <input
               type="email"
               id="UserEmail"
               placeholder="example@email.com"
-              className="mt-1 w-full border-none p-0 focus:border-transparent focus:outline-none focus:ring-0 sm:text-sm"
+              className="mt-1 w-full border-none p-0 bg-transparent focus:border-transparent focus:outline-none focus:ring-0 sm:text-sm placeholder-gray-600"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
             />
           </label>
           {/* Password Input */}
           <label
-            htmlFor="UserPassword" // Updated ID for clarity
-            className="block overflow-hidden rounded-md border border-gray-200 px-3 py-2 shadow-sm focus-within:border-blue-600 focus-within:ring-1 focus-within:ring-blue-600"
+            htmlFor="UserPassword"
+            className="block overflow-hidden rounded-md px-3 py-2 shadow-sm bg-white/20"
           >
-            <span className="text-xs font-medium text-gray-700">
+            <span className="text-xs font-medium text-gray-800">
               {" "}
               Password{" "}
             </span>
             <input
               type="password"
-              id="UserPassword" // Updated ID for clarity
+              id="UserPassword"
               placeholder="••••••••"
-              className="mt-1 w-full border-none p-0 focus:border-transparent focus:outline-none focus:ring-0 sm:text-sm"
+              className="mt-1 w-full border-none p-0 bg-transparent focus:border-transparent focus:outline-none focus:ring-0 sm:text-sm placeholder-gray-600"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
             />
@@ -201,7 +201,7 @@ function SignupPage() {
 
           <button
             type="submit"
-            className="w-full py-3 px-4 bg-gradient-to-r from-blue-400 to-purple-500 text-white rounded-lg hover:bg-blue-700 transition duration-300"
+            className="w-full py-3 px-4 bg-gradient-to-r bg-white/30 text-black rounded-lg hover:bg-black transition duration-300 hover:text-white"
           >
             {isActive ? "Create Account" : "Login"}
           </button>
@@ -210,7 +210,7 @@ function SignupPage() {
         <div className="text-center mt-8">
           <button
             onClick={handleToggle}
-            className="text-purple-600 hover:underline"
+            className="text-white hover:underline hover:text-black"
           >
             {isActive
               ? "Already have an account? Log in"
