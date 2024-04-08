@@ -32,19 +32,23 @@ function Class() {
   const [filteredStudents, setFilteredStudents] = useState([]);
   const [upcomingAssignments, setUpcomingAssignments] = useState([]);
   const [assignmentResults, setAssignmentResults] = useState([]);
+  const [joinCode, setJoinCode] = useState("");
 
   const userRole = useSelector((state) => state.auth.role);
   const userId = useSelector((state) => state.auth.userId);
   const db = getFirestore();
 
   useEffect(() => {
+    setJoinCode(classData.joinCode);
+
     fetchUpcomingAssignments().then(() => {
       // Only fetch assignment results if there are upcoming assignments
       if (upcomingAssignments.length > 0) {
         fetchAssignmentResults(upcomingAssignments[0].id);
       }
     });
-  }, []);
+
+  }, [db, classData]);
 
   const uploadToFirebase = async (file) => {
     if (!file) {
