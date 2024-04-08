@@ -28,6 +28,9 @@ function TeacherPage() {
   const [selectedStudent, setSelectedStudent] = useState("");
   const [searchInput, setSearchInput] = useState("");
   const [filteredStudents, setFilteredStudents] = useState([]);
+  const [topics, setTopics] = useState("");
+  const [semester, setSemester] = useState("");
+  const [username, setUsername] = useState("");
 
   const navigate = useNavigate();
   const teacherId = useSelector((state) => state.auth.userId);
@@ -49,6 +52,21 @@ function TeacherPage() {
 
     setClasses(fetchedClasses);
   };
+
+  useEffect(() => {
+    const fetchUsername = async () => {
+      const teacherRef = doc(db, `Teachers/${teacherId}`);
+      const docSnap = await getDoc(teacherRef);
+
+      if (docSnap.exists()) {
+        setUsername(docSnap.data().username);
+      } else {
+        console.log("No such document!");
+      }
+    };
+
+    fetchUsername();
+  }, [db, teacherId]); // Dependency array to avoid unnecessary re-renders
 
   useEffect(() => {
     const fetchStudents = async () => {
@@ -86,6 +104,8 @@ function TeacherPage() {
     setShowCreateAssignmentModal(false);
     setShowAddStudentModal(false);
     setSelectedDays([]);
+    setTopics("");
+    setSemester("");
   };
 
   const fetchExistingJoinCodes = async () => {
@@ -165,8 +185,13 @@ function TeacherPage() {
       startTime: formData.get("startTime"),
       endTime: formData.get("endTime"),
       days: selectedDays,
+      topics: topics.split(",").map((topic) => topic.trim()),
+      semester: semester,
     };
     createClass(classData);
+
+    setTopics("");
+    setSemester("");
   };
 
   const handleDayChange = (day) => {
@@ -188,40 +213,41 @@ function TeacherPage() {
   return (
     <div className="App">
       <header>
-        <div class="mx-auto max-w-screen-xl px-4 py-8 sm:px-6 sm:py-12 lg:px-8 h-32">
-          <div class="sm:flex sm:items-center sm:justify-between">
-            <div class="text-center sm:text-left">
-              <h1 class="text-2xl font-bold text-white sm:text-3xl">
-                Welcome Back, Jim!
+        <div className="mx-auto max-w-screen-xl px-4 py-8 sm:px-6 sm:py-12 lg:px-8 h-32">
+          <div className="sm:flex sm:items-center sm:justify-between">
+            <div className="text-center sm:text-left">
+              <h1 className="text-2xl font-bold text-white sm:text-3xl">
+                Welcome Back, {username}!
               </h1>
             </div>
 
-            <div class="mt-4 flex flex-col gap-4 sm:mt-0 sm:flex-row sm:items-center">
+            <div className="mt-4 flex flex-col gap-4 sm:mt-0 sm:flex-row sm:items-center">
               <button
-                class="inline-flex items-center justify-center gap-1.5 rounded-lg border border-gray-200 px-5 py-3 text-white transition hover:bg-gray-50 hover:text-gray-700 focus:outline-none focus:ring"
+                className="inline-flex items-center justify-center gap-1.5 rounded-lg border border-gray-200 px-5 py-3 text-white transition hover:bg-gray-50 hover:text-gray-700 focus:outline-none focus:ring"
                 type="button"
               >
-                <span class="text-sm font-medium"> Assignments </span>
+                <span className="text-sm font-medium"> Assignments </span>
 
                 <svg
                   xmlns="http://www.w3.org/2000/svg"
-                  class="h-4 w-4"
+                  className="h-4 w-4"
                   fill="none"
                   viewBox="0 0 24 24"
                   stroke="currentColor"
-                  stroke-width="2"
+                  strokeWidth="2"
                 >
                   <path
-                    stroke-linecap="round"
-                    stroke-linejoin="round"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
                     d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"
                   />
                 </svg>
               </button>
 
               <button
-                class="block rounded-lg px-5 py-3 w-full bg-black text-white hover:bg-white/30 hover:text-white transition duration-300"
+                className="block rounded-lg px-5 py-3 w-full bg-black text-white hover:bg-white/30 hover:text-white transition duration-300"
                 type="button"
+                onClick={() => setShowCreateClassModal(true)}
               >
                 Create Class
               </button>
@@ -232,41 +258,50 @@ function TeacherPage() {
 
       <main>
         <div>
-          <div class="wave"></div>
-          <div class="wave"></div>
-          <div class="wave"></div>
+          <div className="wave"></div>
+          <div className="wave"></div>
+          <div className="wave"></div>
         </div>
         <div className="grid">
-          <article class="hover:animate-background rounded-xl bg-gradient-to-r from-green-300 via-blue-500 to-purple-600 p-0.5 shadow-xl transition hover:bg-[length:400%_400%] hover:shadow-sm hover:[animation-duration:_4s]">
-            <div class="rounded-[10px] bg-white p-4 sm:p-6 h-60 flex flex-col justify-center">
-              <time datetime="2022-10-10" class="block text-xs text-gray-500">
-                {" "}
-                Fall Semester{" "}
-              </time>
+          {classes.map((classItem) => (
+            <article
+              key={classItem.id}
+              className="hover:animate-background rounded-xl bg-gradient-to-r from-green-300 via-blue-500 to-purple-600 p-0.5 shadow-xl transition hover:bg-[length:400%_400%] hover:shadow-sm hover:[animation-duration:_4s]"
+              onClick={() => handleClassCardClick(classItem)}
+            >
+              <div className="rounded-[10px] bg-white p-4 sm:p-6 h-60 flex flex-col justify-center">
+                <time
+                  dateTime="2022-10-10"
+                  className="block text-xs text-gray-500"
+                >
+                  {classItem.semester}
+                </time>
 
-              <a href="#">
-                <h3 class="mt-0.5 text-lg font-medium text-gray-900">
-                  CS-101 Introduction to Programming
-                </h3>
-              </a>
-
-              <div class="mt-4 flex flex-wrap gap-1 top-4">
-                <span class="whitespace-nowrap rounded-full bg-purple-100 px-2.5 py-0.5 text-xs text-purple-600">
-                  C++
-                </span>
-
-                <span class="whitespace-nowrap rounded-full bg-purple-100 px-2.5 py-0.5 text-xs text-purple-600">
-                  JavaScript
-                </span>
+                <a href="#">
+                  <h3 className="mt-0.5 text-lg font-medium text-gray-900">
+                    {`${classItem.classCode} - ${classItem.className}`}{" "}
+                    {/* Updated this line */}
+                  </h3>
+                </a>
+                <div className="mt-4 flex flex-wrap gap-1 top-4">
+                  {classItem.topics.map((topic) => (
+                    <span
+                      key={topic}
+                      className="whitespace-nowrap rounded-full bg-purple-100 px-2.5 py-0.5 text-xs text-purple-600"
+                    >
+                      {topic}
+                    </span>
+                  ))}
+                </div>
               </div>
-            </div>
-          </article>
+            </article>
+          ))}
         </div>
       </main>
 
-      <footer class="">
-        <div class="mx-auto my-32 max-w-screen-xl">
-          <p class="mt-4 text-center text-sm text-gray-500 lg:mt-0 lg:text-center">
+      <footer className="">
+        <div className="mx-auto my-32 max-w-screen-xl">
+          <p className="mt-4 text-center text-sm text-gray-500 lg:mt-0 lg:text-center">
             Traitor &copy; 2023. All rights reserved.
           </p>
         </div>
@@ -290,6 +325,29 @@ function TeacherPage() {
               <div className="form-group">
                 <label htmlFor="startTime">Start Time</label>
                 <input type="time" id="startTime" name="startTime" required />
+              </div>
+              <div className="form-group">
+                <label htmlFor="semester">Semester</label>
+                <input
+                  type="text"
+                  id="semester"
+                  name="semester"
+                  required
+                  value={semester}
+                  onChange={(e) => setSemester(e.target.value)}
+                />
+              </div>
+
+              <div className="form-group">
+                <label htmlFor="topics">Topics (comma-separated)</label>
+                <input
+                  type="text"
+                  id="topics"
+                  name="topics"
+                  required
+                  value={topics}
+                  onChange={(e) => setTopics(e.target.value)}
+                />
               </div>
               <div className="form-group">
                 <label>Days of the Week</label>
