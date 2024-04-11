@@ -28,9 +28,15 @@ const LandingPage = () => {
         setLoading(false);
     };
 
+    const getPredictionText = (prediction) => {
+        return prediction === 1
+            ? "The text is likely AI-generated."
+            : "The text is likely written by a human.";
+    };
+
     return (
         <div className="max-w-xl mx-auto p-4">
-            <h1 className="text-lg font-bold mb-4">AI Text Analyzer</h1>
+            <h1 className="font-bold mb-4 text-5xl text-center text-gray-950">AI Text Analyzer</h1>
             <textarea
                 className="border-2 border-gray-300 w-full p-2 mb-4"
                 rows="6"
@@ -46,14 +52,12 @@ const LandingPage = () => {
                 {loading ? 'Analyzing...' : 'Analyze Text'}
             </button>
             {result && (
-                <div className="mt-4 p-4 border rounded">
-                    <h2 className="font-bold">Results:</h2>
+                <div className="mt-4 p-4 border rounded text-xl text-gray-950">
                     {result.error ? (
                         <p className="text-red-500">{result.error}</p>
                     ) : (
                         <div>
-                            <p><strong>Prediction:</strong> {result.prediction}</p>
-                            <p><strong>Probability:</strong> {`[${result.probability.join(', ')}]`}</p>
+                            <p><strong>Prediction:</strong> {getPredictionText(result.prediction)}</p>
                         </div>
                     )}
                 </div>
