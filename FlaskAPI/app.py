@@ -73,6 +73,29 @@ def after_request(response):
 def hello_world():
     return 'chatgpt nice brother wojak!'
 
+@app.route('/analyze-ai-model', methods=['POST'])
+async def analyze_ai_model():
+    content = request.json.get('text')
+    result = await ai_model_analysis(content)
+    return jsonify(result)
+
+async def ai_model_analysis(text):
+    # Load vectorizer and model
+    vectorizer = joblib.load("FlaskAPI/tfidf_vectorizer_bigDataSet.pkl")
+    model = joblib.load("FlaskAPI/logistic_regression_model_bigDataSet.pkl")
+
+    # Vectorize the text
+    file_text_tfidf = vectorizer.transform([text])
+
+    # Predict using the AI model
+    prediction = model.predict(file_text_tfidf)
+    
+    # Convert numpy.int64 to Python int
+    prediction = int(prediction[0])
+    return {
+        'prediction': int(prediction[0]),
+    }
+
 # This endpoint is called when a user opens the page. It will generate a new session token so they can use the app without logging in.
 @app.route('/set-token')
 def set_token():
