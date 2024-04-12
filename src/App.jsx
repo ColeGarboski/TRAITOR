@@ -9,6 +9,7 @@ import TeacherPage from "./components/TeacherPage.jsx";
 import StudentPage from "./components/StudentPage.jsx";
 import Class from "./components/Class.jsx";
 import UpcommingAssignments from "./components/UpcommingAssignments.jsx";
+import Assignment from "./components/Assignment.jsx";
 
 //import './App.css';
 
@@ -29,6 +30,7 @@ function App() {
               path="/assignments"
               element={<UpcommingAssignments />}
             ></Route>
+            <Route path="/assignment" element={<Assignment />}></Route>
           </Routes>
         </div>
       </Router>
