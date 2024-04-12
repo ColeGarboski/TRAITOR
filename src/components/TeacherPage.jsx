@@ -309,14 +309,22 @@ function TeacherPage() {
 
       {showCreateClassModal && (
         <div className="modal">
-          <div className="modal-content">
+          <div className="max-w-2xl mx-auto px-6 py-10 bg-white/30 shadow-lg rounded-xl w-1/3 backdrop-blur-lg border border-gray-200/50">
             <span className="close" onClick={closeModal}>
               &times;
             </span>
             <form onSubmit={handleCreateClassFormSubmit}>
               <div className="form-group">
-                <label htmlFor="classCode">Class Code</label>
-                <input type="text" id="classCode" name="classCode" required />
+                <label htmlFor="classCode" class=" font-medium text-gray-800">
+                  Class Code
+                </label>
+                <input
+                  type="text"
+                  class="block overflow-hidden rounded-md px-3 py-2 shadow-sm bg-white/20"
+                  id="classCode"
+                  name="classCode"
+                  required
+                />
               </div>
               <div className="form-group">
                 <label htmlFor="className">Class Name</label>
@@ -379,7 +387,10 @@ function TeacherPage() {
                 <label htmlFor="endTime">End Time</label>
                 <input type="time" id="endTime" name="endTime" required />
               </div>
-              <button type="submit" className="button-primary">
+              <button
+                type="submit"
+                class="block rounded-lg px-5 py-3 w-full bg-black text-white hover:bg-white/30 hover:text-white transition duration-300"
+              >
                 Create Class
               </button>
             </form>
