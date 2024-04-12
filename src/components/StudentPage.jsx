@@ -136,7 +136,7 @@ function StudentPage() {
           <div className="sm:flex sm:items-center sm:justify-between">
             <div className="text-center sm:text-left">
               <h1 className="text-2xl font-bold text-white sm:text-3xl">
-                Welcome Back, {username}!
+                Welcome back, {username}!
               </h1>
             </div>
 
@@ -188,7 +188,7 @@ function StudentPage() {
               className="hover:animate-background rounded-xl bg-gradient-to-r from-green-300 via-blue-500 to-purple-600 p-0.5 shadow-xl transition hover:bg-[length:400%_400%] hover:shadow-sm hover:[animation-duration:_4s]"
               onClick={() => handleClassCardClick(classItem)}
             >
-              <div className="rounded-[10px] bg-white p-4 sm:p-6 h-60 flex flex-col justify-center">
+              <div className="rounded-[10px] bg-white p-4 sm:p-6 h-60 w-60 flex flex-col justify-center">
                 <time
                   dateTime="2022-10-10"
                   className="block text-xs text-gray-500"

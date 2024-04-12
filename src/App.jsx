@@ -8,6 +8,7 @@ import SignupPage from "/src/components/SignupPage";
 import TeacherPage from "./components/TeacherPage.jsx";
 import StudentPage from "./components/StudentPage.jsx";
 import Class from "./components/Class.jsx";
+import UpcommingAssignments from "./components/UpcommingAssignments.jsx";
 
 //import './App.css';
 
@@ -24,6 +25,10 @@ function App() {
             <Route path="/teacher" element={<TeacherPage />}></Route>
             <Route path="/student" element={<StudentPage />}></Route>
             <Route path="/class" element={<Class />}></Route>
+            <Route
+              path="/assignments"
+              element={<UpcommingAssignments />}
+            ></Route>
           </Routes>
         </div>
       </Router>
