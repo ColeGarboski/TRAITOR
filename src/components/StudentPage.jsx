@@ -132,7 +132,7 @@ function StudentPage() {
   };
 
   const handleAssignmentsButtonClick = () =>{
-    navigate("/assignments");
+    navigate("/assignments", { state: { assignments } });
   };
 
   return (

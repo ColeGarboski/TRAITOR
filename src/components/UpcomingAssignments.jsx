@@ -1,24 +1,20 @@
 import React, { useEffect, useState } from "react";
 import { useSelector } from "react-redux";
-import { useNavigate } from "react-router-dom";
-import logo from "/src/assets/logo.png";
+import { useNavigate, useLocation } from "react-router-dom";
 import {
   getFirestore,
-  collection,
-  query,
-  where,
-  getDocs,
-  getDoc,
   doc,
-  setDoc,
+  getDoc,
 } from "firebase/firestore";
 
-function UpcommingAssignments() {
+function UpcomingAssignments() {
   const [username, setUsername] = useState("");
   const userId = useSelector((state) => state.auth.userId);
   const userRole = useSelector((state) => state.auth.role);
-
   const navigate = useNavigate();
+  const { state } = useLocation();  // Retrieve state passed from previous component
+  const assignments = state?.assignments || [];  // Default to an empty array if no assignments were passed
+
   const db = getFirestore();
 
   useEffect(() => {
@@ -34,7 +30,18 @@ function UpcommingAssignments() {
     };
 
     fetchUsername();
-  }, [db, userId]); // Dependency array to avoid unnecessary re-renders
+
+    console.log(assignments);
+  }, [db, userId, userRole]);
+
+  // Function to convert Firestore timestamp to JavaScript Date object
+  const convertFirestoreTimestampToDate = (timestamp) => {
+    return new Date(timestamp.seconds * 1000);  // Convert seconds to milliseconds
+  };
+
+  const handleAssignmentClick = (assignment) => {
+    navigate('/assignment', { state: { assignment } });
+  };
 
   return (
     <div className="App">
@@ -46,7 +53,6 @@ function UpcommingAssignments() {
                 Welcome back, {username}!
               </h1>
             </div>
-
             <div className="mt-4 flex flex-col gap-4 sm:mt-0 sm:flex-row sm:items-center">
               <button
                 onClick={() => navigate(-1)}
@@ -59,35 +65,20 @@ function UpcommingAssignments() {
           </div>
         </div>
       </header>
-      <main style={{ display: "flex", justifyContent: "center" }}>
-        <div>
-          <div className="wave"></div>
-          <div className="wave"></div>
-          <div className="wave"></div>
-        </div>
-        <fieldset class="space-y-4">
-          <legend class="sr-only">Delivery</legend>
-          <div>
-            <label
-              for="DeliveryStandard"
-              class="flex cursor-pointer items-center w-96 h-20 justify-between gap-4 rounded-lg border border-gray-100 bg-white p-4 text-sm font-medium shadow-sm hover:border-gray-200"
-            >
-              <p class="text-gray-700">Microkernal Presentation</p>
-              <p class="text-gray-900">April 12</p>
-              <input
-                type="radio"
-                name="DeliveryOption"
-                value="DeliveryStandard"
-                id="DeliveryStandard"
-                class="sr-only"
-                checked
-              />
-            </label>
-          </div>
+      <main style={{ display: "flex", justifyContent: "center", flexDirection: "column", alignItems: "center" }}>
+        <fieldset className="space-y-4 w-full max-w-md">
+          <legend className="sr-only">Assignments</legend>
+          {assignments.map((assignment, index) => (
+            <div key={index} className="flex cursor-pointer items-center justify-between gap-4 rounded-lg border border-gray-100 bg-white p-4 text-sm font-medium shadow-sm hover:border-gray-200"
+                 onClick={() => handleAssignmentClick(assignment)}>
+              <p className="text-gray-700">{assignment.assignmentName}</p>
+              <p className="text-gray-900">{convertFirestoreTimestampToDate(assignment.endTime).toLocaleDateString()}</p>
+            </div>
+          ))}
         </fieldset>
       </main>
     </div>
   );
 }
 
-export default UpcommingAssignments;
+export default UpcomingAssignments;
