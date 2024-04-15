@@ -10,6 +10,7 @@ import StudentPage from "./components/StudentPage.jsx";
 import Class from "./components/Class.jsx";
 import UpcommingAssignments from "./components/UpcommingAssignments.jsx";
 import Assignment from "./components/Assignment.jsx";
+import Results from "./components/Results.jsx";
 
 //import './App.css';
 
@@ -21,7 +22,6 @@ function App() {
           <Routes>
             <Route path="/" element={<LandingPage />}></Route>
             <Route path="/home" element={<HomePage />}></Route>
-            <Route path="/results" element={<ResultsPage />}></Route>
             <Route path="/signup" element={<SignupPage />}></Route>
             <Route path="/teacher" element={<TeacherPage />}></Route>
             <Route path="/student" element={<StudentPage />}></Route>
@@ -31,6 +31,7 @@ function App() {
               element={<UpcommingAssignments />}
             ></Route>
             <Route path="/assignment" element={<Assignment />}></Route>
+            <Route path="/results" element={<Results />}></Route>
           </Routes>
         </div>
       </Router>
