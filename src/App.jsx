@@ -11,6 +11,7 @@ import Class from "./components/Class.jsx";
 import UpcomingAssignments from "./components/UpcomingAssignments.jsx";
 import Assignment from "./components/Assignment.jsx";
 import Results from "./components/Results.jsx";
+import TeacherAssignmentView from "./components/teacherAssignmentView.jsx";
 
 //import './App.css';
 
@@ -32,6 +33,10 @@ function App() {
             ></Route>
             <Route path="/assignment" element={<Assignment />}></Route>
             <Route path="/results" element={<Results />}></Route>
+            <Route
+              path="/teacherassignment"
+              element={<TeacherAssignmentView />}
+            ></Route>
           </Routes>
         </div>
       </Router>

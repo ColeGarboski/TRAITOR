@@ -166,7 +166,7 @@ function Assignment() {
           >
             Detailed information about the assignment can go here.
           </p>
-          <div className="mt-4 flex flex-col gap-4 justify-center algsm:mt-0 sm:flex-row sm:items-center pt-14">
+          <div className="mt-4 flex flex-col gap-4 justify-center algsm:mt-0 sm:flex-row sm:items-center pt-10">
             <button
               onClick={() => setShowSubmitModal(true)}
               className="relative flex h-[50px] w-40 items-center rounded-lg justify-center overflow-hidden bg-gray-800 text-white shadow-2xl transition-all before:absolute before:h-0 before:w-0 before:rounded-full before:bg-purple-600 before:duration-500 before:ease-out hover:before:h-56 hover:before:w-56"
