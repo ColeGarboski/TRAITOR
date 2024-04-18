@@ -33,12 +33,12 @@ function TeacherPage() {
   const [username, setUsername] = useState("");
 
   const navigate = useNavigate();
-  const teacherId = useSelector((state) => state.auth.userId);
+  const userId = useSelector((state) => state.auth.userId);
   const userRole = useSelector((state) => state.auth.role);
   const db = getFirestore();
 
   const fetchData = async () => {
-    const teacherClassesRef = collection(db, `Teachers/${teacherId}/Classes`);
+    const teacherClassesRef = collection(db, `Teachers/${userId}/Classes`);
     const querySnapshot = await getDocs(teacherClassesRef);
     const classIds = querySnapshot.docs.map((doc) => doc.id);
 
@@ -98,7 +98,7 @@ function TeacherPage() {
 
   useEffect(() => {
     fetchData();
-  }, [teacherId, db]); // Dependency array ensures fetchData is called when these values change
+  }, [userId, db]); // Dependency array ensures fetchData is called when these values change
 
   const closeModal = () => {
     setShowCreateClassModal(false);
@@ -149,7 +149,7 @@ function TeacherPage() {
       const newClassData = {
         ...classData,
         joinCode,
-        teacherId,
+        userId,
       };
 
       // Add the new class to the 'Classes' collection
@@ -159,7 +159,7 @@ function TeacherPage() {
       // Update the teacher's 'Classes' subcollection with the new class ID
       const teacherClassesRef = doc(
         db,
-        `Teachers/${teacherId}/Classes`,
+        `Teachers/${userId}/Classes`,
         classRef.id
       );
       await setDoc(teacherClassesRef, { classId: classRef.id });
@@ -211,9 +211,9 @@ function TeacherPage() {
     navigate("/class", { state: { classData } });
   };
 
-  const handleAssignmentsButtonClick = () =>{
-    navigate("/assignments");
-  };
+  /*const handleAssignmentsButtonClick = () =>{
+    navigate("/assignments", { state: { assignments } });
+  };*/
 
   return (
     <div className="App">
@@ -227,7 +227,7 @@ function TeacherPage() {
             </div>
 
             <div className="mt-4 flex flex-col gap-4 sm:mt-0 sm:flex-row sm:items-center">
-              <button
+              {/* <button
                 className="inline-flex items-center justify-center gap-1.5 rounded-lg border border-gray-200 px-5 py-3 text-white transition hover:bg-gray-50 hover:text-gray-700 focus:outline-none focus:ring"
                 type="button"
               >
@@ -247,7 +247,7 @@ function TeacherPage() {
                     d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"
                   />
                 </svg>
-              </button>
+              </button> */}
 
               <button
                 className="block rounded-lg px-5 py-3 w-full bg-black text-white hover:bg-white/30 hover:text-white transition duration-300"
@@ -256,7 +256,7 @@ function TeacherPage() {
               >
                 Create Class
               </button>
-            </div>
+            </div>   
           </div>
         </div>
       </header>

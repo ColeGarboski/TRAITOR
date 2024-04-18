@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { useSelector } from "react-redux";
-import { useLocation } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
 import axios from "axios";
 import {
   getFirestore,
@@ -37,6 +37,7 @@ function Class() {
   const userRole = useSelector((state) => state.auth.role);
   const userId = useSelector((state) => state.auth.userId);
   const db = getFirestore();
+  const navigate = useNavigate();
 
   useEffect(() => {
     setJoinCode(classData.joinCode);
@@ -221,9 +222,9 @@ function Class() {
               <nav role="navigation" className="nav-menu-wrapper w-nav-menu">
                 <ul role="list" className="nav-menu-two w-list-unstyled">
                   <li>
-                    <a href="#" className="nav-link">
+                    <button onClick={() => navigate(-1)} className="nav-link">
                       Classes
-                    </a>
+                    </button>
                   </li>
                   <li>
                     <a href="#" className="nav-link">

@@ -31,30 +31,13 @@ function Results() {
   const [username, setUsername] = useState("");
 
   const navigate = useNavigate();
-  const teacherId = useSelector((state) => state.auth.userId);
+  const userId = useSelector((state) => state.auth.userId);
   const db = getFirestore();
-
-  const fetchData = async () => {
-    const teacherClassesRef = collection(db, `Teachers/${teacherId}/Classes`);
-    const querySnapshot = await getDocs(teacherClassesRef);
-    const classIds = querySnapshot.docs.map((doc) => doc.id);
-
-    const fetchedClasses = [];
-    for (const classId of classIds) {
-      const classRef = doc(db, "Classes", classId);
-      const classSnap = await getDoc(classRef);
-      if (classSnap.exists()) {
-        fetchedClasses.push({ id: classSnap.id, ...classSnap.data() });
-      }
-    }
-
-    setClasses(fetchedClasses);
-  };
 
   useEffect(() => {
     const fetchUsername = async () => {
-      const teacherRef = doc(db, `Teachers/${teacherId}`);
-      const docSnap = await getDoc(teacherRef);
+      const userRef = doc(db, `${userRole === "teacher" ? "Teachers" : "Students"}/${userId}`);
+      const docSnap = await getDoc(userRef);
 
       if (docSnap.exists()) {
         setUsername(docSnap.data().username);
@@ -64,149 +47,7 @@ function Results() {
     };
 
     fetchUsername();
-  }, [db, teacherId]); // Dependency array to avoid unnecessary re-renders
-
-  useEffect(() => {
-    const fetchStudents = async () => {
-      if (searchInput === "" || !showAddStudentModal) {
-        setFilteredStudents([]);
-        return;
-      }
-
-      const usersRef = collection(db, "Users");
-      const q = query(usersRef, where("role", "==", "student"));
-      const querySnapshot = await getDocs(q);
-      const studentsData = [];
-      querySnapshot.forEach((doc) => {
-        // Push both username and userId (UID) to studentsData
-        studentsData.push({ username: doc.data().username, userId: doc.id });
-      });
-
-      // Filter based on username match with searchInput
-      const filtered = studentsData.filter((student) =>
-        student.username.toLowerCase().includes(searchInput.toLowerCase())
-      );
-
-      setFilteredStudents(filtered);
-    };
-
-    fetchStudents();
-  }, [searchInput, showAddStudentModal, db]);
-
-  useEffect(() => {
-    fetchData();
-  }, [teacherId, db]); // Dependency array ensures fetchData is called when these values change
-
-  const closeModal = () => {
-    setShowCreateClassModal(false);
-    setShowCreateAssignmentModal(false);
-    setShowAddStudentModal(false);
-    setSelectedDays([]);
-    setTopics("");
-    setSemester("");
-  };
-
-  const fetchExistingJoinCodes = async () => {
-    const classesRef = collection(db, "Classes");
-    const querySnapshot = await getDocs(classesRef);
-
-    const joinCodes = new Set();
-
-    querySnapshot.forEach((doc) => {
-      if (doc.exists() && doc.data().joinCode) {
-        joinCodes.add(doc.data().joinCode);
-      }
-    });
-
-    return joinCodes;
-  };
-
-  const generateJoinCode = () => {
-    const characters = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
-    let result = "";
-    const charactersLength = characters.length;
-    for (let i = 0; i < 15; i++) {
-      result += characters.charAt(Math.floor(Math.random() * charactersLength));
-    }
-    return result;
-  };
-
-  const generateUniqueJoinCode = async () => {
-    const existingCodes = await fetchExistingJoinCodes();
-    let newCode;
-    do {
-      newCode = generateJoinCode();
-    } while (existingCodes.has(newCode));
-    return newCode;
-  };
-
-  const createClass = async (classData) => {
-    try {
-      const joinCode = await generateUniqueJoinCode();
-      const newClassData = {
-        ...classData,
-        joinCode,
-        teacherId,
-      };
-
-      // Add the new class to the 'Classes' collection
-      const classRef = doc(collection(db, "Classes"));
-      await setDoc(classRef, newClassData);
-
-      // Update the teacher's 'Classes' subcollection with the new class ID
-      const teacherClassesRef = doc(
-        db,
-        `Teachers/${teacherId}/Classes`,
-        classRef.id
-      );
-      await setDoc(teacherClassesRef, { classId: classRef.id });
-
-      console.log(
-        "Class created with ID: ",
-        classRef.id,
-        " and Join Code: ",
-        joinCode
-      );
-      closeModal();
-      await fetchData();
-    } catch (error) {
-      console.error("Error creating class: ", error);
-    }
-  };
-
-  const handleCreateClassFormSubmit = (event) => {
-    event.preventDefault();
-    const formData = new FormData(event.target);
-    const classData = {
-      classCode: formData.get("classCode"),
-      className: formData.get("className"),
-      startTime: formData.get("startTime"),
-      endTime: formData.get("endTime"),
-      days: selectedDays,
-      topics: topics.split(",").map((topic) => topic.trim()),
-      semester: semester,
-    };
-    createClass(classData);
-
-    setTopics("");
-    setSemester("");
-  };
-
-  const handleDayChange = (day) => {
-    setSelectedDays((prev) => {
-      if (prev.includes(day)) {
-        // If the day is already selected, remove it
-        return prev.filter((d) => d !== day);
-      } else {
-        // Otherwise, add the day to the selected days
-        return [...prev, day];
-      }
-    });
-  };
-
-  const handleClassCardClick = (classData) => {
-    navigate("/class", { state: { classData } });
-  };
+  }, [db, userId]);
 
   return (
     <div className="App">
