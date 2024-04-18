@@ -34,6 +34,7 @@ function TeacherPage() {
 
   const navigate = useNavigate();
   const teacherId = useSelector((state) => state.auth.userId);
+  const userRole = useSelector((state) => state.auth.role);
   const db = getFirestore();
 
   const fetchData = async () => {
@@ -55,8 +56,8 @@ function TeacherPage() {
 
   useEffect(() => {
     const fetchUsername = async () => {
-      const teacherRef = doc(db, `Teachers/${teacherId}`);
-      const docSnap = await getDoc(teacherRef);
+      const userRef = doc(db, `${userRole === "teacher" ? "Teachers" : "Students"}/${userId}`);
+      const docSnap = await getDoc(userRef);
 
       if (docSnap.exists()) {
         setUsername(docSnap.data().username);
@@ -66,7 +67,7 @@ function TeacherPage() {
     };
 
     fetchUsername();
-  }, [db, teacherId]); // Dependency array to avoid unnecessary re-renders
+  }, [db, userId]); // Dependency array to avoid unnecessary re-renders
 
   useEffect(() => {
     const fetchStudents = async () => {
@@ -210,6 +211,10 @@ function TeacherPage() {
     navigate("/class", { state: { classData } });
   };
 
+  const handleAssignmentsButtonClick = () =>{
+    navigate("/assignments");
+  };
+
   return (
     <div className="App">
       <header>
@@ -226,7 +231,7 @@ function TeacherPage() {
                 className="inline-flex items-center justify-center gap-1.5 rounded-lg border border-gray-200 px-5 py-3 text-white transition hover:bg-gray-50 hover:text-gray-700 focus:outline-none focus:ring"
                 type="button"
               >
-                <span className="text-sm font-medium"> Assignments </span>
+                <span className="text-sm font-medium" onClick={handleAssignmentsButtonClick}> Assignments </span>
 
                 <svg
                   xmlns="http://www.w3.org/2000/svg"

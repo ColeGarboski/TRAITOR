@@ -25,6 +25,8 @@ function StudentPage() {
 
   const navigate = useNavigate();
   const studentId = useSelector((state) => state.auth.userId); // Assume Redux store has this info
+  const userId = useSelector((state) => state.auth.userId);
+  const userRole = useSelector((state) => state.auth.role);
   const db = getFirestore();
 
   useEffect(() => {
@@ -52,8 +54,8 @@ function StudentPage() {
 
   useEffect(() => {
     const fetchUsername = async () => {
-      const studentRef = doc(db, `Students/${studentId}`);
-      const docSnap = await getDoc(studentRef);
+      const userRef = doc(db, `${userRole === "teacher" ? "Teachers" : "Students"}/${userId}`);
+      const docSnap = await getDoc(userRef);
 
       if (docSnap.exists()) {
         setUsername(docSnap.data().username);
@@ -63,7 +65,7 @@ function StudentPage() {
     };
 
     fetchUsername();
-  }, [db, studentId]); // Dependency array to avoid unnecessary re-renders
+  }, [db, userId]); // Dependency array to avoid unnecessary re-renders
 
   const handleJoinClass = async () => {
     const classesRef = collection(db, "Classes");
@@ -129,6 +131,10 @@ function StudentPage() {
     navigate("/class", { state: { classData } });
   };
 
+  const handleAssignmentsButtonClick = () =>{
+    navigate("/assignments", { state: { assignments } });
+  };
+
   return (
     <div className="App">
       <header>
@@ -145,7 +151,7 @@ function StudentPage() {
                 className="inline-flex items-center justify-center gap-1.5 rounded-lg border border-gray-200 px-5 py-3 text-white transition hover:bg-gray-50 hover:text-gray-700 focus:outline-none focus:ring"
                 type="button"
               >
-                <span className="text-sm font-medium"> Assignments </span>
+                <span className="text-sm font-medium" onClick={handleAssignmentsButtonClick}> Assignments </span>
 
                 <svg
                   xmlns="http://www.w3.org/2000/svg"

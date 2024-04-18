@@ -8,7 +8,7 @@ import SignupPage from "/src/components/SignupPage";
 import TeacherPage from "./components/TeacherPage.jsx";
 import StudentPage from "./components/StudentPage.jsx";
 import Class from "./components/Class.jsx";
-import UpcommingAssignments from "./components/UpcommingAssignments.jsx";
+import UpcomingAssignments from "./components/UpcomingAssignments.jsx";
 import Assignment from "./components/Assignment.jsx";
 import Results from "./components/Results.jsx";
 import TeacherAssignmentView from "./components/teacherAssignmentView.jsx";
@@ -29,7 +29,7 @@ function App() {
             <Route path="/class" element={<Class />}></Route>
             <Route
               path="/assignments"
-              element={<UpcommingAssignments />}
+              element={<UpcomingAssignments />}
             ></Route>
             <Route path="/assignment" element={<Assignment />}></Route>
             <Route path="/results" element={<Results />}></Route>

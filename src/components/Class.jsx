@@ -175,6 +175,7 @@ function Class() {
       await setDoc(assignmentRef, {
         ...assignmentData,
         endTime: formattedEndTime, // Store the converted Timestamp
+        classId: selectedClass,
       });
 
       console.log("Assignment created with ID: ", assignmentRef.id);
