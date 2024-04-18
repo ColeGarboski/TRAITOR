@@ -14,7 +14,7 @@ import {
 } from "firebase/firestore";
 import useRoleRedirect from "../hooks/useRoleRedirect";
 
-function Assignment() {
+function teacherAssignmentView() {
   const [classes, setClasses] = useState([]);
   const [showCreateClassModal, setShowCreateClassModal] = useState(false);
   const [showCreateAssignmentModal, setShowCreateAssignmentModal] =
@@ -233,59 +233,77 @@ function Assignment() {
           <div className="wave"></div>
         </div>
 
-        <a
-          href="#"
-          class=" h-96 w-1/2 relative block overflow-hidden rounded-lg border bg-white border-gray-100 p-4 sm:p-6 lg:p-8"
-        >
-          <span class="absolute inset-x-0 bottom-0 h-2 bg-gradient-to-r from-green-300 via-blue-500 to-purple-600"></span>
+        <div class="overflow-x-auto">
+          <table class="min-w-full divide-y-2 divide-gray-200 bg-white text-sm rounded-lg">
+            <thead class="ltr:text-left rtl:text-right">
+              <tr>
+                <th class="whitespace-nowrap px-4 py-2 font-medium text-gray-900">
+                  Student
+                </th>
+                <th class="whitespace-nowrap px-4 py-2 font-medium text-gray-900">
+                  Submission Date
+                </th>
+                <th class="whitespace-nowrap px-4 py-2 font-medium text-gray-900">
+                  Assignment
+                </th>
+                <th class="whitespace-nowrap px-4 py-2 font-medium text-gray-900">
+                  Score
+                </th>
+                <th class="px-4 py-2"></th>
+              </tr>
+            </thead>
 
-          <div class="sm:flex sm:justify-between sm:gap-4">
-            <div>
-              <h3 class="text-lg font-bold text-gray-900 sm:text-xl">
-                Microkernal Presentation
-              </h3>
+            <tbody class="divide-y divide-gray-200">
+              <tr>
+                <td class="whitespace-nowrap px-4 py-2 font-medium text-gray-900">
+                  John Doe
+                </td>
+                <td class="whitespace-nowrap px-4 py-2 text-gray-700">
+                  April 11
+                </td>
+                <td class="whitespace-nowrap px-4 py-2 text-gray-700">
+                  Microkernal Presentation
+                </td>
+                <td class="whitespace-nowrap px-4 py-2 text-gray-700">
+                  90/100
+                </td>
+                <td class="whitespace-nowrap px-4 py-2">
+                  <a
+                    href="#"
+                    class="relative flex h-[32px] items-center justify-center rounded overflow-hidden bg-gray-800 text-white shadow-2xl transition-all before:absolute before:h-0 before:w-0 before:rounded-full before:bg-orange-600 before:duration-500 before:ease-out hover:before:h-56 hover:before:w-56"
+                  >
+                    <span class="relative z-10 text-xs">View</span>
+                  </a>
+                </td>
+              </tr>
 
-              <p class="mt-1 text-xs font-medium text-gray-600">Dastan Banae</p>
-            </div>
-          </div>
-
-          <div class="mt-4 w-full">
-            <p
-              class="text-pretty text-sm text-gray-500"
-              style={{ maxHeight: "100px", overflowY: "auto" }}
-            >
-              Lorem ipsum dolor sit, amet consectetur adipisicing elit. At velit
-              illum provident a, ipsa maiores deleniti consectetur nobis et
-              eaque. Lorem ipsum dolor sit, amet consectetur adipisicing elit.
-              At velit illum provident a, ipsa maiores deleniti consectetur
-              nobis et eaque. Lorem ipsum dolor sit, amet consectetur
-              adipisicing elit. At velit illum provident a, ipsa maiores
-              deleniti consectetur nobis et eaque. Lorem ipsum dolor sit, amet
-            </p>
-          </div>
-
-          <div className="mt-4 flex flex-col gap-4 justify-center  algsm:mt-0 sm:flex-row sm:items-center pt-10">
-            <button class="relative flex h-[50px] w-40 items-center rounded-lg justify-center overflow-hidden bg-gray-800 text-white shadow-2xl transition-all before:absolute before:h-0 before:w-0 before:rounded-full before:bg-purple-600 before:duration-500 before:ease-out hover:before:h-56 hover:before:w-56">
-              <span class="relative z-10">Submit</span>
-            </button>
-          </div>
-
-          <dl class="mt-6 flex gap-4 justify-center sm:gap-6">
-            <div class="flex flex-col-reverse">
-              <dt class="text-sm font-medium text-gray-600">April 6</dt>
-              <dd class="text-xs text-gray-500">Posted</dd>
-            </div>
-
-            <div class="flex flex-col-reverse">
-              <dt class="text-sm font-medium text-gray-600">April 12</dt>
-              <dd class="text-xs text-gray-500">Due</dd>
-            </div>
-          </dl>
-        </a>
+              <tr>
+                <td class="whitespace-nowrap px-4 py-2 font-medium text-gray-900">
+                  Jane Doe
+                </td>
+                <td class="whitespace-nowrap px-4 py-2 text-gray-700">
+                  April 12
+                </td>
+                <td class="whitespace-nowrap px-4 py-2 text-gray-700">
+                  Microkernal Presentation
+                </td>
+                <td class="whitespace-nowrap px-4 py-2 text-gray-700">0/100</td>
+                <td class="whitespace-nowrap px-4 py-2">
+                  <a
+                    href="#"
+                    class="relative flex h-[32px] w-20 items-center justify-center rounded overflow-hidden bg-gray-800 text-white shadow-2xl transition-all before:absolute before:h-0 before:w-0 before:rounded-full before:bg-orange-600 before:duration-500 before:ease-out hover:before:h-56 hover:before:w-56"
+                  >
+                    <span class="relative z-10 text-xs">View</span>
+                  </a>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
       </main>
       )
     </div>
   );
 }
 
-export default Assignment;
+export default teacherAssignmentView;
