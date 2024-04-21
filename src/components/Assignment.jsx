@@ -21,7 +21,10 @@ function Assignment() {
 
   useEffect(() => {
     const fetchUserData = async () => {
-      const userRef = doc(db, `${userRole === "teacher" ? "Teachers" : "Students"}/${userId}`);
+      const userRef = doc(
+        db,
+        `${userRole === "teacher" ? "Teachers" : "Students"}/${userId}`
+      );
       const docSnap = await getDoc(userRef);
 
       if (docSnap.exists()) {
