@@ -123,12 +123,31 @@ async def run_analysis_and_update_db(file_text, file_stream, classID, studentID,
     print("AI Model Analysis")
     ai_model_result = await ai_model_analysis(file_text)  # Analyze the text using our AI model
 
+    AlgoResult = float( reverse_prompt_result['comparison_results'] ) # whatever algo got....0-1
+    ModelResult = float( ai_model_result['prediction']  )# whatever model got...0 or 1
+
+    # now we can just adjust these weights here to get different final result
+    ModelWeight = 0  # 0-1
+    AlgoWeight = 0  # 1 - ModelWeight
+
+    if ModelResult == 0:  # if AI says its human
+        ModelWeight = 0.8
+        AlgoWeight = 0.2
+    if ModelResult == 1:  # if AI says its AI
+        ModelWeight = 0.3
+        AlgoWeight = 0.7
+
+    FinalResult = ModelResult * ModelWeight + AlgoResult * AlgoWeight
+
+
+
     # Aggregate results
     analysis_results = {
         "ask_gpt_result": ask_gpt_result,
         "reverse_prompt_result": reverse_prompt_result,
         "file_metadata_result": file_metadata_result,
         "ai_model_result": ai_model_result,
+        "final_score": FinalResult
     }
 
     # Ensure the existence of ancestor documents
