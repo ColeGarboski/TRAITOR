@@ -24,15 +24,14 @@ function StudentPage() {
   const [username, setUsername] = useState("");
 
   const navigate = useNavigate();
-  const studentId = useSelector((state) => state.auth.userId); // Assume Redux store has this info
   const userId = useSelector((state) => state.auth.userId);
   const userRole = useSelector((state) => state.auth.role);
   const db = getFirestore();
 
   useEffect(() => {
     const fetchClasses = async () => {
-      const studentClassesRef = collection(db, `Students/${studentId}/Classes`);
-      const querySnapshot = await getDocs(studentClassesRef);
+      const userClassesRef = collection(db, `Students/${userId}/Classes`);
+      const querySnapshot = await getDocs(userClassesRef);
       const fetchedClassesPromises = querySnapshot.docs.map(async (docRef) => {
         const classRef = doc(db, `Classes/${docRef.id}`);
         const classSnap = await getDoc(classRef);
@@ -50,7 +49,7 @@ function StudentPage() {
     };
 
     fetchClasses();
-  }, [studentId, db]);
+  }, [userId, db]);
 
   useEffect(() => {
     const fetchUsername = async () => {
@@ -76,7 +75,7 @@ function StudentPage() {
       const classDoc = querySnapshot.docs[0]; // Assuming join codes are unique, there should only be one match.
 
       // Retrieve student's data
-      const studentRef = doc(db, `Students/${studentId}`);
+      const studentRef = doc(db, `Students/${userId}`);
       const studentSnap = await getDoc(studentRef);
 
       if (!studentSnap.exists()) {
@@ -89,7 +88,7 @@ function StudentPage() {
       // Add class to student
       const studentClassRef = doc(
         db,
-        `Students/${studentId}/Classes`,
+        `Students/${userId}/Classes`,
         classDoc.id
       );
       await setDoc(studentClassRef, { joinCode });
@@ -98,9 +97,9 @@ function StudentPage() {
       const classStudentRef = doc(
         db,
         `Classes/${classDoc.id}/Students`,
-        studentId
+        userId
       );
-      await setDoc(classStudentRef, { studentId, username, email }); // Now storing additional student info
+      await setDoc(classStudentRef, { userId, username, email }); // Now storing additional student info
 
       alert("Successfully joined the class!");
     } else {

@@ -10,6 +10,7 @@ import {
   getDocs,
   doc,
   setDoc,
+  getDoc,
   Timestamp,
   orderBy,
 } from "firebase/firestore";
@@ -42,12 +43,18 @@ function Class() {
   useEffect(() => {
     setJoinCode(classData.joinCode);
 
-    fetchUpcomingAssignments().then(() => {
-      // Only fetch assignment results if there are upcoming assignments
-      if (upcomingAssignments.length > 0) {
-        fetchAssignmentResults(upcomingAssignments[0].id);
+    const fetchAndStoreAssignmentResults = async () => {
+      const fetchedAssignments = await fetchUpcomingAssignments();
+      const results = [];
+      for (const assignment of fetchedAssignments) {
+        const assignmentResult = await fetchAssignmentResults(assignment.id);
+        results.push(...assignmentResult);
       }
-    });
+      setAssignmentResults(results);
+      console.log("All fetched results:", results);
+    };
+
+    fetchAndStoreAssignmentResults();
   }, [db, classData]);
 
   const uploadToFirebase = async (file) => {
@@ -122,44 +129,45 @@ function Class() {
   };
 
   const fetchAssignmentResults = async (assignmentId) => {
-    const submissionsRef = collection(
-      db,
-      `Classes/${selectedClass}/Assignments/${assignmentId}/Submissions`
-    );
-    const submissionsSnapshot = await getDocs(submissionsRef);
-    console.log("Submissions: ", submissionsSnapshot.docs);
+  // Reference to the specific assignment to get its name
+  const assignmentRef = doc(db, `Classes/${selectedClass}/Assignments/${assignmentId}`);
+  const assignmentSnapshot = await getDoc(assignmentRef);
+  const assignmentName = assignmentSnapshot.exists() ? assignmentSnapshot.data().assignmentName : "Unknown Assignment";
 
-    const resultsPromises = submissionsSnapshot.docs.map(
-      async (submissionDoc) => {
-        const submissionId = submissionDoc.id;
-        const resultsRef = collection(
-          db,
-          `Classes/${selectedClass}/Assignments/${assignmentId}/Submissions/${submissionId}/Results`
-        );
-        const resultsSnapshot = await getDocs(resultsRef);
+  const submissionsRef = collection(db, `Classes/${selectedClass}/Assignments/${assignmentId}/Submissions`);
+  const submissionsSnapshot = await getDocs(submissionsRef);
+  console.log("Submissions: ", submissionsSnapshot.docs)
 
-        // Since there's only one result per submission, take the first doc
-        const resultDoc = resultsSnapshot.docs[0];
-        if (!resultDoc) {
-          console.error("No result found for submission:", submissionId);
-          return null;
-        }
+  const resultsPromises = submissionsSnapshot.docs.map(async (submissionDoc) => {
+    const studentId = submissionDoc.id;
 
-        return {
-          submissionId,
-          ...resultDoc.data(), // Spread the result data directly into the result object
-        };
-      }
-    );
+    // Fetch the student's username
+    const studentRef = doc(db, `Students/${studentId}`);
+    const studentSnapshot = await getDoc(studentRef);
+    const studentUsername = studentSnapshot.exists() ? studentSnapshot.data().username : "Unknown Student";
 
-    const results = await Promise.all(resultsPromises);
+    const resultsRef = collection(db, `Classes/${selectedClass}/Assignments/${assignmentId}/Submissions/${studentId}/Results`);
+    const resultsSnapshot = await getDocs(resultsRef);
 
-    // Filter out any nulls that might have been added due to missing results
-    const filteredResults = results.filter((result) => result !== null);
+    // Since there's only one result per submission, take the first doc
+    const resultDoc = resultsSnapshot.docs[0];
+    if (!resultDoc) {
+      console.error("No result found for submission:", studentId);
+      return null;
+    }
 
-    setAssignmentResults(filteredResults);
-    console.log("Fetched Results: ", filteredResults);
-  };
+    return {
+      studentName: studentUsername, // return student's name instead of ID
+      assignmentName, // return the name of the assignment
+      ...resultDoc.data(), // Spread the result data directly into the result object
+    };
+  });
+
+  const results = await Promise.all(resultsPromises);
+  const filteredResults = results.filter((result) => result !== null); // Filter out any nulls that might have been added due to missing results
+  return filteredResults;
+};
+
 
   const createAssignment = async (assignmentData) => {
     try {
@@ -186,88 +194,158 @@ function Class() {
   };
 
   const fetchUpcomingAssignments = async () => {
-    try {
-      const assignmentsRef = collection(
-        db,
-        `Classes/${selectedClass}/Assignments`
-      );
-      const q = query(assignmentsRef, orderBy("endTime"));
-      const querySnapshot = await getDocs(q);
+    const assignmentsRef = collection(db, `Classes/${selectedClass}/Assignments`);
+    const q = query(assignmentsRef, orderBy("endTime"));
+    const querySnapshot = await getDocs(q);
 
-      const assignments = [];
-      querySnapshot.forEach((doc) => {
-        assignments.push({ id: doc.id, ...doc.data() });
-      });
+    const assignments = [];
+    querySnapshot.forEach((doc) => {
+      assignments.push({ id: doc.id, ...doc.data() });
+    });
 
-      setUpcomingAssignments(assignments);
+    setUpcomingAssignments(assignments);  // This now solely updates the state
+    console.log("Fetched Assignments: ", assignments);
+    return assignments;  // This returns the assignments for immediate use
+  };
 
-      console.log("Fetched Assignments: ", assignments);
-    } catch (error) {
-      console.error("Error fetching assignments: ", error);
-    }
+  const handlePreviousScoresClick = () => {
+    navigate('/submissions', { state: { submissions: assignmentResults } });
   };
 
   return (
     <div className="App">
-      <header>
-        <div className="mx-auto max-w-screen-xl px-4 py-8 sm:px-6 sm:py-12 lg:px-8 h-32">
-          <div className="sm:flex sm:items-center sm:justify-between">
-            <div className="text-center sm:text-left">
-              <h1 className="text-2xl font-bold text-white sm:text-3xl">
-                TRAITOR
-              </h1>
+      <div className="navbar-logo-left">
+        <div className="navbar-logo-left-container shadow-three">
+          <div className="container">
+            <div className="navbar-wrapper">
+              <a href="#" className="navbar-brand w-nav-brand">
+                <div className="text-block">
+                  TR<em>AI</em>TOR
+                </div>
+              </a>
+              <nav role="navigation" className="nav-menu-wrapper w-nav-menu">
+                <ul role="list" className="nav-menu-two w-list-unstyled">
+                  <li>
+                    <button onClick={() => navigate(-1)} className="nav-link">
+                      Classes
+                    </button>
+                  </li>
+                  <li>
+                    <a href="#" className="nav-link">
+                      Upcoming Assignments
+                    </a>
+                  </li>
+                  <li><button onClick={handlePreviousScoresClick} className="nav-link">Previous Scores</button></li>
+                  <li>
+                    <div className="nav-divider"></div>
+                  </li>
+                  <li className="mobile-margin-top-10">
+                    <button
+                      onClick={() => setShowCreateAssignmentModal(true)}
+                      className="button-primary w-button"
+                    >
+                      Create Assignment
+                    </button>
+                    <button
+                      onClick={() => setShowSubmitAssignmentModal(true)}
+                      className="button-primary w-button"
+                    >
+                      Submit Assignment
+                    </button>
+                  </li>
+                </ul>
+              </nav>
+              <div className="menu-button w-nav-button">
+                <div className="w-icon-nav-menu"></div>
+              </div>
             </div>
-
-            <div className="mt-4 flex flex-col gap-4 sm:mt-0 sm:flex-row sm:items-center">
-              <button
-                onClick={() => navigate(-1)}
-                className="block rounded-lg px-5 py-3 w-full bg-black text-white hover:bg-white/30 hover:text-white transition duration-300"
-                type="button"
-              >
-                Go back
-              </button>
-            </div>
-          </div>
-        </div>
-      </header>
-      <div class="grid grid-cols-2 grid-rows-2 gap-2">
-        <div class="w-full h-full hover:animate-background rounded-xl bg-gradient-to-r from-green-300 via-blue-500 to-purple-600 p-0.5 shadow-xl transition hover:bg-[length:400%_400%] hover:shadow-sm hover:[animation-duration:_4s] row-span-2">
-          <div class="rounded-[10px] bg-white p-4 sm:p-6 flex flex-col h-full">
-            <h3 class="text-lg font-medium text-gray-900">
-              Upcoming Assignments
-            </h3>
-            {/* <main style={{ display: "flex", justifyContent: "center", flexDirection: "column", alignItems: "center" }}>
-                <fieldset className="space-y-4 w-full max-w-md">
-                    <legend className="sr-only">Assignments</legend>
-                    {assignments.map((assignment, index) => (
-                        <div key={index} className="flex cursor-pointer items-center justify-between gap-4 rounded-lg border border-gray-100 bg-white p-4 text-sm font-medium shadow-sm hover:border-gray-200"
-                             onClick={() => handleAssignmentClick(assignment)}>
-                            <p className="text-gray-700">{assignment.assignmentName}</p>
-                            <p className="text-gray-900">{convertFirestoreTimestampToDate(assignment.endTime).toLocaleDateString()}</p>
-                        </div>
-                    ))}
-                </fieldset>
-            </main> */}
-            {/* </div> */}
-          </div>
-        </div>
-
-        <div class="h-full w-full hover:animate-background rounded-xl bg-gradient-to-r from-green-300 via-blue-500 to-purple-600 p-0.5 shadow-xl transition hover:bg-[length:400%_400%] hover:shadow-sm hover:[animation-duration:_4s]">
-          <div class="rounded-[10px] bg-white p-4 sm:p-6 h-full flex flex-col">
-            <h3 class="text-lg font-medium text-gray-900">
-              Recent Submissions
-            </h3>
-          </div>
-        </div>
-
-        <div class="h-full w-full hover:animate-background rounded-xl bg-gradient-to-r from-green-300 via-blue-500 to-purple-600 p-0.5 shadow-xl transition hover:bg-[length:400%_400%] hover:shadow-sm hover:[animation-duration:_4s]">
-          <div class="rounded-[10px] bg-white p-4 sm:p-6 h-full flex flex-col">
-            <h3 class="text-lg font-medium text-gray-900">Announcement</h3>
           </div>
         </div>
       </div>
+      <div className="grid-container">
+        <div className="w-layout-grid grid-3">
+          {/* Assignments */}
+          <div className="div-block-7">
+            <div className="div-block-8">
+              <div className="text-block-13">Assignments</div>
+            </div>
+            <div className="div-block-13">
+              {upcomingAssignments.map((assignment, index) => (
+                <div key={index} className="div-block-14">
+                  <div className="text-block-14">
+                    {assignment.assignmentName}
+                    <br />
+                    Due: {assignment.dueDate}
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+          {/* Recent Submissions */}
+          {/* Placeholder for dynamic recent submissions, similar structure as assignments */}
+          <div className="div-block-9">
+            <div className="div-block-10">
+              <div className="text-block-13">Recent Submissions</div>
+              <div class="div-block-15">
+                <div class="w-layout-grid grid-4">
+                  <div
+                    id="w-node-_63283496-afac-d614-b3e0-93d3f3f3ebc8-86864658"
+                    class="div-block-16"
+                  >
+                    <div class="text-block-16">
+                      Samuel Tyler
+                      <br />
+                      SETA Showcase
+                    </div>
+                  </div>
+                  <div
+                    id="w-node-_1948e13b-a63a-7610-4248-4837464ed72a-86864658"
+                    class="div-block-16"
+                  >
+                    <div class="text-block-16">
+                      Samuel Tyler
+                      <br />
+                      SETA Showcase
+                    </div>
+                  </div>
+                  <div
+                    id="w-node-_1c2af66f-f038-d641-b575-c78615ccbec1-86864658"
+                    class="div-block-16"
+                  >
+                    <div class="text-block-16">
+                      Samuel Tyler
+                      <br />
+                      SETA Showcase
+                    </div>
+                  </div>
+                  <div
+                    id="w-node-_03eccc87-085b-27df-c00e-2e7ccdb0cb2a-86864658"
+                    class="div-block-16"
+                  >
+                    <div class="text-block-16">
+                      Samuel Tyler
+                      <br />
+                      SETA Showcase
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <div className="div-block-9">
+                <div className="div-block-10">
+                  <div className="text-block-13">Announcements</div>
+                  <div class="text-block-18">
+                    Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed
+                    sed est rhoncus, tincidunt risus in, commodo odio. Phasellus
+                    quam ante, rhoncus id consectetur ut, tristique eu nibh.
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
 
-      {/* Announcements */}
+        {/* Announcements */}
+      </div>
       {showCreateAssignmentModal && (
         <div className="modal">
           <div className="modal-content">

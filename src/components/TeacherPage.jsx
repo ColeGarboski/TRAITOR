@@ -56,7 +56,10 @@ function TeacherPage() {
 
   useEffect(() => {
     const fetchUsername = async () => {
-      const userRef = doc(db, `${userRole === "teacher" ? "Teachers" : "Students"}/${userId}`);
+      const userRef = doc(
+        db,
+        `${userRole === "teacher" ? "Teachers" : "Students"}/${userId}`
+      );
       const docSnap = await getDoc(userRef);
 
       if (docSnap.exists()) {
@@ -256,7 +259,7 @@ function TeacherPage() {
               >
                 Create Class
               </button>
-            </div>   
+            </div>
           </div>
         </div>
       </header>
@@ -282,12 +285,10 @@ function TeacherPage() {
                   {classItem.semester}
                 </time>
 
-                <a href="#">
-                  <h3 className="mt-0.5 text-lg font-medium text-gray-900">
-                    {`${classItem.classCode} - ${classItem.className}`}{" "}
-                    {/* Updated this line */}
-                  </h3>
-                </a>
+                <h3 className="mt-0.5 text-lg font-medium text-gray-900">
+                  {`${classItem.classCode} - ${classItem.className}`}{" "}
+                  {/* Updated this line */}
+                </h3>
                 <div className="mt-4 flex flex-wrap gap-1 top-4">
                   {classItem.topics.map((topic) => (
                     <span
