@@ -1,123 +1,89 @@
-import React, { useEffect, useState } from "react";
-import { useSelector } from "react-redux";
-import { useNavigate } from "react-router-dom";
-import logo from "/src/assets/logo.png";
+import React from "react";
+import { useLocation } from "react-router-dom";
 import thinking from "/src/assets/thinking.svg";
-import {
-  getFirestore,
-  collection,
-  query,
-  where,
-  getDocs,
-  getDoc,
-  doc,
-  setDoc,
-} from "firebase/firestore";
-import useRoleRedirect from "../hooks/useRoleRedirect";
 
 function Results() {
-  const [classes, setClasses] = useState([]);
-  const [showCreateClassModal, setShowCreateClassModal] = useState(false);
-  const [showCreateAssignmentModal, setShowCreateAssignmentModal] =
-    useState(false);
-  const [showAddStudentModal, setShowAddStudentModal] = useState(false);
-  const [selectedDays, setSelectedDays] = useState([]);
-  const [selectedClass, setSelectedClass] = useState("");
-  const [selectedStudent, setSelectedStudent] = useState("");
-  const [searchInput, setSearchInput] = useState("");
-  const [filteredStudents, setFilteredStudents] = useState([]);
-  const [topics, setTopics] = useState("");
-  const [semester, setSemester] = useState("");
-  const [username, setUsername] = useState("");
-
-  const navigate = useNavigate();
-  const userId = useSelector((state) => state.auth.userId);
-  const db = getFirestore();
-
-  useEffect(() => {
-    const fetchUsername = async () => {
-      const userRef = doc(db, `${userRole === "teacher" ? "Teachers" : "Students"}/${userId}`);
-      const docSnap = await getDoc(userRef);
-
-      if (docSnap.exists()) {
-        setUsername(docSnap.data().username);
-      } else {
-        console.log("No such document!");
-      }
-    };
-
-    fetchUsername();
-  }, [db, userId]);
+  const { state } = useLocation();  // Assume state is passed as { submission: {...} }
+  const { submission } = state;
 
   return (
     <div className="App">
       <header>
-        <div className="mx-auto max-w-screen-xl px-4 py-8 sm:px-6 sm:py-12 lg:px-8 h-32">
+        <div className="mx-auto max-w-screen-xl px-4 py-8 sm:px-6 sm:py-12 lg:px-8">
           <div className="sm:flex sm:items-center sm:justify-between">
-            <div className="text-center sm:text-left">
-              <h1 className="text-2xl font-bold text-white sm:text-3xl">
-                Welcome back, {username}!
-              </h1>
-            </div>
-
-            <div className="mt-4 flex flex-col gap-4 sm:mt-0 sm:flex-row sm:items-center">
-              <button class="relative flex h-[50px] w-40 items-center rounded-lg justify-center overflow-hidden bg-gray-800 text-white shadow-2xl transition-all before:absolute before:h-0 before:w-0 before:rounded-full before:bg-orange-600 before:duration-500 before:ease-out hover:before:h-56 hover:before:w-56">
-                <span class="relative z-10">Go back</span>
-              </button>
-            </div>
+            <h1 className="text-2xl font-bold text-gray-800 sm:text-3xl">
+              Results for {submission.assignmentName}
+            </h1>
           </div>
         </div>
       </header>
       <main className="flex flex-col items-center">
-        <h1 className="text-2xl font-bold text-white sm:text-3xl pb-5">
-          Assignment Name
-        </h1>
-        <article class="rounded-xl border-2 border-gray-100 bg-white overflow-y-auto max-w-4xl mx-auto">
-          <div class="flex items-start gap-4 p-4 sm:p-6 lg:p-8">
-            <a href="#" class="block shrink-0">
+        <h2 className="text-lg font-bold text-gray-800 sm:text-xl mb-4">
+          Student: {submission.studentName}
+        </h2>
+
+        {Object.entries(submission).filter(([key]) => key.includes('_result') && key !== 'comparison_results' && key !== 'reverse_prompt_result').map(([key, result]) => (
+          <article key={key} className="rounded-xl border-2 border-gray-100 bg-white p-6 overflow-hidden shadow-lg mb-4 max-w-4xl w-full">
+            <div className="flex items-start gap-4">
               <img
                 alt="Thinking icon"
                 src={thinking}
-                class="h-14 w-14 rounded-lg object-cover"
+                className="h-14 w-14 rounded-full object-cover"
               />
-            </a>
-
-            <div class="flex-1 min-w-0">
-              <h3 class="font-medium sm:text-lg">
-                <p>Does ChatGPT think the submission is AI-generated?</p>
-              </h3>
-
-              <p class="text-sm text-gray-700">
-                Lorem ipsum dolor, sit amet consectetur adipisicing elit.
-                Accusamus, accusantium temporibus iure delectus ut totam natus
-                nesciunt ex? Ducimus, enim.
-              </p>
+              <div className="flex-1 min-w-0">
+                <h3 className="text-xl font-semibold">{result.testName}</h3>
+                {result.description && (
+                  <p className="text-sm text-gray-700 mt-2">{result.description}</p>
+                )}
+                {result.response && (
+                  <p className="text-sm text-gray-700 mt-2 whitespace-pre-line">{result.response}</p>
+                )}
+                {typeof result.prediction !== 'undefined' && (
+                  <p className="text-sm text-gray-700 mt-2">Prediction: {result.prediction ? 'AI-generated' : 'Human-written'}</p>
+                )}
+              </div>
             </div>
-          </div>
+            <div className="flex justify-end mt-4">
+              <span className={`inline-flex items-center gap-1 rounded-lg px-3 py-1.5 text-white ${result.success ? 'bg-green-500' : 'bg-red-500'}`}>
+                <span>{result.success ? 'Passed' : 'Failed'}</span>
+              </span>
+            </div>
+          </article>
+        ))}
 
-          <div class="flex justify-end">
-            <strong class="-mb-[2px] -me-[2px] inline-flex items-center gap-1 rounded-ee-xl rounded-ss-xl bg-green-600 px-3 py-1.5 text-white">
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                class="h-4 w-4"
-                fill="none"
-                viewBox="0 0 24 24"
-                stroke="currentColor"
-                stroke-width="2"
-              >
-                <path
-                  stroke-linecap="round"
-                  stroke-linejoin="round"
-                  d="M9 12l2 2 4-4M7.835 4.697a3.42 3.42 0 001.946-.806 3.42 3.42 0 014.438 0 3.42 3.42 0 001.946.806 3.42 3.42 0 013.138 3.138 3.42 3.42 0 00.806 1.946 3.42 3.42 0 010 4.438 3.42 3.42 0 00-.806 1.946 3.42 3.42 0 01-3.138 3.138 3.42 3.42 0 00-1.946.806 3.42 3.42 0 01-4.438 0 3.42 3.42 0 00-1.946-.806 3.42 3.42 0 01-3.138-3.138 3.42 3.42 0 00-.806-1.946 3.42 3.42 0 010-4.438 3.42 3.42 0 00.806-1.946 3.42 3.42 0 013.138-3.138z"
-                />
-              </svg>
-
-              <span class="text-[10px] font-medium sm:text-xs">Passed!</span>
-            </strong>
-          </div>
-        </article>
+        {/* Display Reverse Prompt Results along with Comparison Metrics */}
+        {submission.reverse_prompt_result && (
+          <article className="rounded-xl border-2 border-gray-100 bg-white p-6 overflow-hidden shadow-lg mb-4 max-w-4xl w-full">
+            <div className="flex items-start gap-4">
+              <img
+                alt="Thinking icon"
+                src={thinking}
+                className="h-14 w-14 rounded-full object-cover"
+              />
+              <div className="flex-1 min-w-0">
+                <h3 className="text-xl font-semibold">{submission.reverse_prompt_result.testName}</h3>
+                <p className="text-sm text-gray-700 mt-2">{submission.reverse_prompt_result.description}</p>
+                <div className="mt-4">
+                  <h4 className="font-semibold">Comparison Results:</h4>
+                  {Object.entries(submission.reverse_prompt_result.comparison_results).map(([key, value]) => (
+                    <div key={key} className="mt-2">
+                      <h5 className="text-sm font-semibold">{key.replace(/([A-Z])/g, ' $1').trim()}</h5>
+                      <p className="text-xs">GPT Recreation: {value['GPT Recreation'].toString()}</p>
+                      <p className="text-xs">Your Text: {value['Your text'].toString()}</p>
+                      <p className="text-xs">Similarity (%): {value['Similarity (%)']}</p>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            </div>
+            <div className="flex justify-end mt-4">
+              <span className={`inline-flex items-center gap-1 rounded-lg px-3 py-1.5 text-white ${submission.reverse_prompt_result.success ? 'bg-green-500' : 'bg-red-500'}`}>
+                <span>{submission.reverse_prompt_result.success ? 'Passed' : 'Failed'}</span>
+              </span>
+            </div>
+          </article>
+        )}
       </main>
-      )
     </div>
   );
 }

@@ -10,6 +10,7 @@ import {
   getDocs,
   doc,
   setDoc,
+  getDoc,
   Timestamp,
   orderBy,
 } from "firebase/firestore";
@@ -42,13 +43,18 @@ function Class() {
   useEffect(() => {
     setJoinCode(classData.joinCode);
 
-    fetchUpcomingAssignments().then(() => {
-      // Only fetch assignment results if there are upcoming assignments
-      if (upcomingAssignments.length > 0) {
-        fetchAssignmentResults(upcomingAssignments[0].id);
+    const fetchAndStoreAssignmentResults = async () => {
+      const fetchedAssignments = await fetchUpcomingAssignments();
+      const results = [];
+      for (const assignment of fetchedAssignments) {
+        const assignmentResult = await fetchAssignmentResults(assignment.id);
+        results.push(...assignmentResult);
       }
-    });
+      setAssignmentResults(results);
+      console.log("All fetched results:", results);
+    };
 
+    fetchAndStoreAssignmentResults();
   }, [db, classData]);
 
   const uploadToFirebase = async (file) => {
@@ -123,44 +129,45 @@ function Class() {
   };
 
   const fetchAssignmentResults = async (assignmentId) => {
-    const submissionsRef = collection(
-      db,
-      `Classes/${selectedClass}/Assignments/${assignmentId}/Submissions`
-    );
-    const submissionsSnapshot = await getDocs(submissionsRef);
-    console.log("Submissions: ", submissionsSnapshot.docs)
+  // Reference to the specific assignment to get its name
+  const assignmentRef = doc(db, `Classes/${selectedClass}/Assignments/${assignmentId}`);
+  const assignmentSnapshot = await getDoc(assignmentRef);
+  const assignmentName = assignmentSnapshot.exists() ? assignmentSnapshot.data().assignmentName : "Unknown Assignment";
 
-    const resultsPromises = submissionsSnapshot.docs.map(
-      async (submissionDoc) => {
-        const submissionId = submissionDoc.id;
-        const resultsRef = collection(
-          db,
-          `Classes/${selectedClass}/Assignments/${assignmentId}/Submissions/${submissionId}/Results`
-        );
-        const resultsSnapshot = await getDocs(resultsRef);
+  const submissionsRef = collection(db, `Classes/${selectedClass}/Assignments/${assignmentId}/Submissions`);
+  const submissionsSnapshot = await getDocs(submissionsRef);
+  console.log("Submissions: ", submissionsSnapshot.docs)
 
-        // Since there's only one result per submission, take the first doc
-        const resultDoc = resultsSnapshot.docs[0];
-        if (!resultDoc) {
-          console.error("No result found for submission:", submissionId);
-          return null;
-        }
+  const resultsPromises = submissionsSnapshot.docs.map(async (submissionDoc) => {
+    const studentId = submissionDoc.id;
 
-        return {
-          submissionId,
-          ...resultDoc.data(), // Spread the result data directly into the result object
-        };
-      }
-    );
+    // Fetch the student's username
+    const studentRef = doc(db, `Students/${studentId}`);
+    const studentSnapshot = await getDoc(studentRef);
+    const studentUsername = studentSnapshot.exists() ? studentSnapshot.data().username : "Unknown Student";
 
-    const results = await Promise.all(resultsPromises);
+    const resultsRef = collection(db, `Classes/${selectedClass}/Assignments/${assignmentId}/Submissions/${studentId}/Results`);
+    const resultsSnapshot = await getDocs(resultsRef);
 
-    // Filter out any nulls that might have been added due to missing results
-    const filteredResults = results.filter((result) => result !== null);
+    // Since there's only one result per submission, take the first doc
+    const resultDoc = resultsSnapshot.docs[0];
+    if (!resultDoc) {
+      console.error("No result found for submission:", studentId);
+      return null;
+    }
 
-    setAssignmentResults(filteredResults);
-    console.log("Fetched Results: ", filteredResults);
-  };
+    return {
+      studentName: studentUsername, // return student's name instead of ID
+      assignmentName, // return the name of the assignment
+      ...resultDoc.data(), // Spread the result data directly into the result object
+    };
+  });
+
+  const results = await Promise.all(resultsPromises);
+  const filteredResults = results.filter((result) => result !== null); // Filter out any nulls that might have been added due to missing results
+  return filteredResults;
+};
+
 
   const createAssignment = async (assignmentData) => {
     try {
@@ -187,25 +194,22 @@ function Class() {
   };
 
   const fetchUpcomingAssignments = async () => {
-    try {
-      const assignmentsRef = collection(
-        db,
-        `Classes/${selectedClass}/Assignments`
-      );
-      const q = query(assignmentsRef, orderBy("endTime"));
-      const querySnapshot = await getDocs(q);
+    const assignmentsRef = collection(db, `Classes/${selectedClass}/Assignments`);
+    const q = query(assignmentsRef, orderBy("endTime"));
+    const querySnapshot = await getDocs(q);
 
-      const assignments = [];
-      querySnapshot.forEach((doc) => {
-        assignments.push({ id: doc.id, ...doc.data() });
-      });
+    const assignments = [];
+    querySnapshot.forEach((doc) => {
+      assignments.push({ id: doc.id, ...doc.data() });
+    });
 
-      setUpcomingAssignments(assignments);
+    setUpcomingAssignments(assignments);  // This now solely updates the state
+    console.log("Fetched Assignments: ", assignments);
+    return assignments;  // This returns the assignments for immediate use
+  };
 
-      console.log("Fetched Assignments: ", assignments);
-    } catch (error) {
-      console.error("Error fetching assignments: ", error);
-    }
+  const handlePreviousScoresClick = () => {
+    navigate('/submissions', { state: { submissions: assignmentResults } });
   };
 
   return (
@@ -231,11 +235,7 @@ function Class() {
                       Upcoming Assignments
                     </a>
                   </li>
-                  <li>
-                    <a href="#" className="nav-link">
-                      Previous Scores
-                    </a>
-                  </li>
+                  <li><button onClick={handlePreviousScoresClick} className="nav-link">Previous Scores</button></li>
                   <li>
                     <div className="nav-divider"></div>
                   </li>
