@@ -129,45 +129,59 @@ function Class() {
   };
 
   const fetchAssignmentResults = async (assignmentId) => {
-  // Reference to the specific assignment to get its name
-  const assignmentRef = doc(db, `Classes/${selectedClass}/Assignments/${assignmentId}`);
-  const assignmentSnapshot = await getDoc(assignmentRef);
-  const assignmentName = assignmentSnapshot.exists() ? assignmentSnapshot.data().assignmentName : "Unknown Assignment";
+    // Reference to the specific assignment to get its name
+    const assignmentRef = doc(
+      db,
+      `Classes/${selectedClass}/Assignments/${assignmentId}`
+    );
+    const assignmentSnapshot = await getDoc(assignmentRef);
+    const assignmentName = assignmentSnapshot.exists()
+      ? assignmentSnapshot.data().assignmentName
+      : "Unknown Assignment";
 
-  const submissionsRef = collection(db, `Classes/${selectedClass}/Assignments/${assignmentId}/Submissions`);
-  const submissionsSnapshot = await getDocs(submissionsRef);
-  console.log("Submissions: ", submissionsSnapshot.docs)
+    const submissionsRef = collection(
+      db,
+      `Classes/${selectedClass}/Assignments/${assignmentId}/Submissions`
+    );
+    const submissionsSnapshot = await getDocs(submissionsRef);
+    console.log("Submissions: ", submissionsSnapshot.docs);
 
-  const resultsPromises = submissionsSnapshot.docs.map(async (submissionDoc) => {
-    const studentId = submissionDoc.id;
+    const resultsPromises = submissionsSnapshot.docs.map(
+      async (submissionDoc) => {
+        const studentId = submissionDoc.id;
 
-    // Fetch the student's username
-    const studentRef = doc(db, `Students/${studentId}`);
-    const studentSnapshot = await getDoc(studentRef);
-    const studentUsername = studentSnapshot.exists() ? studentSnapshot.data().username : "Unknown Student";
+        // Fetch the student's username
+        const studentRef = doc(db, `Students/${studentId}`);
+        const studentSnapshot = await getDoc(studentRef);
+        const studentUsername = studentSnapshot.exists()
+          ? studentSnapshot.data().username
+          : "Unknown Student";
 
-    const resultsRef = collection(db, `Classes/${selectedClass}/Assignments/${assignmentId}/Submissions/${studentId}/Results`);
-    const resultsSnapshot = await getDocs(resultsRef);
+        const resultsRef = collection(
+          db,
+          `Classes/${selectedClass}/Assignments/${assignmentId}/Submissions/${studentId}/Results`
+        );
+        const resultsSnapshot = await getDocs(resultsRef);
 
-    // Since there's only one result per submission, take the first doc
-    const resultDoc = resultsSnapshot.docs[0];
-    if (!resultDoc) {
-      console.error("No result found for submission:", studentId);
-      return null;
-    }
+        // Since there's only one result per submission, take the first doc
+        const resultDoc = resultsSnapshot.docs[0];
+        if (!resultDoc) {
+          console.error("No result found for submission:", studentId);
+          return null;
+        }
 
-    return {
-      studentName: studentUsername, // return student's name instead of ID
-      assignmentName, // return the name of the assignment
-      ...resultDoc.data(), // Spread the result data directly into the result object
-    };
-  });
+        return {
+          studentName: studentUsername, // return student's name instead of ID
+          assignmentName, // return the name of the assignment
+          ...resultDoc.data(), // Spread the result data directly into the result object
+        };
+      }
+    );
 
-  const results = await Promise.all(resultsPromises);
-  const filteredResults = results.filter((result) => result !== null); // Filter out any nulls that might have been added due to missing results
-  return filteredResults;
-};
-
+    const results = await Promise.all(resultsPromises);
+    const filteredResults = results.filter((result) => result !== null); // Filter out any nulls that might have been added due to missing results
+    return filteredResults;
+  };
 
   const createAssignment = async (assignmentData) => {
     try {
@@ -194,7 +208,10 @@ function Class() {
   };
 
   const fetchUpcomingAssignments = async () => {
-    const assignmentsRef = collection(db, `Classes/${selectedClass}/Assignments`);
+    const assignmentsRef = collection(
+      db,
+      `Classes/${selectedClass}/Assignments`
+    );
     const q = query(assignmentsRef, orderBy("endTime"));
     const querySnapshot = await getDocs(q);
 
@@ -203,13 +220,13 @@ function Class() {
       assignments.push({ id: doc.id, ...doc.data() });
     });
 
-    setUpcomingAssignments(assignments);  // This now solely updates the state
+    setUpcomingAssignments(assignments); // This now solely updates the state
     console.log("Fetched Assignments: ", assignments);
-    return assignments;  // This returns the assignments for immediate use
+    return assignments; // This returns the assignments for immediate use
   };
 
   const handlePreviousScoresClick = () => {
-    navigate('/submissions', { state: { submissions: assignmentResults } });
+    navigate("/submissions", { state: { submissions: assignmentResults } });
   };
 
   return (
@@ -235,7 +252,14 @@ function Class() {
                       Upcoming Assignments
                     </a>
                   </li>
-                  <li><button onClick={handlePreviousScoresClick} className="nav-link">Previous Scores</button></li>
+                  <li>
+                    <button
+                      onClick={handlePreviousScoresClick}
+                      className="nav-link"
+                    >
+                      Previous Scores
+                    </button>
+                  </li>
                   <li>
                     <div className="nav-divider"></div>
                   </li>
@@ -245,12 +269,6 @@ function Class() {
                       className="button-primary w-button"
                     >
                       Create Assignment
-                    </button>
-                    <button
-                      onClick={() => setShowSubmitAssignmentModal(true)}
-                      className="button-primary w-button"
-                    >
-                      Submit Assignment
                     </button>
                   </li>
                 </ul>
@@ -262,6 +280,9 @@ function Class() {
           </div>
         </div>
       </div>
+      <h1 className="text-4xl font-bold text-center text-zinc-100 mt-4">
+        Join Code: {classData.joinCode}
+      </h1>
       <div className="grid-container">
         <div className="w-layout-grid grid-3">
           {/* Assignments */}
