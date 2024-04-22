@@ -254,7 +254,7 @@ function Class() {
           <div className="sm:flex sm:items-center sm:justify-between">
             <div className="text-center sm:text-left">
               <h1 className="text-2xl font-bold text-white sm:text-3xl">
-                TRAITOR
+                {classData.classCode}
               </h1>
             </div>
 
