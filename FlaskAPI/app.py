@@ -26,6 +26,7 @@ from docx import Document
 import firebase_admin
 from firebase_admin import credentials, storage, firestore
 import io
+import sys
 from datetime import datetime
 import nltk
 from textblob import TextBlob
@@ -33,6 +34,9 @@ from nltk.corpus import stopwords
 
 
 app = Flask(__name__)
+
+# Force stdout to use UTF-8 encoding
+sys.stdout = io.TextIOWrapper(sys.stdout.buffer, encoding='utf-8')
 
 # Initialize Firebase Admin using environment variable or file
 firebase_credentials_env = os.environ.get('FIREBASE_CREDENTIALS_JSON')
@@ -124,8 +128,8 @@ async def run_analysis_and_update_db(file_text, file_stream, classID, studentID,
     print("AI Model Analysis")
     ai_model_result = await ai_model_analysis(file_text)  # Analyze the text using our AI model
 
-    AlgoResult = float( reverse_prompt_result['comparison_results'] ) # whatever algo got....0-1
-    ModelResult = float( ai_model_result['prediction']  )# whatever model got...0 or 1
+    AlgoResult = reverse_prompt_result['comparison_results']['cosineSimilarity'] # whatever algo got....0-1
+    ModelResult = ai_model_result['prediction'] # whatever model got...0 or 1
 
     # now we can just adjust these weights here to get different final result
     ModelWeight = 0  # 0-1

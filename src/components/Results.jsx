@@ -1,10 +1,24 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import { useLocation } from "react-router-dom";
 import thinking from "/src/assets/thinking.svg";
 
 function Results() {
-  const { state } = useLocation();  // Assume state is passed as { submission: {...} }
+  const { state } = useLocation();
   const { submission } = state;
+
+  const [finalScore, setFinalScore] = useState(submission.final_score || 0);
+
+  const displayConfig = {
+    toneScore: true,
+    oxfordComma: false,
+    commaFreak: false,
+    hyphen: false,
+    exclamationMark: false,
+    questionMark: false,
+    formalityScore: true,
+    verbosityScore: true,
+    cosineSimilarity: false  // Toggle this to show/hide cosine similarity
+  };
 
   return (
     <div className="App">
@@ -20,6 +34,9 @@ function Results() {
       <main className="flex flex-col items-center">
         <h2 className="text-lg font-bold text-gray-800 sm:text-xl mb-4">
           Student: {submission.studentName}
+        </h2>
+        <h2 className="text-lg font-bold text-gray-800 sm:text-xl mb-4">
+          {finalScore * 100}% Chance this is AI
         </h2>
 
         {Object.entries(submission).filter(([key]) => key.includes('_result') && key !== 'comparison_results' && key !== 'reverse_prompt_result').map(([key, result]) => (
@@ -51,28 +68,31 @@ function Results() {
           </article>
         ))}
 
-        {/* Display Reverse Prompt Results along with Comparison Metrics */}
         {submission.reverse_prompt_result && (
           <article className="rounded-xl border-2 border-gray-100 bg-white p-6 overflow-hidden shadow-lg mb-4 max-w-4xl w-full">
             <div className="flex items-start gap-4">
-              <img
-                alt="Thinking icon"
-                src={thinking}
-                className="h-14 w-14 rounded-full object-cover"
-              />
+              <img alt="Thinking icon" src={thinking} className="h-14 w-14 rounded-full object-cover" />
               <div className="flex-1 min-w-0">
                 <h3 className="text-xl font-semibold">{submission.reverse_prompt_result.testName}</h3>
                 <p className="text-sm text-gray-700 mt-2">{submission.reverse_prompt_result.description}</p>
                 <div className="mt-4">
                   <h4 className="font-semibold">Comparison Results:</h4>
-                  {Object.entries(submission.reverse_prompt_result.comparison_results).map(([key, value]) => (
-                    <div key={key} className="mt-2">
-                      <h5 className="text-sm font-semibold">{key.replace(/([A-Z])/g, ' $1').trim()}</h5>
-                      <p className="text-xs">GPT Recreation: {value['GPT Recreation'].toString()}</p>
-                      <p className="text-xs">Your Text: {value['Your text'].toString()}</p>
-                      <p className="text-xs">Similarity (%): {value['Similarity (%)']}</p>
-                    </div>
+                  {Object.entries(submission.reverse_prompt_result.comparison_results)
+                    .filter(([key]) => displayConfig[key])
+                    .map(([key, value]) => (
+                      <div key={key} className="mt-2">
+                        <h5 className="text-sm font-semibold">{key.replace(/([A-Z])/g, ' $1').trim()}</h5>
+                        <p className="text-xs">GPT Recreation: {value['GPT Recreation']}</p>
+                        <p className="text-xs">Your Text: {value['Your text']}</p>
+                        <p className="text-xs">Similarity (%): {value['Similarity (%)']}</p>
+                      </div>
                   ))}
+                  {displayConfig.cosineSimilarity && submission.reverse_prompt_result.comparison_results.cosineSimilarity && (
+                    <div className="mt-4">
+                      <h4 className="font-semibold">Cosine Similarity:</h4>
+                      <p className="text-xs">{submission.reverse_prompt_result.comparison_results.cosineSimilarity.toFixed(2)}</p>
+                    </div>
+                  )}
                 </div>
               </div>
             </div>
