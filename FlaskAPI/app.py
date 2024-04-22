@@ -17,6 +17,7 @@ import os
 import json
 import secrets
 import openai
+import traceback
 import asyncio
 from flask_cors import CORS, cross_origin
 import joblib
@@ -226,10 +227,10 @@ async def ask_gpt_analysis(file_text):
     
 async def reverse_prompt_analysis(file_text):
     # Reverse engineer the prompt
-    description_messages = [
-        {"role": "user",
-         "content": "Given the following text input, please analyze and infer the most likely prompt that could have been used to generate this text with a ChatGPT-like model. Assume that the text was either written by or assisted by a model similar to ChatGPT. Based on your analysis, reconstruct the original user prompt as accurately as possible. Additionally, your response should match the length and style of the provided text to ensure a coherent and contextually appropriate output. Do not reply anything thing else other than the prompt response, you do not need to include anymore information other than the prompt. You should include a paragraph or character count in your prompt to have a text of the same length. Here is the text input:\n\n" + file_text}
-    ]
+    description_messages = [{
+        "role": "user",
+        "content": "Given the following text input, please analyze and infer the most likely prompt that could have been used to generate this text with a ChatGPT-like model. Assume that the text was either written by or assisted by a model similar to ChatGPT. Based on your analysis, reconstruct the original user prompt as accurately as possible. Additionally, your response should match the length and style of the provided text to ensure a coherent and contextually appropriate output. Do not reply anything else other than the prompt response, you do not need to include any more information other than the prompt. You should include a paragraph or character count in your prompt to have a text of the same length. Here is the text input:\n\n" + file_text
+    }]
 
     try:
         description_response = openai.ChatCompletion.create(
@@ -238,9 +239,7 @@ async def reverse_prompt_analysis(file_text):
         )
         description = description_response['choices'][0]['message']['content'].strip()
 
-        reverse_messages = [
-            {"role": "user", "content": description}
-        ]
+        reverse_messages = [{"role": "user", "content": description}]
 
         reverse_response = openai.ChatCompletion.create(
             model="gpt-3.5-turbo",
@@ -261,12 +260,26 @@ async def reverse_prompt_analysis(file_text):
             'description': description,
             'comparison_results': comparison_results
         }
-    
-    except Exception as e:
+
+    except openai.OpenAIError as e:
+        print(f"OpenAI API error occurred: {str(e)}")
+        traceback.print_exc()
         return {
+            'testName': 'ReversePrompt',
             'success': False,
-            'error': str(e)
+            'error': 'API error - ' + str(e),
+            'comparison_results': {}
         }
+    except Exception as e:
+        print(f"General error occurred: {str(e)}")
+        traceback.print_exc()
+        return {
+            'testName': 'ReversePrompt',
+            'success': False,
+            'error': 'General error - ' + str(e),
+            'comparison_results': {}
+        }
+
     
 async def file_metadata_analysis(file_stream):
     doc = Document(file_stream)
