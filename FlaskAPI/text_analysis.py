@@ -260,7 +260,42 @@ def displayResults(FullText):
     print(FullText.hyphen)     #0 or 1  did you use hyphens
     print(FullText.commaFreak)  #0 to infinity  how many commas did you use per sentence on average
 
+def compare_texts(analysis1, analysis2):
+    metrics = {
+        "toneScore": False,
+        "oxfordComma": True,
+        "commaFreak": False,
+        "hyphen": True,
+        "exclamationMark": True,
+        "questionMark": True,
+        #"spellingErrors": False,
+        "formalityScore": False,
+        "verbosityScore": False
+    }
 
+    results = {}
+    for metric, is_boolean in metrics.items():
+        value1 = getattr(analysis1, metric)
+        value2 = getattr(analysis2, metric)
+        similarity = calculate_similarity(value1, value2, is_boolean)
+        results[metric] = {
+            "Your text": value1,
+            "GPT Recreation": value2,
+            "Similarity (%)": similarity
+        }
+
+    final_score = compareResults(analysis1, analysis2)
+    results['cosineSimilarity'] = final_score
+
+    return results
+
+
+def calculate_similarity(value1, value2, is_boolean=False):
+    if is_boolean:
+        return 100.0 if value1 == value2 else 0.0
+    else:
+        # For numerical values, a simple approach is to use the inverse of the relative difference
+        return 100.0 * (1 - abs(value1 - value2) / max(abs(value1), abs(value2), 1))
 
 def compareResults(FullTextA, FullTextB):
     A = np.array ( FullTextA.identityVector )
