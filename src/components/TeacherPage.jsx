@@ -112,6 +112,10 @@ function TeacherPage() {
     setSemester("");
   };
 
+  const handleAssignmentsButtonClick = () => {
+    navigate("/assignments", { state: { assignments } });
+  };
+
   const fetchExistingJoinCodes = async () => {
     const classesRef = collection(db, "Classes");
     const querySnapshot = await getDocs(classesRef);
@@ -230,11 +234,17 @@ function TeacherPage() {
             </div>
 
             <div className="mt-4 flex flex-col gap-4 sm:mt-0 sm:flex-row sm:items-center">
-              {/* <button
+              <button
                 className="inline-flex items-center justify-center gap-1.5 rounded-lg border border-gray-200 px-5 py-3 text-white transition hover:bg-gray-50 hover:text-gray-700 focus:outline-none focus:ring"
                 type="button"
               >
-                <span className="text-sm font-medium" onClick={handleAssignmentsButtonClick}> Assignments </span>
+                <span
+                  className="text-sm font-medium"
+                  onClick={handleAssignmentsButtonClick}
+                >
+                  {" "}
+                  Assignments{" "}
+                </span>
 
                 <svg
                   xmlns="http://www.w3.org/2000/svg"
@@ -250,7 +260,7 @@ function TeacherPage() {
                     d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"
                   />
                 </svg>
-              </button> */}
+              </button>
 
               <button
                 className="block rounded-lg px-5 py-3 w-full bg-black text-white hover:bg-white/30 hover:text-white transition duration-300"
@@ -305,9 +315,9 @@ function TeacherPage() {
         </div>
       </main>
 
-      <footer className="">
-        <div className="mx-auto my-32 max-w-screen-xl">
-          <p className="mt-4 text-center text-sm text-gray-500 lg:mt-0 lg:text-center">
+      <footer>
+        <div className="mx-auto max-w-screen-xl pt-52">
+          <p className="text-center text-sm text-gray-500 lg:mt-0 lg:text-center">
             Traitor &copy; 2023. All rights reserved.
           </p>
         </div>
