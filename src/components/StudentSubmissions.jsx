@@ -17,7 +17,7 @@ function StudentSubmissions() {
         <div className="mx-auto max-w-screen-xl px-4 py-8 sm:px-6 sm:py-12 lg:px-8 h-32">
           <div className="sm:flex sm:items-center sm:justify-between">
             <div className="text-center sm:text-left">
-              <h1 className="text-2xl text-white font-bold text-gray-800 sm:text-3xl">
+              <h1 className="text-2xl text-white font-bold sm:text-3xl">
                 Class Submissions
               </h1>
             </div>
@@ -41,16 +41,16 @@ function StudentSubmissions() {
           alignItems: "center",
         }}
       >
-        <fieldset className="space-y-4 w-full max-w-md">
+        <fieldset className="space-y-4 w-full max-w-2xl">
           <legend className="sr-only">Submissions</legend>
           {submissions.map((submission, index) => (
             <div
               key={index}
-              className="flex cursor-pointer items-center justify-between gap-4 rounded-lg border border-gray-300 bg-white p-4 text-sm font-medium shadow-sm hover:bg-gray-50"
+              className="flex cursor-pointer h-16 items-center justify-between gap-4 rounded-lg  bg-white p-4 text-sm font-medium shadow-sm hover:bg-orange-500 hover:text-white"
               onClick={() => handleSubmissionClick(submission)}
             >
-              <p className="text-gray-700">{submission.assignmentName}</p>
-              <p className="text-gray-900">{submission.studentName}</p>
+              <p>{submission.assignmentName}</p>
+              <p>{submission.studentName}</p>
             </div>
           ))}
         </fieldset>

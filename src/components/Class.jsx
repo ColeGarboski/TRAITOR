@@ -129,30 +129,37 @@ function Class() {
 
   const fetchAssignmentResults = async (assignmentId) => {
     // First, get the assignment name from the assignment document
-    const assignmentRef = doc(db, `Classes/${selectedClass}/Assignments/${assignmentId}`);
+    const assignmentRef = doc(
+      db,
+      `Classes/${selectedClass}/Assignments/${assignmentId}`
+    );
     const assignmentSnapshot = await getDoc(assignmentRef);
-    const assignmentName = assignmentSnapshot.exists() ? assignmentSnapshot.data().assignmentName : "Unknown Assignment";
-  
+    const assignmentName = assignmentSnapshot.exists()
+      ? assignmentSnapshot.data().assignmentName
+      : "Unknown Assignment";
+
     const submissionsRef = collection(
       db,
       `Classes/${selectedClass}/Assignments/${assignmentId}/Submissions`
     );
     let q;
-  
+
     if (userRole === "teacher") {
-      q = query(submissionsRef);  // Fetch all submissions for teachers
+      q = query(submissionsRef); // Fetch all submissions for teachers
     } else if (userRole === "student") {
-      q = doc(submissionsRef, userId);  // Directly access the student's submission using the document ID
+      q = doc(submissionsRef, userId); // Directly access the student's submission using the document ID
     }
-  
+
     let submissionsSnapshot;
     if (userRole === "teacher") {
       submissionsSnapshot = await getDocs(q);
     } else {
       const singleDoc = await getDoc(q);
-      submissionsSnapshot = singleDoc.exists() ? { docs: [singleDoc] } : { docs: [] };  // Mimic the structure returned by getDocs for uniform processing below
+      submissionsSnapshot = singleDoc.exists()
+        ? { docs: [singleDoc] }
+        : { docs: [] }; // Mimic the structure returned by getDocs for uniform processing below
     }
-  
+
     const resultsPromises = submissionsSnapshot.docs.map(
       async (submissionDoc) => {
         const studentId = submissionDoc.id;
@@ -161,31 +168,30 @@ function Class() {
         const studentUsername = studentSnapshot.exists()
           ? studentSnapshot.data().username
           : "Unknown Student";
-  
+
         const resultsRef = collection(
           db,
           `Classes/${selectedClass}/Assignments/${assignmentId}/Submissions/${studentId}/Results`
         );
         const resultsSnapshot = await getDocs(resultsRef);
         const resultDoc = resultsSnapshot.docs[0];
-  
+
         if (!resultDoc) {
           console.error("No result found for submission:", studentId);
           return null;
         }
-  
+
         return {
           studentName: studentUsername,
-          assignmentName: assignmentName,  // Use the fetched assignment name
+          assignmentName: assignmentName, // Use the fetched assignment name
           ...resultDoc.data(),
         };
       }
     );
-  
+
     const results = await Promise.all(resultsPromises);
-    return results.filter(result => result !== null);
+    return results.filter((result) => result !== null);
   };
-  
 
   const createAssignment = async (assignmentData) => {
     try {
@@ -273,7 +279,7 @@ function Class() {
               </button>
               <button
                 onClick={() => navigate(-1)}
-                className="block rounded-lg px-5 py-3 w-full bg-black text-white hover:bg-white/30 hover:text-white transition duration-300"
+                className="block rounded-lg px-5 py-3 w-full bg-black text-white hover:bg-orange-500 hover:text-white transition duration-300"
                 type="button"
               >
                 Go back
@@ -282,7 +288,9 @@ function Class() {
           </div>
         </div>
       </header>
-      <h1>Class Join Code {joinCode}</h1>
+      <h1 className="text-white text-lg  text-center justify-center">
+        Class Code: {joinCode}
+      </h1>
       <div class="grid grid-cols-2 grid-rows-2 gap-2">
         <div class="w-full h-full hover:animate-background rounded-xl bg-gradient-to-r from-green-300 via-blue-500 to-purple-600 p-0.5 shadow-xl transition hover:bg-[length:400%_400%] hover:shadow-sm hover:[animation-duration:_4s] row-span-2">
           <div className="rounded-[10px] bg-white p-4 sm:p-6 flex flex-col h-full">
