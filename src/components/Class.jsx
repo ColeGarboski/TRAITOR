@@ -238,6 +238,15 @@ function Class() {
     navigate("/submissions", { state: { submissions: assignmentResults } });
   };
 
+  const handleSubmissionClick = (submission) => {
+    console.log("Submission clicked", submission);
+    navigate("/results", { state: { submission } }); // Navigate to Results component with the submission state
+  };
+
+  const handleAssignmentClick = (assignment) => {
+    navigate("/assignment", { state: { assignment } });
+  };
+
   return (
     <div className="App">
       <header>
@@ -305,6 +314,12 @@ function Class() {
                     assignment.endTime.seconds * 1000
                   ).toLocaleDateString()}
                 </p>
+                <button
+                  onClick={() => handleAssignmentClick(assignment)}
+                  className="button-class"
+                >
+                  Submit
+                </button>
                 <hr />
               </div>
             ))}
@@ -320,6 +335,12 @@ function Class() {
               <div key={index}>
                 <h2 className="text-lg">{result.assignmentName}</h2>
                 <p className="mt-[-6px] mb-2">{result.studentName}</p>
+                <button
+                  onClick={() => handleSubmissionClick(result)}
+                  className="button-class"
+                >
+                  View Submission
+                </button>
                 <hr></hr>
               </div>
             ))}
