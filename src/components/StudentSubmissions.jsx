@@ -4,11 +4,11 @@ import { useNavigate, useLocation } from "react-router-dom";
 function StudentSubmissions() {
   const navigate = useNavigate();
   const location = useLocation();
-  const { submissions } = location.state;  // Assuming submissions are passed in location.state
+  const { submissions } = location.state; // Assuming submissions are passed in location.state
 
   const handleSubmissionClick = (submission) => {
     console.log("Submission clicked", submission);
-    navigate('/results', { state: { submission } });  // Navigate to Results component with the submission state
+    navigate("/results", { state: { submission } }); // Navigate to Results component with the submission state
   };
 
   return (
@@ -17,7 +17,7 @@ function StudentSubmissions() {
         <div className="mx-auto max-w-screen-xl px-4 py-8 sm:px-6 sm:py-12 lg:px-8 h-32">
           <div className="sm:flex sm:items-center sm:justify-between">
             <div className="text-center sm:text-left">
-              <h1 className="text-2xl font-bold text-gray-800 sm:text-3xl">
+              <h1 className="text-2xl text-white font-bold text-gray-800 sm:text-3xl">
                 Class Submissions
               </h1>
             </div>
@@ -33,12 +33,22 @@ function StudentSubmissions() {
           </div>
         </div>
       </header>
-      <main style={{ display: "flex", justifyContent: "center", flexDirection: "column", alignItems: "center" }}>
+      <main
+        style={{
+          display: "flex",
+          justifyContent: "center",
+          flexDirection: "column",
+          alignItems: "center",
+        }}
+      >
         <fieldset className="space-y-4 w-full max-w-md">
           <legend className="sr-only">Submissions</legend>
           {submissions.map((submission, index) => (
-            <div key={index} className="flex cursor-pointer items-center justify-between gap-4 rounded-lg border border-gray-300 bg-white p-4 text-sm font-medium shadow-sm hover:bg-gray-50"
-                 onClick={() => handleSubmissionClick(submission)}>
+            <div
+              key={index}
+              className="flex cursor-pointer items-center justify-between gap-4 rounded-lg border border-gray-300 bg-white p-4 text-sm font-medium shadow-sm hover:bg-gray-50"
+              onClick={() => handleSubmissionClick(submission)}
+            >
               <p className="text-gray-700">{submission.assignmentName}</p>
               <p className="text-gray-900">{submission.studentName}</p>
             </div>

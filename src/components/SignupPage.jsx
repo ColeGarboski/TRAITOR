@@ -119,11 +119,6 @@ function SignupPage() {
     <div className="flex justify-center items-center h-screen">
       <div className="max-w-2xl mx-auto px-6 py-10 bg-white/30 shadow-lg rounded-xl w-1/3 backdrop-blur-lg border border-gray-200/50">
         <div className="text-center mb-10">
-          <img
-            src={logo}
-            alt="Logo"
-            className="mx-auto mb-4 h-40 w-40 object-cover"
-          />
           <h1 className="text-5xl font-bold text-gray-800 mb-4">
             {isActive ? "Sign Up" : "Sign In"}
           </h1>
@@ -138,7 +133,7 @@ function SignupPage() {
         </div>
 
         <form
-          className="space-y-6"
+          className="space-y-6 flex flex-col items-center justify-center w-full"
           onSubmit={isActive ? handleSignUp : handleSignIn}
         >
           {isActive && (
@@ -148,7 +143,7 @@ function SignupPage() {
               </div>
               <label
                 htmlFor="UserName"
-                className="block overflow-hidden rounded-md px-3 py-2 shadow-sm bg-white/20"
+                className="block overflow-hidden rounded-md px-3 py-2 shadow-sm bg-white/20 w-full"
               >
                 <span className="text-xs font-medium text-gray-800">
                   {" "}
@@ -165,10 +160,9 @@ function SignupPage() {
               </label>
             </>
           )}
-          {/* Email Input */}
           <label
             htmlFor="UserEmail"
-            className="block overflow-hidden rounded-md px-3 py-2 shadow-sm bg-white/20"
+            className="block overflow-hidden rounded-md px-3 py-2 shadow-sm bg-white/20 w-full"
           >
             <span className="text-xs font-medium text-gray-800"> Email </span>
             <input
@@ -180,10 +174,9 @@ function SignupPage() {
               onChange={(e) => setEmail(e.target.value)}
             />
           </label>
-          {/* Password Input */}
           <label
             htmlFor="UserPassword"
-            className="block overflow-hidden rounded-md px-3 py-2 shadow-sm bg-white/20"
+            className="block overflow-hidden rounded-md px-3 py-2 shadow-sm bg-white/20 w-full"
           >
             <span className="text-xs font-medium text-gray-800">
               {" "}
@@ -198,10 +191,9 @@ function SignupPage() {
               onChange={(e) => setPassword(e.target.value)}
             />
           </label>
-
           <button
             type="submit"
-            className="w-full py-3 px-4 bg-gradient-to-r bg-white/30 text-black rounded-lg hover:bg-black transition duration-300 hover:text-white"
+            className="w-full max-w-xs py-3 bg-black text-white rounded-lg hover:bg-orange-500"
           >
             {isActive ? "Create Account" : "Login"}
           </button>
