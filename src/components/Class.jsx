@@ -282,6 +282,7 @@ function Class() {
           </div>
         </div>
       </header>
+      <h1>Class Join Code {joinCode}</h1>
       <div class="grid grid-cols-2 grid-rows-2 gap-2">
         <div class="w-full h-full hover:animate-background rounded-xl bg-gradient-to-r from-green-300 via-blue-500 to-purple-600 p-0.5 shadow-xl transition hover:bg-[length:400%_400%] hover:shadow-sm hover:[animation-duration:_4s] row-span-2">
           <div className="rounded-[10px] bg-white p-4 sm:p-6 flex flex-col h-full">
