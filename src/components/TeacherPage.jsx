@@ -112,10 +112,6 @@ function TeacherPage() {
     setSemester("");
   };
 
-  const handleAssignmentsButtonClick = () => {
-    navigate("/assignments", { state: { assignments } });
-  };
-
   const fetchExistingJoinCodes = async () => {
     const classesRef = collection(db, "Classes");
     const querySnapshot = await getDocs(classesRef);
@@ -218,9 +214,9 @@ function TeacherPage() {
     navigate("/class", { state: { classData } });
   };
 
-  /*const handleAssignmentsButtonClick = () =>{
+  const handleAssignmentsButtonClick = () => {
     navigate("/assignments", { state: { assignments } });
-  };*/
+  };
 
   return (
     <div className="App">
@@ -235,35 +231,7 @@ function TeacherPage() {
 
             <div className="mt-4 flex flex-col gap-4 sm:mt-0 sm:flex-row sm:items-center">
               <button
-                className="inline-flex items-center justify-center gap-1.5 rounded-lg border border-gray-200 px-5 py-3 text-white transition hover:bg-gray-50 hover:text-gray-700 focus:outline-none focus:ring"
-                type="button"
-              >
-                <span
-                  className="text-sm font-medium"
-                  onClick={handleAssignmentsButtonClick}
-                >
-                  {" "}
-                  Assignments{" "}
-                </span>
-
-                <svg
-                  xmlns="http://www.w3.org/2000/svg"
-                  className="h-4 w-4"
-                  fill="none"
-                  viewBox="0 0 24 24"
-                  stroke="currentColor"
-                  strokeWidth="2"
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"
-                  />
-                </svg>
-              </button>
-
-              <button
-                className="block rounded-lg px-5 py-3 w-full bg-black text-white hover:bg-white/30 hover:text-white transition duration-300"
+                className="block rounded-lg px-5 py-3 w-full bg-black text-white hover:bg-orange-500 hover:text-white transition duration-300"
                 type="button"
                 onClick={() => setShowCreateClassModal(true)}
               >
@@ -404,7 +372,7 @@ function TeacherPage() {
               </div>
               <button
                 type="submit"
-                class="block rounded-lg px-5 py-3 w-full bg-black text-white hover:bg-white/30 hover:text-white transition duration-300"
+                class="block rounded-lg px-5 py-3 w-full bg-black text-white hover:bg-orange-500 hover:text-white transition duration-300"
               >
                 Create Class
               </button>
