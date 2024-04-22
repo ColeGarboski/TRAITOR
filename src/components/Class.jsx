@@ -282,23 +282,89 @@ function Class() {
       <div class="grid grid-cols-2 grid-rows-2 gap-2">
         <div class="w-full h-full hover:animate-background rounded-xl bg-gradient-to-r from-green-300 via-blue-500 to-purple-600 p-0.5 shadow-xl transition hover:bg-[length:400%_400%] hover:shadow-sm hover:[animation-duration:_4s] row-span-2">
           <div class="rounded-[10px] bg-white p-4 sm:p-6 flex flex-col h-full">
-            <h3 class="text-lg font-medium text-gray-900">
+            <h3 class="text-2xl font-medium mb-2 text-gray-900">
               Upcoming Assignments
             </h3>
+            <div>
+              <h2 className="text-lg">Sausage Egg & Cheese Wakeup Wrap</h2>
+              <p className="mt-[-6px] mb-2">April 28</p>
+              <hr></hr>
+            </div>
+            <div>
+              <h2 className="text-lg">Sausage Egg & Cheese Wakeup Wrap</h2>
+              <p className="mt-[-6px] mb-2">April 28</p>
+              <hr></hr>
+            </div>
+            <div>
+              <h2 className="text-lg">Sausage Egg & Cheese Wakeup Wrap</h2>
+              <p className="mt-[-6px] mb-2">April 28</p>
+              <hr></hr>
+            </div>
+            <div>
+              <h2 className="text-lg">Sausage Egg & Cheese Wakeup Wrap</h2>
+              <p className="mt-[-6px] mb-2">April 28</p>
+              <hr></hr>
+            </div>
+            <div>
+              <h2 className="text-lg">Sausage Egg & Cheese Wakeup Wrap</h2>
+              <p className="mt-[-6px] mb-2">April 28</p>
+              <hr></hr>
+            </div>
+            <div>
+              <h2 className="text-lg">Sausage Egg & Cheese Wakeup Wrap</h2>
+              <p className="mt-[-6px] mb-2">April 28</p>
+              <hr></hr>
+            </div>
+            <div>
+              <h2 className="text-lg">Sausage Egg & Cheese Wakeup Wrap</h2>
+              <p className="mt-[-6px] mb-2">April 28</p>
+              <hr></hr>
+            </div>
+            <div>
+              <h2 className="text-lg">Sausage Egg & Cheese Wakeup Wrap</h2>
+              <p className="mt-[-6px] mb-2">April 28</p>
+              <hr></hr>
+            </div>
+            <div>
+              <h2 className="text-lg">Sausage Egg & Cheese Wakeup Wrap</h2>
+              <p className="mt-[-6px] mb-2">April 28</p>
+            </div>
           </div>
         </div>
 
         <div class="h-full w-full hover:animate-background rounded-xl bg-gradient-to-r from-green-300 via-blue-500 to-purple-600 p-0.5 shadow-xl transition hover:bg-[length:400%_400%] hover:shadow-sm hover:[animation-duration:_4s]">
           <div class="rounded-[10px] bg-white p-4 sm:p-6 h-full flex flex-col">
-            <h3 class="text-lg font-medium text-gray-900">
+            <h1 class="text-2xl font-medium text-gray-900 pb-2">
               Recent Submissions
-            </h3>
+            </h1>
+            <div>
+              <h2 className="text-lg">Showcase Presentation</h2>
+              <p className="mt-[-6px] mb-2">Samuel Tyler</p>
+              <hr></hr>
+            </div>
+            <div>
+              <h2 className="text-lg">Networks Take-home Exam</h2>
+              <p className="mt-[-6px] mb-2">Cole Garboski</p>
+              <hr></hr>
+            </div>
+            <div>
+              <h2 className="text-lg">Microkernal review</h2>
+              <p className="mt-[-6px] mb-2">Zach Vandecar</p>
+              <hr></hr>
+            </div>
+            <div>
+              <h2 className="text-lg">Exam 2</h2>
+              <p className="mt-[-6px] mb-2">TJ Handsomesauce</p>
+            </div>
           </div>
         </div>
 
         <div class="h-full w-full hover:animate-background rounded-xl bg-gradient-to-r from-green-300 via-blue-500 to-purple-600 p-0.5 shadow-xl transition hover:bg-[length:400%_400%] hover:shadow-sm hover:[animation-duration:_4s]">
           <div class="rounded-[10px] bg-white p-4 sm:p-6 h-full flex flex-col">
-            <h3 class="text-lg font-medium text-gray-900">Announcement</h3>
+            <h1 class="text-2xl font-medium text-gray-900">Announcement</h1>
+            <div>
+              <h2 className="text-lg">SETA SHOWCASE 2024 WOOOOOOOOOO!</h2>
+            </div>
           </div>
         </div>
       </div>
