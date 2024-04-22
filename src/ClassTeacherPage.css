@@ -1,0 +1,532 @@
+:root {
+    --white: white;
+    --black: black;
+}
+
+.div-block {
+    transition: transform 0.3s ease;
+  }
+  
+  .div-block:hover {
+    transform: scale(1.05);
+  }
+
+.logo {
+    height: 75px;
+    width: 75px;
+}
+  
+  .close {
+    float: right;
+    font-size: 28px;
+    cursor: pointer;
+  }
+  
+  .form-group {
+    margin-bottom: 20px;
+  }
+  
+  .form-group label {
+    display: flex;
+    margin-bottom: 5px;
+    font-weight: bold;
+  }
+  
+  .form-group input[type="text"],
+  .form-group input[type="time"] {
+    display: block;
+    width: 100%;
+    padding: 10px;
+    margin-bottom: 10px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    text-align: center;
+  }
+
+  input[type="datetime-local"] {
+    /* Center text as much as possible, but might not be perfect due to internal UI components */
+    text-align: center;
+  }
+
+  input[type="time"] {
+    text-align: center;
+  }]
+  
+  /* Custom styles for checkboxes and labels */
+  
+  .form-group label.day-of-week {
+    display: flex;
+    background-color: #f0f0f0;
+    padding: 10px;
+    margin: 5px;
+    border: 2px solid transparent;
+    cursor: pointer;
+    border-radius: 5px;
+    transition: background-color 0.3s, border-color 0.3s;
+  }
+  
+  .form-group input[type="checkbox"]:checked + label.day-of-week {
+    background-color: #f97316;
+    color: white;
+    border-color: #f97316;
+  }
+
+  .day-label {
+    display: inline-block;
+    background-color: #f0f0f0;
+    padding: 10px;
+    margin: 5px;
+    border: 2px solid #ccc;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: background-color 0.3s, border-color 0.3s;
+  }
+  
+  .day-label.selected {
+    background-color: #f97316;
+    color: white;
+  }
+  
+  
+  
+
+.w-layout-grid {
+    grid-row-gap: 16px;
+    grid-column-gap: 16px;
+    grid-template-rows: auto auto;
+    grid-template-columns: 1fr 1fr;
+    grid-auto-columns: 1fr;
+    display: grid;
+}
+
+.navbar-logo-left {
+    width: 100vw;
+    background-image: linear-gradient(90deg, #60a5fa, #a855f7);
+}
+
+.navbar-logo-left-container {
+    z-index: 5;
+    width: 100%;
+    max-width: 100%;
+    background-color: rgba(0, 0, 0, 0);
+    margin-left: auto;
+    margin-right: auto;
+}
+
+.navbar-logo-left-container.shadow-three {
+    width: 100vw;
+    max-width: 100%;
+    color: #fff;
+    margin-bottom: 0;
+    padding-top: 20px;
+    padding-bottom: 20px;
+}
+
+.container {
+    width: 100%;
+    max-width: 100%;
+    color: #fff;
+    margin-left: auto;
+    margin-right: auto;
+}
+
+.navbar-wrapper {
+    justify-content: space-between;
+    align-items: center;
+    display: flex;
+}
+
+.nav-menu-two {
+    align-items: center;
+    display: flex;
+}
+
+.nav-link {
+    color: #fff;
+    letter-spacing: .25px;
+    margin-left: 10px;
+    margin-right: 10px;
+    font-family: Inter, sans-serif;
+    font-size: 14px;
+    line-height: 20px;
+    text-decoration: none;
+}
+
+.nav-link:hover {
+    text-decoration-line: underline;
+    text-underline-offset: 8px;
+}
+
+.nav-link:focus-visible {
+    outline-offset: 0px;
+    color: #a855f7;
+    border-radius: 4px;
+    outline: 2px solid #a855f7;
+}
+
+.nav-link[data-wf-focus-visible] {
+    outline-offset: 0px;
+    color: #a855f7;
+    border-radius: 4px;
+    outline: 2px solid #a855f7;
+}
+
+.nav-dropdown {
+    margin-left: 5px;
+    margin-right: 5px;
+}
+
+.nav-dropdown-toggle {
+    letter-spacing: .25px;
+    padding: 5px 30px 5px 10px;
+    font-size: 14px;
+    line-height: 20px;
+}
+
+.nav-dropdown-toggle:hover {
+    color: rgba(26, 27, 31, .75);
+}
+
+.nav-dropdown-toggle:focus-visible {
+    outline-offset: 0px;
+    color: #a855f7;
+    border-radius: 5px;
+    outline: 2px solid #a855f7;
+}
+
+.nav-dropdown-toggle[data-wf-focus-visible] {
+    outline-offset: 0px;
+    color: #a855f7;
+    border-radius: 5px;
+    outline: 2px solid #a855f7;
+}
+
+.nav-dropdown-icon {
+    margin-right: 10px;
+}
+
+.nav-dropdown-list {
+    background-color: #fff;
+    border-radius: 12px;
+}
+
+.nav-dropdown-list.w--open {
+    padding-top: 10px;
+    padding-bottom: 10px;
+}
+
+.nav-dropdown-link {
+    padding-top: 5px;
+    padding-bottom: 5px;
+    font-size: 14px;
+}
+
+.nav-dropdown-link:focus-visible {
+    outline-offset: 0px;
+    color: #a855f7;
+    border-radius: 5px;
+    outline: 2px solid #a855f7;
+}
+
+.nav-dropdown-link[data-wf-focus-visible] {
+    outline-offset: 0px;
+    color: #a855f7;
+    border-radius: 5px;
+    outline: 2px solid #a855f7;
+}
+
+.nav-divider {
+    width: 1px;
+    height: 22px;
+    background-color: #e4ebf3;
+    margin-left: 15px;
+    margin-right: 15px;
+}
+
+.nav-link-accent {
+    color: #1a1b1f;
+    letter-spacing: .25px;
+    margin-left: 5px;
+    margin-right: 20px;
+    padding: 5px 10px;
+    font-size: 14px;
+    font-weight: 700;
+    line-height: 20px;
+    text-decoration: none;
+}
+
+.nav-link-accent:hover {
+    color: rgba(26, 27, 31, .75);
+}
+
+.modal {
+    position: fixed;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.5);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.modal-content {
+    background-color: white;
+    padding:20px;
+    border-radius: 14px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    width: 90%;
+    max-width: 500px;
+    text-align: center;
+    justify-content: left; 
+  }
+
+
+  
+  
+
+.close {
+    float: right;
+    font-size: 1.5rem;
+    font-weight: bold;
+    cursor: pointer;
+}
+
+.form-group {
+    margin-bottom: 1rem;
+}
+
+.form-group label {
+    display: block;
+    margin-bottom: 0.5rem;
+}
+
+.form-group input {
+    width: 75%;
+    padding: 0.5rem;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+}
+
+
+.button-primary {
+    color: #fff;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    background-color: #333;
+    border-radius: 14px;
+    padding: 12px 25px;
+    font-family: Inter, sans-serif;
+    font-size: 12px;
+    line-height: 20px;
+    transition: all .2s;
+    margin-right: 10px;
+    margin-left: 10px;
+    z-index: auto;
+}
+
+.button-primary:hover {
+    transform: scale(1.025);
+}
+
+.button-secondary {
+    display: inline-block;
+    padding: 10px 15px;
+    background-color: #6c757d; /* A gray background for secondary buttons */
+    color: white; /* Text color */
+    text-align: center;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+  }
+  
+  .button-secondary:hover {
+    background-color: #5a6268; /* Darker shade on hover */
+  }
+  
+  
+
+
+.text-block {
+    color: #fff;
+    font-family: Inter, sans-serif;
+    font-size: 20px;
+    font-weight: 700;
+}
+
+.grid {
+    grid-column-gap: 3rem;
+    grid-row-gap: 3rem;
+    grid-template-rows: 15rem 15rem;
+    grid-template-columns: 18rem 18rem 18rem;
+    grid-auto-columns: 1rem;
+    grid-auto-flow: column;
+    align-content: stretch;
+    justify-content: space-around;
+    align-items: center;
+    justify-items: center;
+    margin-top: 3rem;
+    margin-left: 10rem;
+    margin-right: 10rem;
+    display: grid;
+}
+
+.div-block {
+    width: 18rem;
+    height: 15rem;
+    background-image: linear-gradient(90deg, #60a5fa, #a855f7);
+    border-radius: 14px;
+}
+
+.div-block-2 {
+    height: 10rem;
+    background-color: #bdbdbd;
+    border-top-left-radius: 14px;
+    border-top-right-radius: 14px;
+    line-height: 20rem;
+    position: static;
+}
+
+.image {
+    height: 10rem;
+    width: 18rem;
+    border-top-left-radius: 14px;
+    border-top-right-radius: 14px;
+    position: relative;
+}
+
+.text-block-2 {
+    width: 18rem;
+    height: 5rem;
+    aspect-ratio: auto;
+    color: snow;
+    text-align: center;
+    object-fit: fill;
+    margin-top: 0;
+    font-family: Inter, sans-serif;
+    font-weight: 600;
+    display: block;
+    position: relative;
+    top: 0;
+}
+
+.body {
+    background-color: #fff;
+}
+
+.text-block-3 {
+    grid-column-gap: 0px;
+    grid-row-gap: 0px;
+    direction: ltr;
+    color: #fff;
+    text-align: right;
+    justify-content: flex-end;
+    align-items: flex-end;
+    margin-top: 0;
+    margin-left: 0;
+    margin-right: auto;
+    padding-top: 0;
+    padding-left: 0;
+    padding-right: 0;
+    font-family: Inter, sans-serif;
+    display: block;
+    position: static;
+}
+
+.text-block-4 {
+    color: #fff;
+    text-align: center;
+    font-family: Inter, sans-serif;
+    font-size: 2rem;
+    font-weight: 700;
+}
+
+.div-block-3 {
+    grid-column-gap: 3rem;
+    color: #fff;
+    grid-template-rows: auto;
+    grid-template-columns: 1fr 1fr;
+    grid-auto-columns: 1fr;
+    justify-content: center;
+    align-items: center;
+    justify-items: stretch;
+    margin-top: -1.5rem;
+    font-size: 12px;
+    display: grid;
+    position: relative;
+    top: 2rem;
+    padding-right: 1rem;
+}
+
+.text-block-5, .text-block-6 {
+    text-align: center;
+    font-family: Inter, sans-serif;
+}
+
+.body-2 {
+    background-color: #fff;
+}
+
+
+
+
+
+
+@font-face {
+    font-family: 'Inter';
+    src: url('/src/fonts/Inter-Thin.ttf') format('truetype');
+    font-weight: 100;
+    font-style: normal;
+    font-display: swap;
+}
+@font-face {
+    font-family: 'Inter';
+    src: url('/src/fonts/Inter-ExtraLight.ttf') format('truetype');
+    font-weight: 200;
+    font-style: normal;
+    font-display: swap;
+}
+@font-face {
+    font-family: 'Inter';
+    src: url('/src/fonts/Inter-Medium.ttf') format('truetype');
+    font-weight: 500;
+    font-style: normal;
+    font-display: swap;
+}
+@font-face {
+    font-family: 'Inter';
+    src: url('/src/fonts/Inter-Black.ttf') format('truetype');
+    font-weight: 900;
+    font-style: normal;
+    font-display: swap;
+}
+@font-face {
+    font-family: 'Inter';
+    src: url('/src/fonts/Inter-Regular.ttf') format('truetype');
+    font-weight: 400;
+    font-style: normal;
+    font-display: swap;
+}
+@font-face {
+    font-family: 'Inter';
+    src: url('/src/fonts/Inter-Light.ttf') format('truetype');
+    font-weight: 300;
+    font-style: normal;
+    font-display: swap;
+}
+@font-face {
+    font-family: 'Inter';
+    src: url('/src/fonts/Inter-Bold.ttf') format('truetype'), url('/src/fonts/Inter-ExtraBold.ttf') format('truetype');
+    font-weight: 700;
+    font-style: normal;
+    font-display: swap;
+}
+@font-face {
+    font-family: 'Inter';
+    src: url('/src/fonts/Inter-SemiBold.ttf') format('truetype');
+    font-weight: 600;
+    font-style: normal;
+    font-display: swap;
+}
