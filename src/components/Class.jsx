@@ -42,20 +42,19 @@ function Class() {
 
   useEffect(() => {
     setJoinCode(classData.joinCode);
-
-    const fetchAndStoreAssignmentResults = async () => {
-      const fetchedAssignments = await fetchUpcomingAssignments();
-      const results = [];
-      for (const assignment of fetchedAssignments) {
-        const assignmentResult = await fetchAssignmentResults(assignment.id);
-        results.push(...assignmentResult);
-      }
-      setAssignmentResults(results);
-      console.log("All fetched results:", results);
-    };
-
+    fetchUpcomingAssignments();
     fetchAndStoreAssignmentResults();
-  }, [db, classData]);
+  }, [db, classData, userRole, userId]);
+
+  const fetchAndStoreAssignmentResults = async () => {
+    const fetchedAssignments = await fetchUpcomingAssignments();
+    const results = [];
+    for (const assignment of fetchedAssignments) {
+      const assignmentResult = await fetchAssignmentResults(assignment.id);
+      results.push(...assignmentResult);
+    }
+    setAssignmentResults(results);
+  };
 
   const uploadToFirebase = async (file) => {
     if (!file) {
@@ -129,59 +128,64 @@ function Class() {
   };
 
   const fetchAssignmentResults = async (assignmentId) => {
-    // Reference to the specific assignment to get its name
-    const assignmentRef = doc(
-      db,
-      `Classes/${selectedClass}/Assignments/${assignmentId}`
-    );
+    // First, get the assignment name from the assignment document
+    const assignmentRef = doc(db, `Classes/${selectedClass}/Assignments/${assignmentId}`);
     const assignmentSnapshot = await getDoc(assignmentRef);
-    const assignmentName = assignmentSnapshot.exists()
-      ? assignmentSnapshot.data().assignmentName
-      : "Unknown Assignment";
-
+    const assignmentName = assignmentSnapshot.exists() ? assignmentSnapshot.data().assignmentName : "Unknown Assignment";
+  
     const submissionsRef = collection(
       db,
       `Classes/${selectedClass}/Assignments/${assignmentId}/Submissions`
     );
-    const submissionsSnapshot = await getDocs(submissionsRef);
-    console.log("Submissions: ", submissionsSnapshot.docs);
-
+    let q;
+  
+    if (userRole === "teacher") {
+      q = query(submissionsRef);  // Fetch all submissions for teachers
+    } else if (userRole === "student") {
+      q = doc(submissionsRef, userId);  // Directly access the student's submission using the document ID
+    }
+  
+    let submissionsSnapshot;
+    if (userRole === "teacher") {
+      submissionsSnapshot = await getDocs(q);
+    } else {
+      const singleDoc = await getDoc(q);
+      submissionsSnapshot = singleDoc.exists() ? { docs: [singleDoc] } : { docs: [] };  // Mimic the structure returned by getDocs for uniform processing below
+    }
+  
     const resultsPromises = submissionsSnapshot.docs.map(
       async (submissionDoc) => {
         const studentId = submissionDoc.id;
-
-        // Fetch the student's username
         const studentRef = doc(db, `Students/${studentId}`);
         const studentSnapshot = await getDoc(studentRef);
         const studentUsername = studentSnapshot.exists()
           ? studentSnapshot.data().username
           : "Unknown Student";
-
+  
         const resultsRef = collection(
           db,
           `Classes/${selectedClass}/Assignments/${assignmentId}/Submissions/${studentId}/Results`
         );
         const resultsSnapshot = await getDocs(resultsRef);
-
-        // Since there's only one result per submission, take the first doc
         const resultDoc = resultsSnapshot.docs[0];
+  
         if (!resultDoc) {
           console.error("No result found for submission:", studentId);
           return null;
         }
-
+  
         return {
-          studentName: studentUsername, // return student's name instead of ID
-          assignmentName, // return the name of the assignment
-          ...resultDoc.data(), // Spread the result data directly into the result object
+          studentName: studentUsername,
+          assignmentName: assignmentName,  // Use the fetched assignment name
+          ...resultDoc.data(),
         };
       }
     );
-
+  
     const results = await Promise.all(resultsPromises);
-    const filteredResults = results.filter((result) => result !== null); // Filter out any nulls that might have been added due to missing results
-    return filteredResults;
+    return results.filter(result => result !== null);
   };
+  
 
   const createAssignment = async (assignmentData) => {
     try {
@@ -215,14 +219,13 @@ function Class() {
     const q = query(assignmentsRef, orderBy("endTime"));
     const querySnapshot = await getDocs(q);
 
-    const assignments = [];
-    querySnapshot.forEach((doc) => {
-      assignments.push({ id: doc.id, ...doc.data() });
-    });
+    const assignments = querySnapshot.docs.map((doc) => ({
+      id: doc.id,
+      ...doc.data(),
+    }));
 
-    setUpcomingAssignments(assignments); // This now solely updates the state
-    console.log("Fetched Assignments: ", assignments);
-    return assignments; // This returns the assignments for immediate use
+    setUpcomingAssignments(assignments);
+    return assignments;
   };
 
   const handlePreviousScoresClick = () => {
@@ -281,81 +284,36 @@ function Class() {
       </header>
       <div class="grid grid-cols-2 grid-rows-2 gap-2">
         <div class="w-full h-full hover:animate-background rounded-xl bg-gradient-to-r from-green-300 via-blue-500 to-purple-600 p-0.5 shadow-xl transition hover:bg-[length:400%_400%] hover:shadow-sm hover:[animation-duration:_4s] row-span-2">
-          <div class="rounded-[10px] bg-white p-4 sm:p-6 flex flex-col h-full">
-            <h3 class="text-2xl font-medium mb-2 text-gray-900">
+          <div className="rounded-[10px] bg-white p-4 sm:p-6 flex flex-col h-full">
+            <h3 className="text-2xl font-medium mb-2 text-gray-900">
               Upcoming Assignments
             </h3>
-            <div>
-              <h2 className="text-lg">Sausage Egg & Cheese Wakeup Wrap</h2>
-              <p className="mt-[-6px] mb-2">April 28</p>
-              <hr></hr>
-            </div>
-            <div>
-              <h2 className="text-lg">Sausage Egg & Cheese Wakeup Wrap</h2>
-              <p className="mt-[-6px] mb-2">April 28</p>
-              <hr></hr>
-            </div>
-            <div>
-              <h2 className="text-lg">Sausage Egg & Cheese Wakeup Wrap</h2>
-              <p className="mt-[-6px] mb-2">April 28</p>
-              <hr></hr>
-            </div>
-            <div>
-              <h2 className="text-lg">Sausage Egg & Cheese Wakeup Wrap</h2>
-              <p className="mt-[-6px] mb-2">April 28</p>
-              <hr></hr>
-            </div>
-            <div>
-              <h2 className="text-lg">Sausage Egg & Cheese Wakeup Wrap</h2>
-              <p className="mt-[-6px] mb-2">April 28</p>
-              <hr></hr>
-            </div>
-            <div>
-              <h2 className="text-lg">Sausage Egg & Cheese Wakeup Wrap</h2>
-              <p className="mt-[-6px] mb-2">April 28</p>
-              <hr></hr>
-            </div>
-            <div>
-              <h2 className="text-lg">Sausage Egg & Cheese Wakeup Wrap</h2>
-              <p className="mt-[-6px] mb-2">April 28</p>
-              <hr></hr>
-            </div>
-            <div>
-              <h2 className="text-lg">Sausage Egg & Cheese Wakeup Wrap</h2>
-              <p className="mt-[-6px] mb-2">April 28</p>
-              <hr></hr>
-            </div>
-            <div>
-              <h2 className="text-lg">Sausage Egg & Cheese Wakeup Wrap</h2>
-              <p className="mt-[-6px] mb-2">April 28</p>
-            </div>
+            {upcomingAssignments.map((assignment) => (
+              <div key={assignment.id}>
+                <h2 className="text-lg">{assignment.assignmentName}</h2>
+                <p className="mt-[-6px] mb-2">
+                  {new Date(
+                    assignment.endTime.seconds * 1000
+                  ).toLocaleDateString()}
+                </p>
+                <hr />
+              </div>
+            ))}
           </div>
         </div>
 
         <div class="h-full w-full hover:animate-background rounded-xl bg-gradient-to-r from-green-300 via-blue-500 to-purple-600 p-0.5 shadow-xl transition hover:bg-[length:400%_400%] hover:shadow-sm hover:[animation-duration:_4s]">
-          <div class="rounded-[10px] bg-white p-4 sm:p-6 h-full flex flex-col">
-            <h1 class="text-2xl font-medium text-gray-900 pb-2">
+          <div className="rounded-[10px] bg-white p-4 sm:p-6 h-full flex flex-col">
+            <h1 className="text-2xl font-medium text-gray-900 pb-2">
               Recent Submissions
             </h1>
-            <div>
-              <h2 className="text-lg">Showcase Presentation</h2>
-              <p className="mt-[-6px] mb-2">Samuel Tyler</p>
-              <hr></hr>
-            </div>
-            <div>
-              <h2 className="text-lg">Networks Take-home Exam</h2>
-              <p className="mt-[-6px] mb-2">Cole Garboski</p>
-              <hr></hr>
-            </div>
-            <div>
-              <h2 className="text-lg">Microkernal review</h2>
-              <p className="mt-[-6px] mb-2">Zach Vandecar</p>
-              <hr></hr>
-            </div>
-            <div>
-              <h2 className="text-lg">Exam 2</h2>
-              <p className="mt-[-6px] mb-2">TJ Handsomesauce</p>
-            </div>
+            {assignmentResults.map((result, index) => (
+              <div key={index}>
+                <h2 className="text-lg">{result.assignmentName}</h2>
+                <p className="mt-[-6px] mb-2">{result.studentName}</p>
+                <hr></hr>
+              </div>
+            ))}
           </div>
         </div>
 
