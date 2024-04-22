@@ -297,7 +297,6 @@ function TeacherPage() {
 
                 <h3 className="mt-0.5 text-lg font-medium text-gray-900">
                   {`${classItem.classCode} - ${classItem.className}`}{" "}
-                  {/* Updated this line */}
                 </h3>
                 <div className="mt-4 flex flex-wrap gap-1 top-4">
                   {classItem.topics.map((topic) => (
