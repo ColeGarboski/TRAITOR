@@ -178,11 +178,10 @@ function StudentPage() {
               </button>
 
               <button
-                className="block rounded-lg px-5 py-3 w-full bg-black text-white hover:bg-white/30 hover:text-white transition duration-300"
-                type="button"
                 onClick={() => setShowJoinClassModal(true)}
+                className="block rounded-lg px-10 py-3  bg-black text-white hover:bg-orange-500 hover:text-white transition duration-300"
               >
-                Join Class
+                <span className="relative z-10">Join class</span>
               </button>
             </div>
           </div>
@@ -232,9 +231,9 @@ function StudentPage() {
         </div>
       </main>
 
-      <footer className="">
-        <div className="mx-auto my-32 max-w-screen-xl">
-          <p className="mt-4 text-center text-sm text-gray-500 lg:mt-0 lg:text-center">
+      <footer>
+        <div className="mx-auto max-w-screen-xl pt-52">
+          <p className="text-center text-sm text-gray-500 lg:mt-0 lg:text-center">
             Traitor &copy; 2023. All rights reserved.
           </p>
         </div>

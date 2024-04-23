@@ -254,7 +254,7 @@ function Class() {
           <div className="sm:flex sm:items-center sm:justify-between">
             <div className="text-center sm:text-left">
               <h1 className="text-2xl font-bold text-white sm:text-3xl">
-                TRAITOR
+                {classData.classCode}
               </h1>
             </div>
 
@@ -315,21 +315,33 @@ function Class() {
               Upcoming Assignments
             </h3>
             {upcomingAssignments.map((assignment) => (
-              <div key={assignment.id}>
-                <h2 className="text-lg">{assignment.assignmentName}</h2>
-                <p className="mt-[-6px] mb-2">
-                  {new Date(
-                    assignment.endTime.seconds * 1000
-                  ).toLocaleDateString()}
-                </p>
-                <button
-                  onClick={() => handleAssignmentClick(assignment)}
-                  className="button-class"
-                >
-                  Submit
-                </button>
-                <hr />
-              </div>
+              <>
+                <div key={assignment.id} className="flex justify-end">
+                  <div className="mr-auto">
+                    {" "}
+                    {/* Column for h2 and p2 */}
+                    <h2 className="text-lg w-64">
+                      {assignment.assignmentName}
+                    </h2>
+                    <p className="mt-[-6px] mb-2">
+                      {new Date(
+                        assignment.endTime.seconds * 1000
+                      ).toLocaleDateString()}
+                    </p>
+                  </div>
+                  <div>
+                    {" "}
+                    {/* Column for the button */}
+                    <button
+                      onClick={() => handleAssignmentClick(assignment)}
+                      className="block rounded-lg px-2 py-1 mt-2  bg-black text-white hover:bg-orange-500 hover:text-white transition duration-300"
+                    >
+                      Submit
+                    </button>
+                  </div>
+                </div>
+                <hr className="w-full mb-2" />
+              </>
             ))}
           </div>
         </div>
@@ -340,21 +352,30 @@ function Class() {
               Recent Submissions
             </h1>
             {assignmentResults.map((result, index) => (
-              <div key={index}>
-                <h2 className="text-lg">{result.assignmentName}</h2>
-                <p className="mt-[-6px] mb-2">{result.studentName}</p>
-                <button
-                  onClick={() => handleSubmissionClick(result)}
-                  className="button-class"
-                >
-                  View Submission
-                </button>
-                <hr></hr>
-              </div>
+              <>
+                {" "}
+                {/* Use React Fragments */}
+                <div key={index} className="flex justify-end">
+                  <div className="mr-auto">
+                    {/* Column for h2 and p2 */}
+                    <h2 className="text-lg">{result.assignmentName}</h2>
+                    <p className="mt-[-6px] mb-2">{result.studentName}</p>
+                  </div>
+                  <div>
+                    {/* Column for the button */}
+                    <button
+                      onClick={() => handleSubmissionClick(result)}
+                      className="block rounded-lg px-2 py-1 mt-2 bg-black text-white hover:bg-orange-500 hover:text-white transition duration-300" // You might need to adjust "button-class"
+                    >
+                      View
+                    </button>
+                  </div>
+                </div>
+                <hr className="w-full mb-2" />
+              </>
             ))}
           </div>
         </div>
-
         <div class="h-full w-full hover:animate-background rounded-xl bg-gradient-to-r from-green-300 via-blue-500 to-purple-600 p-0.5 shadow-xl transition hover:bg-[length:400%_400%] hover:shadow-sm hover:[animation-duration:_4s]">
           <div class="rounded-[10px] bg-white p-4 sm:p-6 h-full flex flex-col">
             <h1 class="text-2xl font-medium text-gray-900">Announcement</h1>
