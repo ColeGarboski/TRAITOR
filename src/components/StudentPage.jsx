@@ -53,7 +53,10 @@ function StudentPage() {
 
   useEffect(() => {
     const fetchUsername = async () => {
-      const userRef = doc(db, `${userRole === "teacher" ? "Teachers" : "Students"}/${userId}`);
+      const userRef = doc(
+        db,
+        `${userRole === "teacher" ? "Teachers" : "Students"}/${userId}`
+      );
       const docSnap = await getDoc(userRef);
 
       if (docSnap.exists()) {
@@ -130,7 +133,7 @@ function StudentPage() {
     navigate("/class", { state: { classData } });
   };
 
-  const handleAssignmentsButtonClick = () =>{
+  const handleAssignmentsButtonClick = () => {
     navigate("/assignments", { state: { assignments } });
   };
 
@@ -150,7 +153,13 @@ function StudentPage() {
                 className="inline-flex items-center justify-center gap-1.5 rounded-lg border border-gray-200 px-5 py-3 text-white transition hover:bg-gray-50 hover:text-gray-700 focus:outline-none focus:ring"
                 type="button"
               >
-                <span className="text-sm font-medium" onClick={handleAssignmentsButtonClick}> Assignments </span>
+                <span
+                  className="text-sm font-medium"
+                  onClick={handleAssignmentsButtonClick}
+                >
+                  {" "}
+                  Assignments{" "}
+                </span>
 
                 <svg
                   xmlns="http://www.w3.org/2000/svg"
