@@ -138,31 +138,34 @@ function SignupPage() {
         >
           {isActive && (
             <>
-              <div className="flex justify-center items-center mb-4">
-                {/* Role Selector */}
-                <label className="inline-flex items-center">
+              <div className="flex justify-center items-center mb-1">
+                <label className="flex cursor-pointer mx-1 items-center justify-center rounded-md border border-gray-100 bg-white px-3 py-2 text-gray-900 hover:border-gray-200 has-[:checked]:border-orange-500 has-[:checked]:bg-orange-500 has-[:checked]:text-white">
                   <input
                     type="radio"
                     name="role"
                     value="student"
+                    id="RoleStudent"
                     checked={isTeacher === false}
                     onChange={() => setIsTeacher(false)}
-                    className="text-orange-500"
+                    className="sr-only"
                   />
-                  <span className="ml-2 text-white">Student</span>
+                  <span className="text-sm font-medium">Student</span>
                 </label>
-                <label className="inline-flex items-center">
+
+                <label className="flex mx-1 cursor-pointer items-center justify-center rounded-md border border-gray-100 bg-white px-3 py-2 text-gray-900 hover:border-gray-200 has-[:checked]:border-orange-500 has-[:checked]:bg-orange-500 has-[:checked]:text-white">
                   <input
                     type="radio"
                     name="role"
                     value="teacher"
+                    id="RoleTeacher"
                     checked={isTeacher === true}
                     onChange={() => setIsTeacher(true)}
-                    className="text-orange-500"
+                    className="sr-only"
                   />
-                  <span className="ml-2 text-white">Teacher</span>
+                  <span className="text-sm font-medium">Teacher</span>
                 </label>
               </div>
+
               <label
                 htmlFor="UserName"
                 className="block overflow-hidden rounded-md px-3 py-2 shadow-sm bg-white/20 w-full"
