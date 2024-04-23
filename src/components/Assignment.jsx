@@ -78,6 +78,7 @@ function Assignment() {
       await uploadBytes(fileRef, file);
       console.log("File uploaded successfully");
       notifyBackend(filePath, file.name);
+      setShowSubmitModal(false);  // Close the modal on successful upload
     } catch (error) {
       console.error("Error uploading file to Firebase:", error);
     }
