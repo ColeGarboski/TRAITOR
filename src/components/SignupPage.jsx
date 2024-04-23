@@ -140,6 +140,28 @@ function SignupPage() {
             <>
               <div className="flex justify-center items-center mb-4">
                 {/* Role Selector */}
+                <label className="inline-flex items-center">
+                  <input
+                    type="radio"
+                    name="role"
+                    value="student"
+                    checked={isTeacher === false}
+                    onChange={() => setIsTeacher(false)}
+                    className="text-orange-500"
+                  />
+                  <span className="ml-2 text-white">Student</span>
+                </label>
+                <label className="inline-flex items-center">
+                  <input
+                    type="radio"
+                    name="role"
+                    value="teacher"
+                    checked={isTeacher === true}
+                    onChange={() => setIsTeacher(true)}
+                    className="text-orange-500"
+                  />
+                  <span className="ml-2 text-white">Teacher</span>
+                </label>
               </div>
               <label
                 htmlFor="UserName"
