@@ -254,7 +254,7 @@ function Class() {
           <div className="sm:flex sm:items-center sm:justify-between">
             <div className="text-center sm:text-left">
               <h1 className="text-2xl font-bold text-white sm:text-3xl">
-                {classData.classCode}
+                TRAITOR
               </h1>
             </div>
 
@@ -262,6 +262,7 @@ function Class() {
               <button
                 className="inline-flex items-center justify-center gap-1.5 rounded-lg border border-gray-200 px-5 py-3 text-white transition hover:bg-gray-50 hover:text-gray-700 focus:outline-none focus:ring"
                 type="button"
+                onClick={handlePreviousScoresClick}
               >
                 <span
                   className="text-sm font-medium"
@@ -287,8 +288,15 @@ function Class() {
                 </svg>
               </button>
               <button
+                onClick={() => setShowCreateAssignmentModal(true)} // FIX ME
+                className="block rounded-lg px-5 py-3 w-44 bg-black text-white hover:bg-orange-500 hover:text-white transition duration-300"
+                type="button"
+              >
+                Create Assignment
+              </button>
+              <button
                 onClick={() => navigate(-1)}
-                className="block rounded-lg px-5 py-3 w-full bg-black text-white hover:bg-orange-500 hover:text-white transition duration-300"
+                className="block rounded-lg px-5 py-3  bg-black text-white hover:bg-orange-500 hover:text-white transition duration-300"
                 type="button"
               >
                 Go back
@@ -361,9 +369,6 @@ function Class() {
       {showCreateAssignmentModal && (
         <div className="modal">
           <div className="modal-content">
-            <span className="close" onClick={closeModal}>
-              &times;
-            </span>
             <form
               onSubmit={(e) => {
                 e.preventDefault();
@@ -376,13 +381,9 @@ function Class() {
               }}
             >
               <div className="form-group">
-                <label>Class:</label>
-                <p>
-                  {classData.className} (Code: {classData.classCode})
-                </p>
-              </div>
-              <div className="form-group">
-                <label htmlFor="assignmentName">Assignment Name</label>
+                <label className="text-left" htmlFor="assignmentName">
+                  Assignment Name
+                </label>
                 <input
                   type="text"
                   id="assignmentName"
@@ -391,7 +392,9 @@ function Class() {
                 />
               </div>
               <div className="form-group">
-                <label htmlFor="endDateTime">End Date and Time</label>
+                <label className="text-left" htmlFor="endDateTime">
+                  End Date and Time
+                </label>
                 <input
                   type="datetime-local"
                   id="endDateTime"
@@ -399,8 +402,17 @@ function Class() {
                   required
                 />
               </div>
-              <button type="submit" className="button-primary">
-                Create Assignment
+              <button
+                onClick={() => setShowCreateAssignmentModal(false)}
+                className="rounded-lg mr-2 px-5 py-3  bg-black text-white hover:bg-orange-500 hover:text-white transition duration-300"
+              >
+                Close
+              </button>
+              <button
+                type="submit"
+                className="rounded-lg px-5 py-3 ml-2   bg-black text-white hover:bg-orange-500 hover:text-white transition duration-300"
+              >
+                Create
               </button>
             </form>
           </div>

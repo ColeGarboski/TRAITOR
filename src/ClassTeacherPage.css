@@ -15,28 +15,6 @@
     height: 75px;
     width: 75px;
 }
-
-.modal {
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    position: fixed;
-    z-index: 1000;
-    left: 0;
-    top: 0;
-    width: 100%;
-    height: 100%;
-    background-color: rgba(0, 0, 0, 0.5);
-  }
-  
-  .modal-content {
-    background-color: white;
-    padding: 20px;
-    border-radius: 10px;
-    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-    width: 90%;
-    max-width: 500px;
-  }
   
   .close {
     float: right;
@@ -49,7 +27,7 @@
   }
   
   .form-group label {
-    display: block;
+    display: flex;
     margin-bottom: 5px;
     font-weight: bold;
   }
@@ -75,12 +53,9 @@
   }]
   
   /* Custom styles for checkboxes and labels */
-  .form-group input[type="checkbox"] {
-    display: none; /* Hide the checkbox */
-  }
   
   .form-group label.day-of-week {
-    display: inline-block;
+    display: flex;
     background-color: #f0f0f0;
     padding: 10px;
     margin: 5px;
@@ -91,9 +66,9 @@
   }
   
   .form-group input[type="checkbox"]:checked + label.day-of-week {
-    background-color: #a855f7;
+    background-color: #f97316;
     color: white;
-    border-color: #a855f7;
+    border-color: #f97316;
   }
 
   .day-label {
@@ -108,7 +83,7 @@
   }
   
   .day-label.selected {
-    background-color: #a855f7;
+    background-color: #f97316;
     color: white;
   }
   
@@ -304,18 +279,10 @@
     width: 90%;
     max-width: 500px;
     text-align: center;
-    justify-content: center;
-    border: 6px solid #a855f7; /* Adds a purple border */
+    justify-content: left; 
   }
 
-  .modal .button-primary {
-    /* Your button styles here */
-    display: inline-block;
-    padding: 10px 15px;
-    background-color: #333; /* Example background color */
-    color: white;
-    /* Other styles */
-  }
+
   
   
 
@@ -336,7 +303,7 @@
 }
 
 .form-group input {
-    width: 100%;
+    width: 75%;
     padding: 0.5rem;
     border: 1px solid #ccc;
     border-radius: 4px;

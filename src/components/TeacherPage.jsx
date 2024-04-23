@@ -292,10 +292,7 @@ function TeacherPage() {
 
       {showCreateClassModal && (
         <div className="modal">
-          <div className="max-w-2xl mx-auto px-6 py-10 bg-white/30 shadow-lg rounded-xl w-1/3 backdrop-blur-lg border border-gray-200/50">
-            <span className="close" onClick={closeModal}>
-              &times;
-            </span>
+          <div className="modal-content">
             <form onSubmit={handleCreateClassFormSubmit}>
               <div className="form-group">
                 <label htmlFor="classCode" class=" font-medium text-gray-800">
@@ -340,7 +337,7 @@ function TeacherPage() {
                   onChange={(e) => setTopics(e.target.value)}
                 />
               </div>
-              <div className="form-group">
+              <div>
                 <label>Days of the Week</label>
                 <div>
                   {["Mon", "Tues", "Wed", "Thurs", "Fri"].map((day) => (
@@ -371,10 +368,16 @@ function TeacherPage() {
                 <input type="time" id="endTime" name="endTime" required />
               </div>
               <button
-                type="submit"
-                class="block rounded-lg px-5 py-3 w-full bg-black text-white hover:bg-orange-500 hover:text-white transition duration-300"
+                onClick={() => setShowCreateClassModal(false)}
+                className="rounded-lg mr-2 px-5 py-3  bg-black text-white hover:bg-orange-500 hover:text-white transition duration-300"
               >
-                Create Class
+                Close
+              </button>
+              <button
+                type="submit"
+                className="rounded-lg px-5 py-3 ml-2   bg-black text-white hover:bg-orange-500 hover:text-white transition duration-300"
+              >
+                Create
               </button>
             </form>
           </div>

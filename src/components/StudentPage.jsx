@@ -210,10 +210,12 @@ function StudentPage() {
                   {classItem.semester}
                 </time>
 
-                <h3 className="mt-0.5 text-lg font-medium text-gray-900">
-                  {`${classItem.classCode} - ${classItem.className}`}{" "}
-                  {/* Updated this line */}
-                </h3>
+                <a href="#">
+                  <h3 className="mt-0.5 text-lg font-medium text-gray-900">
+                    {`${classItem.classCode} - ${classItem.className}`}{" "}
+                    {/* Updated this line */}
+                  </h3>
+                </a>
                 <div className="mt-4 flex flex-wrap gap-1 top-4">
                   {classItem.topics.map((topic) => (
                     <span
@@ -241,13 +243,6 @@ function StudentPage() {
       {showJoinClassModal && (
         <div className="modal">
           <div className="modal-content">
-            <span
-              className="close"
-              onClick={() => setShowJoinClassModal(false)}
-            >
-              &times;
-            </span>
-            <h2>Join Class</h2>
             <form
               onSubmit={(e) => {
                 e.preventDefault();
@@ -264,8 +259,17 @@ function StudentPage() {
                   required
                 />
               </div>
-              <button type="submit" className="button-primary">
-                Join
+              <button
+                onClick={() => setShowJoinClassModal(false)}
+                className="rounded-lg mr-2 px-5 py-3  bg-black text-white hover:bg-orange-500 hover:text-white transition duration-300"
+              >
+                Close
+              </button>
+              <button
+                type="submit"
+                className="rounded-lg px-5 py-3 ml-2   bg-black text-white hover:bg-orange-500 hover:text-white transition duration-300"
+              >
+                Create
               </button>
             </form>
           </div>
