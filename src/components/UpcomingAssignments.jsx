@@ -1,25 +1,24 @@
 import React, { useEffect, useState } from "react";
 import { useSelector } from "react-redux";
 import { useNavigate, useLocation } from "react-router-dom";
-import {
-  getFirestore,
-  doc,
-  getDoc,
-} from "firebase/firestore";
+import { getFirestore, doc, getDoc } from "firebase/firestore";
 
 function UpcomingAssignments() {
   const [username, setUsername] = useState("");
   const userId = useSelector((state) => state.auth.userId);
   const userRole = useSelector((state) => state.auth.role);
   const navigate = useNavigate();
-  const { state } = useLocation();  // Retrieve state passed from previous component
-  const assignments = state?.assignments || [];  // Default to an empty array if no assignments were passed
+  const { state } = useLocation(); // Retrieve state passed from previous component
+  const assignments = state?.assignments || []; // Default to an empty array if no assignments were passed
 
   const db = getFirestore();
 
   useEffect(() => {
     const fetchUsername = async () => {
-      const userRef = doc(db, `${userRole === "teacher" ? "Teachers" : "Students"}/${userId}`);
+      const userRef = doc(
+        db,
+        `${userRole === "teacher" ? "Teachers" : "Students"}/${userId}`
+      );
       const docSnap = await getDoc(userRef);
 
       if (docSnap.exists()) {
@@ -36,11 +35,11 @@ function UpcomingAssignments() {
 
   // Function to convert Firestore timestamp to JavaScript Date object
   const convertFirestoreTimestampToDate = (timestamp) => {
-    return new Date(timestamp.seconds * 1000);  // Convert seconds to milliseconds
+    return new Date(timestamp.seconds * 1000); // Convert seconds to milliseconds
   };
 
   const handleAssignmentClick = (assignment) => {
-    navigate('/assignment', { state: { assignment } });
+    navigate("/assignment", { state: { assignment } });
   };
 
   return (
@@ -56,7 +55,7 @@ function UpcomingAssignments() {
             <div className="mt-4 flex flex-col gap-4 sm:mt-0 sm:flex-row sm:items-center">
               <button
                 onClick={() => navigate(-1)}
-                className="block rounded-lg px-5 py-3 w-full bg-black text-white hover:bg-white/30 hover:text-white transition duration-300"
+                className="block rounded-lg px-5 py-3  bg-black text-white hover:bg-orange-500 hover:text-white transition duration-300"
                 type="button"
               >
                 Go back
@@ -65,14 +64,28 @@ function UpcomingAssignments() {
           </div>
         </div>
       </header>
-      <main style={{ display: "flex", justifyContent: "center", flexDirection: "column", alignItems: "center" }}>
+      <main
+        style={{
+          display: "flex",
+          justifyContent: "center",
+          flexDirection: "column",
+          alignItems: "center",
+        }}
+      >
         <fieldset className="space-y-4 w-full max-w-md">
           <legend className="sr-only">Assignments</legend>
           {assignments.map((assignment, index) => (
-            <div key={index} className="flex cursor-pointer items-center justify-between gap-4 rounded-lg border border-gray-100 bg-white p-4 text-sm font-medium shadow-sm hover:border-gray-200"
-                 onClick={() => handleAssignmentClick(assignment)}>
-              <p className="text-gray-700">{assignment.assignmentName}</p>
-              <p className="text-gray-900">{convertFirestoreTimestampToDate(assignment.endTime).toLocaleDateString()}</p>
+            <div
+              key={index}
+              className="flex cursor-pointer h-16 items-center justify-between gap-4 rounded-lg  bg-white p-4 text-sm font-medium shadow-sm hover:bg-orange-500 hover:text-white"
+              onClick={() => handleAssignmentClick(assignment)}
+            >
+              <p>{assignment.assignmentName}</p>
+              <p>
+                {convertFirestoreTimestampToDate(
+                  assignment.endTime
+                ).toLocaleDateString()}
+              </p>
             </div>
           ))}
         </fieldset>

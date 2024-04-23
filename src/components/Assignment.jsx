@@ -141,7 +141,7 @@ function Assignment() {
             <div className="mt-4 flex flex-col gap-4 sm:mt-0 sm:flex-row sm:items-center">
               <button
                 onClick={() => navigate(-1)}
-                className="block rounded-lg px-5 py-3 w-full bg-black text-white hover:bg-white/30 hover:text-white transition duration-300"
+                className="block rounded-lg px-5 py-3  bg-black text-white hover:bg-orange-500 hover:text-white transition duration-300"
                 type="button"
               >
                 Go back
@@ -172,7 +172,7 @@ function Assignment() {
           <div className="mt-4 flex flex-col gap-4 justify-center algsm:mt-0 sm:flex-row sm:items-center pt-10">
             <button
               onClick={() => setShowSubmitModal(true)}
-              className="relative flex h-[50px] w-40 items-center rounded-lg justify-center overflow-hidden bg-gray-800 text-white shadow-2xl transition-all before:absolute before:h-0 before:w-0 before:rounded-full before:bg-purple-600 before:duration-500 before:ease-out hover:before:h-56 hover:before:w-56"
+              className="block rounded-lg px-10 py-3  bg-black text-white hover:bg-orange-500 hover:text-white transition duration-300"
             >
               <span className="relative z-10">Submit</span>
             </button>
@@ -190,38 +190,39 @@ function Assignment() {
         </div>
       </main>
       {showSubmitModal && (
-        <div className="modal">
-          <div className="modal-content">
-            <span className="close" onClick={() => setShowSubmitModal(false)}>
-              &times;
-            </span>
-            <h2>Submit Assignment: {assignment.assignmentName}</h2>
-            <form onSubmit={(e) => e.preventDefault()}>
-              <div className="form-group">
-                <label>Upload your assignment (.docx):</label>
-                <input type="file" accept=".docx" onChange={handleFileSelect} />
-                <div
-                  className="file-upload"
-                  onDrop={handleFileDrop}
-                  onDragOver={handleDragOver}
-                  style={{
-                    border: "2px dashed #000",
-                    padding: "20px",
-                    cursor: "pointer",
-                  }}
-                >
-                  Drag and drop a .docx file here or click to select a file.
-                </div>
-              </div>
-              <button
-                type="button"
-                className="button-primary"
-                onClick={() => selectedFile && uploadToFirebase(selectedFile)}
+        <div className="modal" onClick={() => setShowSubmitModal(false)}>
+          <form onSubmit={(e) => e.preventDefault()}>
+            <div class="flex items-center justify-center w-full">
+              <label
+                for="dropzone-file"
+                class="flex flex-col items-center justify-center w-80 h-64 border-2 border-gray-300 border-dashed rounded-lg cursor-pointer bg-gray-50 dark:hover:bg-bray-800 dark:bg-gray-700 hover:bg-gray-100 dark:border-gray-600 dark:hover:border-gray-500 dark:hover:bg-gray-600"
               >
-                Submit
-              </button>
-            </form>
-          </div>
+                <div class="flex flex-col items-center justify-center pt-5 pb-6">
+                  <svg
+                    class="w-8 h-8 mb-4 text-gray-500 dark:text-gray-400"
+                    aria-hidden="true"
+                    xmlns="http://www.w3.org/2000/svg"
+                    fill="none"
+                    viewBox="0 0 20 16"
+                  >
+                    <path
+                      stroke="currentColor"
+                      stroke-linecap="round"
+                      stroke-linejoin="round"
+                      stroke-width="2"
+                      d="M13 13h3a3 3 0 0 0 0-6h-.025A5.56 5.56 0 0 0 16 6.5 5.5 5.5 0 0 0 5.207 5.021C5.137 5.017 5.071 5 5 5a4 4 0 0 0 0 8h2.167M10 15V6m0 0L8 8m2-2 2 2"
+                    />
+                  </svg>
+                  <p class="mb-2 text-sm text-gray-500 dark:text-gray-400">
+                    <span class="font-semibold">Click to upload</span> or drag
+                    and drop
+                  </p>
+                  <p class="text-xs text-gray-500 dark:text-gray-400">DOCX</p>
+                </div>
+                <input id="dropzone-file" type="file" class="hidden" />
+              </label>
+            </div>
+          </form>
         </div>
       )}
     </div>
