@@ -173,36 +173,6 @@ async def run_analysis_and_update_db(file_text, file_stream, classID, studentID,
     submissions_doc_ref.collection('Results').add(analysis_results)
 
     print("Results sent to Firebase")
-    
-    # Perform analyses
-    print("Performing analyses")
-    print("Asking GPT")
-    ask_gpt_result = await ask_gpt_analysis(file_text) # Ask GPT if it wrote the text
-    print("Reverse Prompt")
-    reverse_prompt_result = await reverse_prompt_analysis(file_text) # Reverse engineer the prompt, regenerate the text, and compare the two
-    print("File Metadata")
-    file_metadata_result = await file_metadata_analysis(file_stream) # Extract metadata from the document and analyze it
-    print("AI Model Analysis")
-    ai_model_result = await ai_model_analysis(file_text) # Analyze the text using our AI model
-
-    
-    # Aggregate results
-    analysis_results = {
-        "ask_gpt_result": ask_gpt_result,
-        "reverse_prompt_result": reverse_prompt_result,
-        "file_metadata_result": file_metadata_result,
-        "ai_model_result": ai_model_result,
-    }
-    
-    # Update Firebase with the aggregated results
-    print("Sending results to Firebase")
-    db.collection('Classes').document(classID)\
-        .collection('Assignments').document(assignmentID)\
-        .collection('Submissions').document(studentID)\
-        .collection('Results').add(analysis_results)
-
-    print("Results sent to Firebase")
-
 
 async def ask_gpt_analysis(file_text):
     messages = [
