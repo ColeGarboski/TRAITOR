@@ -207,7 +207,7 @@ async def run_analysis_and_update_db(file_text, file_stream, classID, studentID,
 async def ask_gpt_analysis(file_text):
     messages = [
         {"role": "system",
-         "content": "Please analyze the following text, initially assuming it was written or assisted by a generative AI model like ChatGPT, unless evidence strongly suggests otherwise. Examine the text's structure, style, and content to assess whether it aligns with typical patterns and characteristics of AI-generated text. Consider factors such as language use, complexity, coherence, repetition, and any other relevant aspects that generative AI models tend to exhibit in their writing. After your analysis, provide a concise evaluation, listing the key reasons that support your conclusion on whether the text is likely AI-written or not. Conclude with a definitive answer based on your assessment. After your analysis, please leave a score from 0 to 100 on a new line (with nothing else before or after it indicating its meaning), with a 0 being \"There is no chance that this is AI generated\" and a 100 being \"It is extremely unlikely that this has been written by a human.\". Here is the text for analysis:"},
+         "content": "Please analyze the following text, initially assuming it was written or assisted by a generative AI model like ChatGPT, unless evidence strongly suggests otherwise. Examine the text's structure, style, and content to assess whether it aligns with typical patterns and characteristics of AI-generated text. Consider factors such as language use, complexity, coherence, repetition, and any other relevant aspects that generative AI models tend to exhibit in their writing. After your analysis, provide a concise evaluation, listing the key reasons that support your conclusion on whether the text is likely AI-written or not. Conclude with a definitive answer based on your assessment. Here is the text for analysis:"},
         {"role": "user", "content": file_text}
     ]
 
@@ -306,7 +306,7 @@ async def file_metadata_analysis(file_stream):
     
     messages = [
         {"role": "system", 
-         "content": "Please analyze the following Word document metadata for any odd or suspicious characteristics that may indicate cheating. Examine the metadata's structure, content, and any other relevant aspects. After your analysis, provide a concise evaluation, listing the key reasons that support your conclusion. After your analysis, please leave a score from 0 to 100 on a new line (with nothing else before or after it indicating its meaning), with a 0 being \"There is no chance that this is AI generated\" and a 100 being \"It is extremely unlikely that this has been written by a human.\". Include a formatted copy of the metadata at the top of your response."},
+         "content": "Please analyze the following Word document metadata for any odd or suspicious characteristics that may indicate cheating. Examine the metadata's structure, content, and any other relevant aspects. After your analysis, provide a concise evaluation, listing the key reasons that support your conclusion. Include a formatted copy of the metadata at the top of your response."},
         {"role": "user", "content": metadata_prompt}
     ]
 

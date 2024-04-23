@@ -1,12 +1,13 @@
 import React, { useEffect, useState } from "react";
-import { useLocation } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
 import thinking from "/src/assets/thinking.svg";
 
 function Results() {
   const { state } = useLocation();
+  const navigate = useNavigate();
   const { submission } = state;
 
-  const [finalScore, setFinalScore] = useState(submission.final_score || 0);
+  const [finalScore, setFinalScore] = useState(((submission.final_score * 100).toFixed(2)) || 0);
 
   const displayConfig = {
     toneScore: true,
@@ -19,6 +20,10 @@ function Results() {
     verbosityScore: true,
     cosineSimilarity: false, // Toggle this to show/hide cosine similarity
   };
+
+  const isPassForAIModelAnalysis = (result) => result.prediction === 0; // 0 implies Human-written, should pass
+  const isPassForReversePrompt = (result) =>
+    result.comparison_results.cosineSimilarity < 0.5; // less than 0.5 cosine similarity, should pass (inverse of previous logic)
 
   return (
     <div className="App">
@@ -47,15 +52,12 @@ function Results() {
           {submission.studentName}
         </h2>
         <h2 className="text-lg font-bold text-white sm:text-xl mb-4">
-          Chance this is AI generated: {finalScore * 100}%
+          Chance this is AI generated: {finalScore}%
         </h2>
 
         {Object.entries(submission)
           .filter(
-            ([key]) =>
-              key.includes("_result") &&
-              key !== "comparison_results" &&
-              key !== "reverse_prompt_result"
+            ([key]) => key.includes("_result") && key !== "comparison_results" && key !== "reverse_prompt_result"
           )
           .map(([key, result]) => (
             <article
@@ -82,24 +84,39 @@ function Results() {
                   )}
                   {typeof result.prediction !== "undefined" && (
                     <p className="text-sm text-gray-700 mt-2">
-                      Prediction:{" "}
-                      {result.prediction ? "AI-generated" : "Human-written"}
+                      Prediction: {result.prediction ? "AI-generated" : "Human-written"}
                     </p>
+                  )}
+                  {(key === "ai_model_result" ||
+                    key === "reverse_prompt_result") &&
+                    result.testName !== "AskGPT" &&
+                    result.testName !== "MetadataAnalysis" && (
+                    <div className="flex justify-end mt-4">
+                      <span
+                        className={`inline-flex items-center gap-1 rounded-lg px-3 py-1.5 text-white ${
+                          (key === "ai_model_result" &&
+                            isPassForAIModelAnalysis(result)) ||
+                          (key === "reverse_prompt_result" &&
+                            isPassForReversePrompt(result))
+                            ? "bg-green-500"
+                            : "bg-red-500"
+                        }`}
+                      >
+                        <span>
+                          {(key === "ai_model_result" &&
+                            isPassForAIModelAnalysis(result)) ||
+                          (key === "reverse_prompt_result" &&
+                            isPassForReversePrompt(result))
+                            ? "Likely Human"
+                            : "Likely AI"}
+                        </span>
+                      </span>
+                    </div>
                   )}
                 </div>
               </div>
-              <div className="flex justify-end mt-4">
-                <span
-                  className={`inline-flex items-center gap-1 rounded-lg px-3 py-1.5 text-white ${
-                    result.success ? "bg-green-500" : "bg-red-500"
-                  }`}
-                >
-                  <span>{result.success ? "Passed" : "Failed"}</span>
-                </span>
-              </div>
             </article>
           ))}
-
         {submission.reverse_prompt_result && (
           <article className="rounded-xl border-2 border-gray-100 bg-white p-6 overflow-hidden shadow-lg mb-4 max-w-4xl w-full">
             <div className="flex items-start gap-4">
@@ -127,13 +144,13 @@ function Results() {
                           {key.replace(/([A-Z])/g, " $1").trim()}
                         </h5>
                         <p className="text-xs">
-                          GPT Recreation: {value["GPT Recreation"]}
+                          GPT Recreation: {value["GPT Recreation"].toFixed(2)}
                         </p>
                         <p className="text-xs">
-                          Your Text: {value["Your text"]}
+                          Your Text: {value["Your text"].toFixed(2)}
                         </p>
                         <p className="text-xs">
-                          Similarity (%): {value["Similarity (%)"]}
+                          Similarity (%): {value["Similarity (%)"].toFixed(2)}
                         </p>
                       </div>
                     ))}
@@ -155,15 +172,11 @@ function Results() {
             <div className="flex justify-end mt-4">
               <span
                 className={`inline-flex items-center gap-1 rounded-lg px-3 py-1.5 text-white ${
-                  submission.reverse_prompt_result.success
-                    ? "bg-green-500"
-                    : "bg-red-500"
+                  isPassForReversePrompt(submission.reverse_prompt_result) ? "bg-green-500" : "bg-red-500"
                 }`}
               >
                 <span>
-                  {submission.reverse_prompt_result.success
-                    ? "Passed"
-                    : "Failed"}
+                  {isPassForReversePrompt(submission.reverse_prompt_result) ? "Likely Human" : "Likely AI"}
                 </span>
               </span>
             </div>
