@@ -287,13 +287,15 @@ function Class() {
                   />
                 </svg>
               </button>
-              <button
-                onClick={() => setShowCreateAssignmentModal(true)} // FIX ME
-                className="block rounded-lg px-5 py-3 w-44 bg-black text-white hover:bg-orange-500 hover:text-white transition duration-300"
-                type="button"
-              >
-                Create Assignment
-              </button>
+              {userRole === "teacher" && (
+                <button
+                  onClick={() => setShowCreateAssignmentModal(true)}
+                  className="block rounded-lg px-5 py-3 w-44 bg-black text-white hover:bg-orange-500 hover:text-white transition duration-300"
+                  type="button"
+                >
+                  Create Assignment
+                </button>
+              )}
               <button
                 onClick={() => navigate(-1)}
                 className="block rounded-lg px-5 py-3  bg-black text-white hover:bg-orange-500 hover:text-white transition duration-300"

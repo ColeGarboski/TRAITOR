@@ -268,7 +268,7 @@ function StudentPage() {
                 type="submit"
                 className="rounded-lg px-5 py-3 ml-2   bg-black text-white hover:bg-orange-500 hover:text-white transition duration-300"
               >
-                Create
+                Join
               </button>
             </form>
           </div>
